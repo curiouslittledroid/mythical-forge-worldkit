@@ -1,0 +1,123 @@
+name: Template fork
+
+# The question the kit exists to answer: can somebody start a NEW world from the template today, with
+# the released kit, and have it work? T12 answered it by hand once; this runs it whenever the kit
+# changes.
+#
+# It forks the published template, syncs the newest kit tag into it (which is what a new author's
+# first minute looks like), initialises the world with `init-world.sh`, and runs everything that does
+# not need the platform repository. `tools/verify-world.sh` -- the engine pipeline -- needs
+# MYTHICAL_FORGE_ROOT and stays a local step, so this job prints what it could not prove rather than
+# pretending it did.
+#
+# Not shipped to worlds: this is the kit's own job.
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - tools/**
+      - docs/**
+      - meta/templates/**
+      - site/**
+      - .pi/prompts/**
+      - .github/workflows/template-fork.yml
+
+permissions:
+  contents: read
+
+env:
+  TEMPLATE_REPO: ${{ vars.WORLD_TEMPLATE_REPO || 'curiouslittledroid/mythical-forge-world-template' }}
+  NODE_VERSION: '22'
+  PYTHON_VERSION: '3.12'
+
+jobs:
+  fork:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: kit
+
+      - name: Fetch the template
+        id: template
+        uses: actions/checkout@v4
+        continue-on-error: true
+        with:
+          repository: ${{ env.TEMPLATE_REPO }}
+          path: template
+          token: ${{ secrets.TEMPLATE_TOKEN || github.token }}
+
+      - name: Say so, if the template is not reachable
+        if: steps.template.outcome != 'success'
+        run: |
+          echo "::warning::cannot fetch $TEMPLATE_REPO (private, or not published yet): the fork proof did not run."
+          echo "          A private template needs a TEMPLATE_TOKEN secret with read access to it."
+
+      - uses: actions/setup-python@v5
+        if: steps.template.outcome == 'success'
+        with:
+          python-version: '3.12'
+
+      - uses: actions/setup-node@v4
+        if: steps.template.outcome == 'success'
+        with:
+          node-version: '22'
+
+      - name: Sync the newest kit tag into the template
+        if: steps.template.outcome == 'success'
+        run: |
+          set -eu
+          cd template
+          latest="$(git -C "$GITHUB_WORKSPACE/kit" tag --list 'v*' | sort -V | tail -1)"
+          echo "newest kit tag: $latest"
+          WORLDKIT_REPO="$GITHUB_WORKSPACE/kit" tools/sync-tooling.sh "$latest"
+          cat TOOLING_VERSION
+
+      - name: Fork it, and give it an identity
+        if: steps.template.outcome == 'success'
+        run: |
+          set -eu
+          mkdir -p /tmp/fork && cp -r template/. /tmp/fork/
+          cd /tmp/fork
+          ./init-world.sh --title "Fork Test" --yes
+          test -z "$(grep -rIl REPLACE_ME --exclude-dir=tools . || true)" \
+            || { echo "::error::init-world.sh left REPLACE_ME behind"; grep -rIl REPLACE_ME --exclude-dir=tools . ; exit 1; }
+
+      - name: The checks a new world can run
+        if: steps.template.outcome == 'success'
+        working-directory: /tmp/fork
+        run: |
+          set -eu
+          for suite in tools/test_*.py; do echo "== $suite"; python3 "$suite"; done
+          python3 tools/lint.py
+          python3 tools/check_citations.py
+          python3 tools/disclosure.py --check
+
+      - name: The site a new world gets
+        if: steps.template.outcome == 'success'
+        working-directory: /tmp/fork
+        run: |
+          set -eu
+          python3 tools/site_export.py
+          npm --prefix site install --silent
+          npm --prefix site run build
+          python3 tools/site_link_check.py
+          echo "== the audit"
+          python3 - <<'PY'
+          import json
+          d = json.load(open("site/audit/latest.json"))
+          def n(k):
+              v = d.get(k, 0)
+              return len(v) if isinstance(v, list) else v
+          print(f"pages {n('pages')} | unresolved {n('unresolved')} | keyword hits {n('keyword_hits')}")
+          if n("unresolved"):
+              raise SystemExit("a fresh fork's audit has unresolved references")
+          PY
+
+      - name: What this job could not prove
+        if: steps.template.outcome == 'success'
+        run: |
+          echo "Not run: tools/verify-world.sh (the engine pipeline) -- it needs MYTHICAL_FORGE_ROOT,"
+          echo "and the platform repository is private. Run it locally before a kit tag."

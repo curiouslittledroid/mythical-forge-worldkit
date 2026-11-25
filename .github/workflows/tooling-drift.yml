@@ -1,0 +1,111 @@
+name: Tooling drift
+
+# Is the vendored worldkit still the version this world thinks it is? Two questions, both cheap:
+#
+#   1. Is `TOOLING_VERSION` behind the kit's newest tag?
+#   2. Do the files at `tools/`, `tools/docs/` and `meta/templates/` still MATCH that tag?
+#
+# The second is the one that matters quietly. Vendoring means a world commits the kit's files as
+# ordinary files, so a hand-edit to one of them is invisible until the next sync silently reverts it.
+# This job catches that before it is reverted, and names the files.
+#
+# A world that deliberately lags (pinning a known-good version while a kit release settles) can set
+# the repository variable WORLDKIT_ALLOW_DRIFT=true: the job then warns instead of failing.
+#
+# The kit ships this file and `tools/sync-tooling.sh` writes it into a world; a world may edit its
+# copy, and the next sync will replace it.
+
+on:
+  schedule:
+    - cron: '0 7 * * 1'      # Mondays, so a stale pin is noticed without anyone asking
+  workflow_dispatch:
+  push:
+    paths: [TOOLING_VERSION]
+
+permissions:
+  contents: read
+
+env:
+  KIT_REPO: ${{ vars.WORLDKIT_REPO || 'https://github.com/curiouslittledroid/mythical-forge-worldkit' }}
+
+jobs:
+  drift:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Read the pin, and reach the kit
+        id: kit
+        env:
+          WORLDKIT_TOKEN: ${{ secrets.WORLDKIT_TOKEN }}
+        run: |
+          set -eu
+          pinned="$(tr -d '[:space:]' < TOOLING_VERSION)"
+          echo "pinned=$pinned" >> "$GITHUB_OUTPUT"
+          echo "pinned: $pinned"
+          url="$KIT_REPO"
+          if [ -n "${WORLDKIT_TOKEN:-}" ]; then
+            url="https://x-access-token:${WORLDKIT_TOKEN}@${KIT_REPO#https://}"
+          fi
+          echo "url=$url" >> "$GITHUB_OUTPUT"
+          if git ls-remote --tags --refs "$url" > /tmp/tags 2>/dev/null; then
+            latest="$(sed 's|.*refs/tags/||' /tmp/tags | sort -V | tail -1)"
+            echo "latest=$latest" >> "$GITHUB_OUTPUT"
+            echo "reachable=1" >> "$GITHUB_OUTPUT"
+          else
+            echo "reachable=0" >> "$GITHUB_OUTPUT"
+            echo "::warning::cannot reach $KIT_REPO (private, or not published yet): drift not checked."
+            echo "          A private kit needs a WORLDKIT_TOKEN secret with read access to it."
+          fi
+
+      - name: Is the pin behind the kit?
+        if: steps.kit.outputs.reachable == '1'
+        run: |
+          set -eu
+          pinned="${{ steps.kit.outputs.pinned }}"
+          latest="${{ steps.kit.outputs.latest }}"
+          if [ "$pinned" = "$latest" ]; then
+            echo "up to date at $pinned"
+            exit 0
+          fi
+          message="TOOLING_VERSION is $pinned; the worldkit's newest tag is $latest."
+          hint="Update with: tools/sync-tooling.sh $latest   (then tools/verify-world.sh, one commit)"
+          if [ "${{ vars.WORLDKIT_ALLOW_DRIFT }}" = "true" ]; then
+            echo "::warning::$message $hint"
+          else
+            echo "::error::$message $hint"
+            exit 1
+          fi
+
+      - name: Do the vendored files still match that tag?
+        if: steps.kit.outputs.reachable == '1'
+        run: |
+          set -eu
+          pinned="${{ steps.kit.outputs.pinned }}"
+          url="${{ steps.kit.outputs.url }}"
+          if ! git clone --quiet --depth 1 --branch "$pinned" "$url" /tmp/kit 2>/dev/null; then
+            echo "::warning::could not clone $pinned to compare files; skipping the byte comparison"
+            exit 0
+          fi
+          status=0
+          compare() {  # compare <label> <kit dir> <world dir>
+            if [ ! -d "$3" ]; then
+              echo "::error::$3 is missing: the machinery has been deleted, not vendored"
+              status=1
+              return
+            fi
+            if ! diff -r --exclude=local --exclude=__pycache__ -q "$2" "$3" > /tmp/diff.txt 2>&1; then
+              echo "::error::$1 differs from the worldkit at $pinned -- a vendored file has been edited by hand"
+              sed 's/^/  /' /tmp/diff.txt | head -20
+              echo "  A hand-edit here is reverted by the next sync. Put world-specific work in tools/local/"
+              echo "  and world-specific rules in meta/world-conventions.md."
+              status=1
+            fi
+          }
+          compare "tools/"        /tmp/kit/tools        tools
+          compare "tools/docs/"   /tmp/kit/docs         tools/docs
+          compare "meta/templates/" /tmp/kit/meta/templates meta/templates
+          if [ "$status" -eq 0 ]; then
+            echo "the vendored machinery matches $pinned exactly"
+          fi
+          exit "$status"

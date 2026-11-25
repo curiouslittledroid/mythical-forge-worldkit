@@ -124,8 +124,21 @@ fi
 mkdir -p "$WORLD_ROOT/.pi/prompts"
 [ -d "$TMP/kit/.pi/prompts" ] && rsync -a --delete "$TMP/kit/.pi/prompts/" "$WORLD_ROOT/.pi/prompts/"
 mkdir -p "$WORLD_ROOT/.github/workflows"
-[ -f "$TMP/kit/.github/workflows/site.yml" ] && \
-  cp "$TMP/kit/.github/workflows/site.yml" "$WORLD_ROOT/.github/workflows/site.yml"
+# The workflows a world runs: the site deploy, the fast checks, and the drift check. The kit's own
+# `ci.yml` and `template-fork.yml` are the kit's: a world has no use for either.
+for wf in site.yml checks.yml tooling-drift.yml; do
+  [ -f "$TMP/kit/.github/workflows/$wf" ] && \
+    cp "$TMP/kit/.github/workflows/$wf" "$WORLD_ROOT/.github/workflows/$wf"
+done
+# A workflow that is no longer the kit's is no longer shipped: a world that keeps one is running
+# something nobody maintains.
+for wf in "$WORLD_ROOT/.github/workflows"/*.yml; do
+  [ -e "$wf" ] || continue
+  case "$(basename "$wf")" in
+    site.yml|checks.yml|tooling-drift.yml) ;;
+    *) echo "-> note: .github/workflows/$(basename "$wf") is the world's own; the kit does not maintain it" ;;
+  esac
+done
 
 printf '%s\n' "$TAG" > "$WORLD_ROOT/TOOLING_VERSION"
 

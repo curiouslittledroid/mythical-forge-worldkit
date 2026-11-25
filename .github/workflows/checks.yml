@@ -1,0 +1,51 @@
+name: Checks
+
+# The fast checks a WORLD can run in CI: everything that needs neither the platform repository nor
+# the engine. `verify-world.sh` proves more, and needs MYTHICAL_FORGE_ROOT (the platform is private),
+# so it stays a local, pre-commit step; this is the net that catches a broken note, a rotted citation
+# or an unclassified section on every push.
+#
+# The kit ships this file and `tools/sync-tooling.sh` writes it into a world; a world may edit its
+# copy, and the next sync will replace it.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: The suites
+        run: |
+          for suite in tools/test_*.py; do
+            echo "== $suite"
+            python3 "$suite"
+          done
+
+      - name: Lint every note
+        run: python3 tools/lint.py
+
+      - name: Every section citation resolves
+        run: python3 tools/check_citations.py
+
+      - name: Every lore section has a disclosure class
+        run: python3 tools/disclosure.py --check
+
+      - name: The guide's blocks still match the schema
+        run: node tools/check-guide.mjs

@@ -4,6 +4,29 @@ A world pins the kit by copying its version into `TOOLING_VERSION` and updating 
 `tools/sync-tooling.sh`. **A change a world cannot absorb silently is a major bump and gets a
 migration note here.**
 
+## 1.0.10 — the CI a world needed, shipped and synced
+
+Minor: two new workflow files reach every world through the sync. A world should sync.
+
+**`checks.yml`** runs on every push: the suites, the linter, the citation check, the disclosure check
+and the guide check. Everything it runs needs neither the platform repository nor the engine, which
+is why it can be CI at all. `tools/verify-world.sh` proves more and stays the local pre-commit step.
+
+**`tooling-drift.yml`** answers the question vendoring makes easy to get wrong: is the pin behind the
+kit, and do the vendored files still match the pin? Vendoring means a world commits the kit's files
+as ordinary files, so a hand-edit to one is invisible until the next sync silently reverts it. The
+check clones the pinned tag and diffs `tools/`, `tools/docs/` and `meta/templates/` against it, and
+names the files that differ. A world that deliberately pins an older version can set the repository
+variable `WORLDKIT_ALLOW_DRIFT=true` and get a warning instead of a failure. It reaches the kit over
+HTTPS; a private kit needs a `WORLDKIT_TOKEN` secret, and if the kit cannot be reached the job warns
+and passes rather than failing for the wrong reason.
+
+**`template-fork.yml`** is the kit's own, and is not shipped: on a change to the machinery it fetches
+the published template, syncs the newest kit tag into it, initialises a throwaway world with
+`init-world.sh`, and runs the checks and the site build on the result. That is T12 run as a job
+instead of by hand: the question "can somebody start a new world from the template today?" answered
+on every release. It needs the template to be reachable; it warns and passes if it is not.
+
 ## 1.0.9 — a new world could not pass its own proof
 
 Patch. A world should sync: `tools/verify-world.sh` is replaced.
