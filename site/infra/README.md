@@ -7,14 +7,20 @@ container, no database. The codex repository stays private; only `site/dist` is 
 role, URL — not secret), written by `bootstrap.sh`. This document is the process; the values below
 are placeholders to substitute. A world records the result in its own site note.
 
-- **Region:** whichever it is created in (`AWS_REGION`); this deployment uses `ap-southeast-2`.
+- **Region:** whichever it is created in (`AWS_REGION`); the example below uses `ap-southeast-2`.
 
 ## One-time setup
 
 ```bash
-./site/infra/bootstrap.sh          # bucket, OAC, distribution, bucket policy (idempotent)
-./site/infra/bootstrap.sh --status # what exists, and the site URL
+SITE_BUCKET=myworld-site ./site/infra/bootstrap.sh          # creates, or repairs
+./site/infra/bootstrap.sh --status                          # what exists, and the site URL
 ```
+
+`SITE_BUCKET` is the only input the setup demands, and `--status` needs none: it answers from
+`state.json`. The script also creates the deploy role below. Its trust policy pins the repository by
+numeric id, so pass
+`GITHUB_SUBJECT=repo:<owner>@<owner-id>/<repo>@<repo-id>:environment:production` when `gh(1)` cannot
+resolve the repository for you.
 
 Then the GitHub side, once:
 
@@ -48,7 +54,7 @@ Consequences worth knowing:
 
 ### Optional: make deploys wait for a second human
 
-`meta/site.md` says a build may deploy only after the audit has been read. Every run prints that
+The world's own site note says a build may deploy only after the audit has been read. Every run prints that
 audit to its summary, and a run must ask for `publish` to deploy at all. To add a second, blocking
 approval, add required reviewers to the `production` environment:
 

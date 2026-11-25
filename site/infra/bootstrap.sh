@@ -12,22 +12,26 @@
 #     compression on, and the managed CachingOptimized cache policy (origin Cache-Control is honoured)
 #   - a bucket policy that lets exactly that one distribution read the bucket
 #
-# The deploy role is GitHubActionsDeployRole-dev, the same one mythical-forge uses. It already has
-# AdministratorAccess, so nothing here needs to touch IAM; its *trust* policy must list this repo
-# (see site/infra/README.md).
+# It also creates the deploy role, scoped to this repository and to the `production` environment
+# only: no shared role, and no AdministratorAccess. The role's trust policy pins the repository by
+# its numeric ids, which cannot be guessed, so pass GITHUB_SUBJECT or let gh(1) resolve it here.
 set -euo pipefail
 
-REGION="${REGION:-ap-southeast-2}"
-BUCKET="${BUCKET:?set SITE_BUCKET, e.g. myworld-site}"
-NAME="${NAME:-$BUCKET}"
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 STATE="$HERE/state.json"
 
+# --status needs no input at all: everything it prints is already recorded in state.json. It runs
+# before the SITE_BUCKET requirement so that asking what exists never demands knowing the name.
 if [ "${1:-}" = "--status" ]; then
   jq -r '"bucket:       \(.bucket)\ndistribution: \(.distribution_id)\nsite url:     \(.site_url)"' "$STATE" 2>/dev/null \
     || { echo "not set up yet"; exit 1; }
   exit 0
 fi
+
+# AWS_REGION is the name the workflow passes and the AWS convention; REGION is kept as an alias.
+REGION="${AWS_REGION:-${REGION:-ap-southeast-2}}"
+BUCKET="${SITE_BUCKET:?set SITE_BUCKET, e.g. myworld-site}"
+NAME="${NAME:-$BUCKET}"
 
 echo "== bucket $BUCKET ($REGION)"
 if aws s3api head-bucket --bucket "$BUCKET" 2>/dev/null; then
@@ -175,7 +179,14 @@ echo "== deploy role (this repository only, least privilege)"
 ROLE_NAME="$NAME-deploy"
 ACCOUNT=$(aws sts get-caller-identity --query Account --output text)
 OIDC_ARN="arn:aws:iam::$ACCOUNT:oidc-provider/token.actions.githubusercontent.com"
-SUBJECT="repo:<owner>@<owner-id>/<repo>@<repo-id>:environment:production"
+# The subject names the owner and the repository by numeric id: a wrong value creates a role that
+# can never be assumed, so this fails at setup rather than in CI.
+SUBJECT="${GITHUB_SUBJECT:-}"
+if [ -z "$SUBJECT" ] && command -v gh >/dev/null 2>&1; then
+  SUBJECT=$(gh api "repos/{owner}/{repo}" \
+    --jq '"repo:\(.owner.login)@\(.owner.id)/\(.name)@\(.id):environment:production"' 2>/dev/null) || SUBJECT=""
+fi
+: "${SUBJECT:?set GITHUB_SUBJECT (repo:owner@id/repo@id:environment:production), or run this where gh(1) can resolve the repository}"
 
 cat > /tmp/world-site-trust.json <<JSON
 {
@@ -237,7 +248,7 @@ cat > /tmp/world-site-role-policy.json <<JSON
 }
 JSON
 aws iam put-role-policy --role-name "$ROLE_NAME" \
-  --policy-name <world>-site-deploy --policy-document file:///tmp/world-site-role-policy.json
+  --policy-name "$NAME-site-deploy" --policy-document file:///tmp/world-site-role-policy.json
 ROLE_ARN="arn:aws:iam::$ACCOUNT:role/$ROLE_NAME"
 echo "   $ROLE_ARN"
 
