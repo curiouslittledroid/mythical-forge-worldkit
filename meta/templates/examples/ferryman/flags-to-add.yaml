@@ -1,0 +1,25 @@
+# Append these to the `flags` block in world/flags.md (the verify script does it for you).
+- id: ferry_armed
+  description: "The Ferryman's Debt thread is live in this Sandbox."
+- id: ferry_collect_due
+  description: "Intent: the clerk's collection deadline passed."
+- id: ferry_s1_seized
+  description: "Stage 1: Reed has been seized."
+- id: ferry_transit_due
+  description: "Intent: the move to the pans is due."
+- id: ferry_s2_in_the_pans
+  description: "Stage 2: Reed is in the pans at Saltmarch."
+- id: ferry_sale_due
+  description: "Intent: the sale of Reed's contract is due."
+- id: ferry_sold_on
+  description: "Terminal (output): Reed's contract was sold on."
+- id: ferry_debt_paid
+  description: "Terminal (outcome): Reed's debt was paid."
+- id: ferry_fled
+  description: "Terminal (outcome): Reed left Dustport."
+- id: ferry_settled
+  description: "History: the paid debt has been recorded and the Wants retired."
+- id: ferry_gone
+  description: "History: the creditors wrote the debt off and the Wants retired."
+- id: ferry_collector_lost
+  description: "The clerk is dead and the enforcer finishes his errands."

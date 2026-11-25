@@ -1,0 +1,39 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  kit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      # The platform repository is private, so the end-to-end proof (`verify-kit.sh`) cannot run
+      # here: it needs `MYTHICAL_FORGE_ROOT`, because the transformer and the validator are the
+      # engine's own code. Run it locally before tagging a release; CI covers everything that does
+      # not need the platform.
+      - name: The Python suites
+        run: |
+          for suite in tools/test_*.py; do
+            echo "== $suite"
+            python3 "$suite"
+          done
+
+      - name: The demo world lints clean
+        run: python3 tools/lint.py
+
+      - name: No world literals
+        run: |
+          if grep -rIn --exclude-dir=.git --exclude-dir=node_modules -i 'hollowfall\|dustport\|saltmarch' . ; then
+            echo "::error::a world's own name, place or person is in the kit. The example is the Ferryman's Debt."
+            exit 1
+          fi

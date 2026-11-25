@@ -1,0 +1,15 @@
+name: "F1 idle - nobody helps Reed"
+description: "The overlay shortens the collect-Want to 15 days. Seized on 15, in the pans on 45, sold on 85."
+campaign: camp_ferry_demo
+quest_gates_file: quest-gates.yaml
+run_days: 200
+expect:
+  fired_between:
+    evt_ferry_demo_genesis: [0, 0]
+    evt_ferry_seized: [15, 15]
+    evt_ferry_transit: [45, 45]
+    evt_ferry_sold_on: [85, 85]
+  flags: [ferry_sold_on]
+  not_flags: [ferry_debt_paid, ferry_fled]
+  modules: [mod_ferry_pans]
+  locations: { npc_tomas_reed: loc_saltmarch }

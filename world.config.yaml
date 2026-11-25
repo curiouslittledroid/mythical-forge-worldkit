@@ -1,0 +1,86 @@
+# world.config.yaml — the world's identity, in one place.
+#
+# This is the DEMO WORLD of the kit: the smallest complete vault the tools can run against, and
+# what `verify-kit.sh` builds and tests. A new world copies `world.config.example.yaml` from the
+# template instead; this file is the kit's own fixture.
+#
+# Read by tools/kit_config.py (Python) and tools/kit_config.mjs (Node). Both parse the strict
+# YAML subset in tools/yaml_subset.py, so: no flow mappings, no anchors, and any value containing
+# ": " must be quoted. The schema is documented in the kit's docs/conventions.md.
+#
+# Everything here is the world's. The toolchain's own vocabularies — engine kinds, the id
+# grammar, the standard note-body headings — are NOT configurable: a world that changes them is
+# not a world.
+
+version: 1
+
+world:
+  id: world_ferry_demo
+  title: The Ferryman's Debt
+  slug: ferry-demo
+  tagline: The smallest complete world the tools can run.
+  description: "The teaching world of the Mythical Forge worldkit: one small thread, one Campaign, three NPCs and six scenarios. Not a setting; the harness for the tools."
+  author: REPLACE_ME
+  license: All rights reserved. Use it at your table.
+  overland: overland_ferry_demo
+  game_ready_repo: ../ferry-demo-gameready
+
+vault:
+  # Every note the tools need to find, BY ID (never by path — ids do not change, paths do).
+  notes:
+    flags: topic_world_flags
+    calendar: topic_calendar
+    eras: topic_timeline
+    testimony_book: item_readers_book
+    site_vocabulary: topic_site_decisions
+  # Scenarios are world content and belong with their campaign. Optional: omit it and the
+  # simulator needs explicit scenario files. A quest-gates sidecar is looked for beside them.
+  scenarios: campaigns/ferryman-demo/scenarios
+  # Spelling the linter accepts (SP001): british (the default) | american | off. Units are NOT a
+  # choice: the codex is metric because the transformer does one km -> miles conversion.
+  spelling: british
+  # Notes that are process documents, not entities: no frontmatter, no id.
+  process_docs:
+    - README.md
+    - AGENTS.md
+    - CONTRIBUTING.md
+    - CHANGELOG.md
+    - ROADMAP.md
+
+features: [site, testimony, voice]
+
+site:
+  url: https://example.invalid/ferry-demo
+  buttondown_user: REPLACE_ME
+  hero_alt: "A wooden ferry tied at a stone quay at dawn, a low town of bridges behind it."
+  hero_credit: ""
+  deferred_kinds: [NPC]
+  # Navigation order. The first section whose `kinds` contains a note's kind owns that note.
+  sections:
+    - slug: world
+      label: The World
+      kinds: [TOPIC]
+    - slug: history
+      label: History
+      kinds: [HISTORY_EVENT, FIGURE]
+    - slug: peoples
+      label: Peoples
+      kinds: [RACE]
+    - slug: gods
+      label: Gods
+      kinds: [GOD]
+    - slug: places
+      label: Places
+      kinds: [SETTLEMENT, PLACE, REGION]
+    - slug: powers
+      label: Powers
+      kinds: [FACTION]
+    - slug: relics
+      label: Relics
+      kinds: [ITEM]
+    - slug: creatures
+      label: Creatures
+      kinds: [CREATURE]
+    - slug: people
+      label: People
+      kinds: [NPC]
