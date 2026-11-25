@@ -4,6 +4,18 @@ A world pins the kit by copying its version into `TOOLING_VERSION` and updating 
 `tools/sync-tooling.sh`. **A change a world cannot absorb silently is a major bump and gets a
 migration note here.**
 
+## 1.0.11 — the drift check failed on every world
+
+Patch, and a lesson in shipping a check you have not run. `tooling-drift.yml` compared the kit's
+`tools/` with a world's `tools/` — but a world keeps the kit's `docs/` at `tools/docs/`, inside
+`tools/`, while in the kit it is a sibling. So the byte comparison reported "Only in tools: docs" on
+every world, every run: an alarm that is always on is an alarm nobody reads. The comparison excludes
+`docs` now, and compares `kit/docs` with `tools/docs/` as its own case, which it already did.
+
+Found by running the check's own logic against a real world before trusting it — the same discipline
+as the mutation test on the site exporter, and the reason both bugs were found by the tool rather
+than by a user.
+
 ## 1.0.10 — the CI a world needed, shipped and synced
 
 Minor: two new workflow files reach every world through the sync. A world should sync.
