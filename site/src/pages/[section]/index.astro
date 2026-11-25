@@ -24,20 +24,10 @@ interface Props {
 
 const { section, entries } = Astro.props;
 
-const blurbs: Record<string, string> = {
-  world: 'The planet, the leylines, and the five debts that magic takes its price from.',
-  history: 'From the revolt against the Choir to the Uncovering: nine hundred years of aftermath.',
-  peoples: 'Who lives here, what it cost them, and what they will not say about it.',
-  gods: 'Thirteen gods. Three dead, five silent, five changed and hungry.',
-  places: 'Regions, towns, ruins and wards — including the Dust Road, where the campaigns begin.',
-  powers: 'The churches, guilds, holds and leagues that survived the fall, and what they owe each other.',
-  relics: 'What the golden age left behind, and what it costs to keep it.',
-  creatures: 'The bestiary, still being written.',
-  people: 'Named people of the Dust Road.',
-};
-
 const label = sectionLabel(section);
-const blurb = blurbs[section] ?? '';
+// The section's one-line description is the world's, from the `blurb` on its entry in
+// world.config.yaml -> site.sections. The theme does not describe a world's contents.
+const blurb = sections.find((s) => s.slug === section)?.blurb ?? '';
 // Dated sections (History) run oldest first; the count line says so rather than surprising readers.
 const chronological = entries.some((e) => e.data.t0);
 const order = sections.findIndex((s) => s.slug === section);

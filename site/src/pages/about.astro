@@ -5,7 +5,7 @@ import { SITE, contentDescriptors, whatToExpect } from '../lib/site';
 
 <BaseLayout
   title="About the game"
-  description="What Hollowfall is, what a game in it feels like, and what it is not."
+  description="What this world is, what a game in it feels like, and what it is not."
   section="about"
 >
   <div class="mx-auto max-w-6xl px-5 pt-12 sm:px-8 sm:pt-16">
@@ -13,8 +13,8 @@ import { SITE, contentDescriptors, whatToExpect } from '../lib/site';
       <p class="eyebrow">About</p>
       <h1 class="mt-3 text-[clamp(2.2rem,5vw,3.2rem)]">About the game</h1>
       <p class="mt-4 text-[1.18rem] text-ash">
-        Hollowfall is a world for fantasy tabletop roleplaying, set nine hundred years after a war that
-        broke it.
+        {SITE.name} is a world for fantasy tabletop roleplaying. Replace this page's prose with the
+        world's own; the tone list below comes from the world's site vocabulary.
       </p>
       <span class="rule-ember mt-6"></span>
     </header>
@@ -53,7 +53,7 @@ import { SITE, contentDescriptors, whatToExpect } from '../lib/site';
 
         <h2>Content</h2>
         <p>
-          Hollowfall campaigns use the content descriptors of
+          {SITE.name} campaigns use the content descriptors of
           <strong>{contentDescriptors.join(', ')}</strong> unless a campaign says otherwise. The horror
           is quiet and it is mostly people; the violence is not glamorous; the world is not fair.
         </p>

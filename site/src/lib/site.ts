@@ -23,13 +23,16 @@ export const SITE = {
   heroCredit: generated.heroCredit,
   /** The hero image's basename in public/img/, without an extension. */
   heroFile: generated.heroFile,
+  /** The search box's hint: the world supplies examples from its own vocabulary. */
+  searchPlaceholder: generated.searchPlaceholder,
   /** The engine's content descriptors, as the world declares them. */
   contentDescriptors: generated.contentDescriptors,
   /** The year-zero prefix and the name the world gives it ("T0", "the Severing"). */
   t0Prefix: generated.t0Prefix,
   t0Epoch: generated.t0Epoch,
 };
-export type Section = { slug: string; label: string; count: number };
+/** A navigation section: the world's slug, label, count and one-line blurb. */
+export type Section = { slug: string; label: string; count: number; blurb?: string };
 
 export const sections: Section[] = navigation as Section[];
 

@@ -3,7 +3,7 @@ import type { CollectionEntry } from 'astro:content';
 import { getCollection } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import EntryCard from '../../components/EntryCard.astro';
-import { byTimeThenTitle, tagLabel, tagSlug } from '../../lib/site';
+import { SITE, byTimeThenTitle, tagLabel, tagSlug } from '../../lib/site';
 
 export async function getStaticPaths() {
   const pages = await getCollection('pages');
@@ -29,7 +29,7 @@ interface Props {
 
 const { tag, entries } = Astro.props;
 const label = tagLabel(tag);
-const description = `Every entry of the Hollowfall codex tagged ${label}: ${entries.length} pages across the codex.`;
+const description = `Every entry of the ${SITE.name} codex tagged ${label}: ${entries.length} pages across the codex.`;
 ---
 
 <BaseLayout title={label} description={description} section="codex">

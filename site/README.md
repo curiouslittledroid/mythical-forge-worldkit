@@ -31,7 +31,7 @@ so a draft can be read on a phone: `http://<your-ip>:4321/`. It never affects `a
 | `src/content/generated/` | **generated** (gitignored) — one page per `open` disclosure section |
 | `src/data/generated/` | **generated** (gitignored): `site.json`, `navigation.json`, `changelog.json`, `redirects.json` |
 | `audit/latest.json`, `audit/history.json` | **generated and committed**: the publish record and slug history |
-| `src/pages/index.astro`, `about.astro`, `follow.astro` | hand-written **site copy** the world owns: the landing text, About, Follow |
+| `src/pages/index.astro`, `about.astro`, `follow.astro` | **the world's copy**, and the sync leaves them alone: the landing text, About, Follow. The kit ships a neutral version of each |
 | `src/pages/codex/`, `[section]/`, `tags/`, `changelog.astro`, `404.astro` | templates over generated content |
 | `src/styles/app.css` | the design tokens — the world's look |
 | `src/lib/site.ts` | pure logic (sorting, dates, inline markdown). It reads `site.json`; it authors nothing |

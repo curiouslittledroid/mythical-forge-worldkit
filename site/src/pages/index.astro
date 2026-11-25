@@ -143,29 +143,27 @@ const heroImage = HERO_FILES.find((f) => existsSync(join(process.cwd(), 'public'
         <h2 class="mt-3 text-[clamp(1.9rem,4vw,2.6rem)]">The world that broke</h2>
         <div class="prose-hollow mt-6 max-w-[62ch] text-[1.1rem]">
           <p>
-            Three great powers went to war over the magic that ran through the world — humans, elves
-            and dwarves — and each of them reached for a weapon it could not put down. The weapons
-            worked.
+            {SITE.description}
           </p>
           <p>
-            The leylines that carried magic and held the climate steady were cut, poisoned and
-            broken. The seas have been falling ever since. The ice creeps south, the storm belts
-            wander, and nine hundred years have not made any of it better.
+            A world bible is neither a novel nor a campaign: it is the setting several campaigns
+            will share, written so that its politics, its magic and its monsters all trace back to
+            the same history.
           </p>
           <p>
-            Nothing that survived can be repaired. What is left is a hard, crowded, beautiful world:
-            walled towns, salt flats, failing wells, and long grudges held by people with nowhere
-            else to go.
+            Replace this, and the three paragraphs above, with the world itself — what broke it,
+            what it costs to live in, and what a reader should feel on arriving. The rest of this
+            page is drawn from `world.config.yaml`.
           </p>
         </div>
       </div>
       <aside class="marginalia border-l border-[var(--rule)] pl-5 md:border-l-0 md:border-t md:pl-0 md:pt-5">
         <p>
-          Nine hundred years of history, and the people living in it are not waiting for a hero.
-          They are waiting for water.
+          The history is the explanation. Every feature of the world traces back to it — which is
+          what makes the world feel like a place rather than a list.
         </p>
         <p class="mt-4">
-          <a href="/history/the-fall/" class="no-underline">The Fall →</a>
+          <a href="/history/" class="no-underline">The history →</a>
         </p>
       </aside>
     </div>
@@ -179,9 +177,9 @@ const heroImage = HERO_FILES.find((f) => existsSync(join(process.cwd(), 'public'
           <p class="eyebrow">What this is</p>
           <h2 class="mt-3 text-[clamp(1.7rem,3.4vw,2.2rem)]">A world bible, written in the open</h2>
           <p class="mt-5 max-w-[46ch] text-[1.05rem] text-ash">
-            Hollowfall is a world being built for tabletop campaigns. This site is its player-facing
-            codex: the history, the gods, the towns, the magic and the things that are wrong with all
-            of them.
+            {SITE.name} is a world being built for tabletop campaigns. This site is its
+            player-facing codex: its history, its powers, its places, its magic, and the things that
+            are wrong with all of them.
           </p>
           <p class="mt-4 max-w-[46ch] text-[1.05rem] text-ash">
             It is a living draft. Entries change as the world is worked out, and each revision is
@@ -240,7 +238,7 @@ const heroImage = HERO_FILES.find((f) => existsSync(join(process.cwd(), 'public'
         }
       </ul>
       <p class="marginalia mt-8">
-        Hollowfall campaigns use the content descriptors
+        {SITE.name} campaigns use the content descriptors
         <span class="not-italic tracking-wide text-ash">
           {contentDescriptors.join(', ')}
         </span>
@@ -258,7 +256,7 @@ const heroImage = HERO_FILES.find((f) => existsSync(join(process.cwd(), 'public'
           Only what a resident would know
         </h2>
         <p class="mt-5 max-w-[46ch] text-[1.05rem] text-ash">
-          Everything here is drawn from the parts of the codex that ordinary people in Hollowfall
+          Everything here is drawn from the parts of the codex that ordinary people in {SITE.name}
           could know, believe or repeat. The secrets — and there are secrets, layered ones, the kind
           a campaign is built to find — are not on this site.
         </p>

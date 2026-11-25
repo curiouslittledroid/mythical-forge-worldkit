@@ -60,6 +60,7 @@ site:
   content_descriptors: [VIOLENCE, MATURE_THEMES]
   t0_prefix: CY
   t0_epoch: the founding
+  search_placeholder: "debt, ferry, the clerks…"
   hero_file: hero
   doorways:
     - href: /world/
@@ -77,6 +78,7 @@ site:
     - slug: world
       label: The World
       kinds: [TOPIC]
+      blurb: "The thread, the people and the places the demo world names."
     - slug: history
       label: History
       kinds: [HISTORY_EVENT, FIGURE]
@@ -89,9 +91,11 @@ site:
     - slug: places
       label: Places
       kinds: [SETTLEMENT, PLACE, REGION]
+      blurb: "Three towns on one reach of river."
     - slug: powers
       label: Powers
       kinds: [FACTION]
+      blurb: "The guild and the clerks who own the debt."
     - slug: relics
       label: Relics
       kinds: [ITEM]

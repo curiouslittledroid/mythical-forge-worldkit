@@ -1,7 +1,7 @@
 ---
 import type { CollectionEntry } from 'astro:content';
 import BaseLayout from './BaseLayout.astro';
-import { sectionLabel, formatDate, formatT0, inline, tagHref, urlFor } from '../lib/site';
+import { SITE, sectionLabel, formatDate, formatT0, inline, tagHref, urlFor } from '../lib/site';
 
 interface Props {
   entry: CollectionEntry<'pages'>;
@@ -28,11 +28,11 @@ const byline = testimony
       .join(' · ')
   : '';
 const toc = headings.filter((h) => h.depth === 2);
-// "Year T0 − 22", calibrated to the Severing (T0), like the codex prose.
+// "Year <prefix> − 22": the prefix and what the zero means come from the world's config.
 const year = formatT0(t0);
 const description = summary
   ? summary.replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
-  : `${title} — the Hollowfall codex.`;
+  : `${title} — the ${SITE.name} codex.`;
 
 const kindLabels: Record<string, string> = {
   HISTORY_EVENT: 'History',
@@ -181,7 +181,7 @@ const kindLabels: Record<string, string> = {
           </ul>
         </nav>
         <p class="marginalia mt-8 border-t border-[var(--rule)] pt-4 opacity-80">
-          Only what a resident of Hollowfall would know.
+          Only what a resident of {SITE.name} would know.
         </p>
       </aside>
     </div>

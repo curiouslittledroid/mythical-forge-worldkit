@@ -19,7 +19,8 @@
 #   meta/templates/   the canonical note templates (mirrored: this directory is wholly the kit's,
 #                     so a template deleted upstream goes away. A world's own examples live in its
 #                     own folder, never here.)
-#   site/             the theme: src/ (minus the generated pages), the Astro config, package.json,
+#   site/             the theme: src/ (minus the generated pages and the world's own copy pages),
+#                     the Astro config, package.json,
 #                     deploy.sh, the infra process, the image-prompt process, the workflow. A
 #                     world's own art, prompt notes, audit, deploy state and hero stay.
 #   .pi/prompts/      the agent prompts (atlas-refresh, new-creature, the image pipeline)
@@ -69,7 +70,12 @@ rsync -a --delete "$TMP/kit/docs/" "$WORLD_ROOT/tools/docs/"
 # The theme. `--delete` everywhere the kit owns the file; the exclusions are what a world keeps:
 # the generated pages, its art, its own prompt notes, and its deploy state.
 if [ -d "$TMP/kit/site" ] && [ -d "$WORLD_ROOT/site" ]; then
-  rsync -a --delete --exclude 'content/generated' --exclude 'data/generated' \
+  # Three pages are the WORLD'S copy, not theme chrome: the landing page, About and Follow. The kit
+  # ships a neutral version of each so a new world has a working site, and then leaves them alone -
+  # a world's About page is its own prose, and a sync that rewrote it would be destroying content.
+  rsync -a --delete \
+        --exclude 'content/generated' --exclude 'data/generated' \
+        --exclude 'pages/index.astro' --exclude 'pages/about.astro' --exclude 'pages/follow.astro' \
         "$TMP/kit/site/src/" "$WORLD_ROOT/site/src/"
   for f in astro.config.mjs package.json package-lock.json deploy.sh README.md; do
     [ -f "$TMP/kit/site/$f" ] && cp "$TMP/kit/site/$f" "$WORLD_ROOT/site/$f"

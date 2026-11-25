@@ -1,6 +1,8 @@
 ---
 // Pagefind runs against the built site. In `astro dev` the index does not exist, so the
 // component says so rather than failing.
+// The hint is the world's (`site.search_placeholder`): the useful examples are its own vocabulary.
+import { SITE } from '../lib/site';
 ---
 
 <div class="relative" id="search-root">
@@ -9,7 +11,7 @@
     id="codex-search"
     class="search-input mt-2"
     type="search"
-    placeholder="water, wardstone, the Choir…"
+    placeholder={SITE.searchPlaceholder}
     autocomplete="off"
     spellcheck="false"
   />

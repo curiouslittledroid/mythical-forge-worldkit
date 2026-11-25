@@ -1,5 +1,6 @@
 ---
 import { getCollection } from 'astro:content';
+import { SITE } from '../../lib/site';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import SearchBox from '../../components/SearchBox.astro';
 import { changelogEntries, formatDate, inline, sections, sortKey, urlFor, sectionLabel } from '../../lib/site';
@@ -30,7 +31,7 @@ const recentByDate = changeDates.slice(0, 6).map((date) => ({
 
 <BaseLayout
   title="The Codex"
-  description="Every published entry of the Hollowfall codex: search it, browse it by section, or read it from A to Z."
+  description={`Every published entry of the ${SITE.name} codex: search it, browse it by section, or read it from A to Z.`}
   section="codex"
 >
   <div class="mx-auto max-w-6xl px-5 pt-12 sm:px-8 sm:pt-16">
@@ -66,8 +67,8 @@ const recentByDate = changeDates.slice(0, 6).map((date) => ({
         }
       </ul>
       <p class="marginalia mt-4">
-        Or follow a thread across sections: <a href="/tags/">{themeCount} themes</a>, from the Choir
-        to the waygates.
+        Or follow a thread across sections: <a href="/tags/">{themeCount} themes</a>, each one
+        crossing the sections a single entry cannot.
       </p>
     </section>
 

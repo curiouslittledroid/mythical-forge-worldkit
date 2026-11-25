@@ -61,8 +61,9 @@ _SITE_KEYS = {"url", "buttondown_user", "hero_alt", "hero_credit", "deferred_kin
               # The theme reads these from `site.json`, so a world's look and copy never live in
               # the theme's source: navigation cards, the engine's content descriptors, and what
               # the world calls its year zero.
-              "content_descriptors", "t0_prefix", "t0_epoch", "doorways", "hero_file"}
-_SECTION_KEYS = {"slug", "label", "kinds"}
+              "content_descriptors", "t0_prefix", "t0_epoch", "doorways", "hero_file",
+              "search_placeholder"}
+_SECTION_KEYS = {"slug", "label", "kinds", "blurb"}
 _DOORWAY_KEYS = {"href", "label", "blurb"}
 
 _FM_ID_RE = re.compile(r"^---\s*\n(.*?)\n---\s*(\n|$)", re.S)
@@ -78,6 +79,7 @@ class Section:
     slug: str
     label: str
     kinds: tuple[str, ...]
+    blurb: str = ""
 
 
 @dataclass
@@ -107,6 +109,8 @@ class Site:
     # The hero image's basename in public/img/, without an extension: `hero` finds hero.webp;
     # `hero-dust-road` finds hero-dust-road.webp. The world names its own art.
     hero_file: str = "hero"
+    # The search box's hint. The world's, because the useful examples are its own vocabulary.
+    search_placeholder: str = "Search the codex"
 
     def label_of(self, slug: str) -> str:
         for s in self.sections:
@@ -165,7 +169,7 @@ class Config:
                 buttondown_user=site.get("buttondown_user", ""),
                 hero_alt=site.get("hero_alt", ""),
                 hero_credit=site.get("hero_credit", ""),
-                sections=tuple(Section(s["slug"], s["label"], tuple(s["kinds"]))
+                sections=tuple(Section(s["slug"], s["label"], tuple(s["kinds"]), s.get("blurb", ""))
                                for s in site.get("sections", [])),
                 deferred_kinds=frozenset(site.get("deferred_kinds", [])),
                 content_descriptors=tuple(site.get("content_descriptors", [])),
@@ -174,6 +178,7 @@ class Config:
                 doorways=tuple(Doorway(d["href"], d["label"], d.get("blurb", ""))
                                for d in site.get("doorways", [])),
                 hero_file=site.get("hero_file", "hero"),
+                search_placeholder=site.get("search_placeholder", "Search the codex"),
             )
 
     # --- validation -------------------------------------------------------------------

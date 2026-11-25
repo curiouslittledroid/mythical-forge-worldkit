@@ -54,8 +54,8 @@ LORE_ROOT = "world/"
 # test suite points lint.ROOT at a fixture vault and builds there.
 
 CFG: "kit_config.Config | None" = None
-# (url slug, nav label, note kinds). Order is the navigation order.
-SECTIONS: list[tuple[str, str, tuple[str, ...]]] = []
+# (url slug, nav label, note kinds, blurb). Order is the navigation order.
+SECTIONS: list[tuple[str, str, tuple[str, ...], str]] = []
 SECTION_OF_KIND: dict[str, str] = {}
 SECTION_LABEL: dict[str, str] = {}
 # Phase 4 only: NPC pages are not part of the first launch.
@@ -102,9 +102,11 @@ def _reload() -> None:
     if CFG is None:
         raise SystemExit(f"no world.config.yaml in {lint.ROOT}: the site exporter needs one")
     CFG.require("site")
-    SECTIONS = [(s.slug, s.label, s.kinds) for s in CFG.site.sections]
-    SECTION_OF_KIND = {kind: slug for slug, _, kinds in SECTIONS for kind in kinds}
-    SECTION_LABEL = {slug: label for slug, label, _ in SECTIONS}
+    # (slug, label, kinds, blurb): the blurb is the world's one-line description of the section,
+    # shown on its index page. The theme has no opinion about any section's contents.
+    SECTIONS = [(s.slug, s.label, s.kinds, s.blurb) for s in CFG.site.sections]
+    SECTION_OF_KIND = {kind: slug for slug, _, kinds, _b in SECTIONS for kind in kinds}
+    SECTION_LABEL = {slug: label for slug, label, _k, _b in SECTIONS}
     DEFERRED_KINDS = set(CFG.site.deferred_kinds)
     vocab = CFG.block("site_vocabulary") or {}
     KEYSTONE_TERMS = tuple(vocab.get("keystones", ()))
@@ -316,7 +318,7 @@ class Index:
         """
         folder = Path(note.rel).parent.as_posix()
         direct = Path(folder).name
-        if direct in {slug for slug, _, _ in SECTIONS} and direct in self.sections_with_pages():
+        if direct in {slug for slug, _, _k, _b in SECTIONS} and direct in self.sections_with_pages():
             return direct
         members = [n for n in self.by_rel.values() if Path(n.rel).parent.as_posix() == folder]
         sections = {section_of(lint.unquote(n.fm.get("kind", ""))) for n in members if n.has_fm}
@@ -1132,9 +1134,9 @@ def build(today: str | None = None, out: Path | None = None, data: Path | None =
                               "to": url_of(page.section, page.slug)})
 
     navigation = [
-        {"slug": slug, "label": label,
+        {"slug": slug, "label": label, "blurb": blurb,
          "count": sum(1 for p in pages if p.section == slug)}
-        for slug, label, _ in SECTIONS
+        for slug, label, _k, blurb in SECTIONS
         if sum(1 for p in pages if p.section == slug)
     ]
 
