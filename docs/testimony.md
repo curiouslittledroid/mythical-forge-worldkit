@@ -181,6 +181,6 @@ The present year comes from [[calendar]]. An uncommitted edit reads `unknown`, n
 
 ## Links
 
-- `site.md` §3.3 — how a note's tags publish (accounts are scanned for keystones like any text)
+- `docs/site.md` §3.3 — how a note's tags publish (accounts are scanned for keystones like any text)
 - `conventions.md` §7 — the disclosure classes, which decide whether an account publishes at all
 - a world's own testimony note — its book, its cast and its voice sheets

@@ -4,6 +4,16 @@ A world pins the kit by copying its version into `TOOLING_VERSION` and updating 
 `tools/sync-tooling.sh`. **A change a world cannot absorb silently is a major bump and gets a
 migration note here.**
 
+## 1.0.2 — two dozen citations the check found in the kit's own voice
+
+Patch. Nothing a world authors changes; a world should sync and re-run `tools/verify-world.sh`.
+
+The citation check's first findings were not only in a world's notes. Four of the kit's own tools
+and docs cited the world's site note (`meta/site.md`) where they meant the kit's (`docs/site.md`) --
+a path that resolves to a DIFFERENT document in a world, which is exactly the ambiguity
+`docs/conventions.md` §16.1 forbids. In the kit the citation read correctly; in a world it pointed at
+a note with different section numbers. Fixed by naming the path, not the basename.
+
 ## 1.0.1 — the citation check
 
 Patch: no world's content changes and no section number moves. **Re-run your own proof**

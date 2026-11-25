@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Tests for tools/site_export.py. Run: python3 tools/test_site_export.py
 
-Every redaction rule in meta/site.md section 2.2 has a test here. The rule that matters most:
+Every redaction rule in docs/site.md section 2.2 has a test here. The rule that matters most:
 **nothing that is not `open` may reach the output.**
 """
 from __future__ import annotations

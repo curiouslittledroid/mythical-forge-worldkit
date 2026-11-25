@@ -172,7 +172,11 @@ def references(ctx: str, docs: dict[str, Doc]) -> list[tuple[int, list[Doc], str
         found.append((m.end(), candidates, token))
     for m in re.finditer(r"\[\[([^\]|#]+)(?:#[^\]|]*)?(?:\|[^\]]*)?\]\]", ctx):
         token = m.group(1).strip()
-        found.append((m.end(), candidate_docs(token, docs), f"[[{token}]]"))
+        # A wikilink can only mean a NOTE, and only a note that numbers its sections can be cited
+        # by number. The kit's documents are never wikilinked (the kit is not a vault).
+        candidates = [d for d in candidate_docs(token, docs) + candidate_docs(token + ".md", docs)
+                      if d.numbers and not d.rel.startswith(("docs/", "tools/docs/"))]
+        found.append((m.end(), candidates, f"[[{token}]]"))
     for name in ALIASES:
         for m in re.finditer(rf"(?<![\w-]){re.escape(name)}(?![\w-])", ctx):
             found.append((m.end(), candidate_docs(name, docs), name))
@@ -196,6 +200,10 @@ def check_file(path: Path, rel: str, docs: dict[str, Doc]) -> list[tuple[int, st
 
     for m in CITE.finditer(text):
         number = m.group(1) or m.group(2)
+        span = text[m.start():m.start() + len(m.group(0)) + 8]
+        if re.match(r"^\s*[–—-]\s*\d", span[len(m.group(0)):]) or \
+           re.search(r"\d\s*[–—-]\s*$", text[max(0, m.start() - 4):m.start()]):
+            continue                                     # a range (1–24), not a citation
         line_no = next((i for i, off in enumerate(offsets) if off > m.start()), len(lines))
         line = lines[line_no - 1] if 0 < line_no <= len(lines) else ""
         if NOCHECK in line:

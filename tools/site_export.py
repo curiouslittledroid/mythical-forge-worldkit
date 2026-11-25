@@ -27,7 +27,7 @@ Design rules
   `mixed` (a layered history event), whose open part is its Official/Myth/Rival segments.
 - **The exporter never authors canon.** It moves, splits and strips; it never writes prose.
 - **Every dropped line, link and section is logged** in the audit. A build may be deployed
-  only after a human has read it (`meta/site.md` section 2.3).
+  only after a human has read it (`docs/site.md` section 2.3).
 """
 from __future__ import annotations
 
@@ -61,7 +61,7 @@ SECTION_LABEL: dict[str, str] = {}
 # Phase 4 only: NPC pages are not part of the first launch.
 DEFERRED_KINDS: set[str] = set()
 # Sealed keystones (conventions section 7.4). Published text is scanned for these; a hit is a line
-# for a human to read, not necessarily a leak. meta/site.md section 2.3 points here.
+# for a human to read, not necessarily a leak. docs/site.md section 2.3 points here.
 KEYSTONE_TERMS: tuple[str, ...] = ()
 # The tags that earn an index page. The vault stays the source of truth: add a tag here only when
 # it earns a page, and never one that no note carries.
