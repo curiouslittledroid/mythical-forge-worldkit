@@ -134,16 +134,20 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--list", action="store_true", help="print the parsed sheets")
     args = ap.parse_args(argv)
 
+    # The config's `testimony_book` unless `--book` overrode it. This line was missing: the
+    # default was documented, defined in default_book() and never called, so every run without an
+    # explicit --book failed with "None not found" - a check nobody could have been passing.
+    book_arg = args.book or default_book()
     notes = {n.rel: n for n in lint.load_notes()}
     by_slug = {slug_of(n.rel): n for n in notes.values()}
-    book = notes.get(args.book)
+    book = notes.get(book_arg)
     if book is None:
-        print(f"voice_lint: {args.book} not found. The voice sheets have no home.")
+        print(f"voice_lint: {book_arg} not found. The voice sheets have no home.")
         return 1
 
     sheets = parse_sheets(book.text)
     if not sheets:
-        print(f"voice_lint: no voice sheets under `## Author Notes` in {args.book}.")
+        print(f"voice_lint: no voice sheets under `## Author Notes` in {book_arg}.")
         return 1
 
     if args.list:
