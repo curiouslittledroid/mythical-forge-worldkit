@@ -6,9 +6,9 @@
  *
  * Usage:  node tools/check-guide.mjs [guide.md ...]     (default: the authoring guide, see below)
  *
- * The guide is a worldkit document, so its home is `<kit>/docs/campaign-authoring-guide.md`. Two
- * other layouts are accepted so the same tool works while the worldkit is staged inside a world
- * (extraction T3f) and from a world that has not yet vendored the guide.
+ * The guide is a worldkit document, so its home is `<kit>/docs/campaign-authoring-guide.md`. A world
+ * vendors it at `tools/docs/`, so both layouts are resolved; the older staging path is still
+ * accepted so an older checkout keeps working.
  */
 import { readFileSync, readdirSync, existsSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
