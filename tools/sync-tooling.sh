@@ -61,6 +61,6 @@ python3 "$WORLD_ROOT/tools/sync-agent-protocol.py" || true
 
 echo
 echo "Review the diff, then run the proof:"
-echo "  git -C $WORLD_ROOT diff --stat"
-echo "  cd $WORLD_ROOT && python3 tools/lint.py && tools/verify-example.sh"
+if [ -d "$WORLD_ROOT/.git" ]; then git -C "$WORLD_ROOT" diff --stat; else echo "  (not a git repository: review and commit by hand)"; fi
+echo "  cd $WORLD_ROOT && python3 tools/lint.py && tools/verify-world.sh"
 echo "Read CHANGELOG.md in the kit for anything a world must do by hand."
