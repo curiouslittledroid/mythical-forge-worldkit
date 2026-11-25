@@ -4,6 +4,26 @@ A world pins the kit by copying its version into `TOOLING_VERSION` and updating 
 `tools/sync-tooling.sh`. **A change a world cannot absorb silently is a major bump and gets a
 migration note here.**
 
+## 1.0.6 — the re-exec guard never fired
+
+Patch. No world needs to do anything, but a world more than one release behind should take this
+one: it is what makes every later release safe.
+
+`sync-tooling.sh` re-executes itself when a release replaces the running script, because bash keeps
+executing the text it started with: without it, a release that adds a sync step does not run that
+step when a world takes the release. **The guard could never fire.** It compared the kit's copy with
+the world's copy -- and the rsync three lines earlier had just made those identical, so the test was
+always false. It now compares a copy of the running script, saved before the copy, with the file
+that replaces it. Three tests drive a fake kit and assert that a step added upstream really runs.
+
+Two smaller fixes found while testing it:
+
+- the re-exec runs the script through `bash`, so it works even if the copy on disk lost its execute
+  bit. That was this script's first defect, and a re-exec that fails on permissions would be worse
+  than no re-exec;
+- the shell tools are `chmod +x` after the copy, and the kit's `docs/` copy is guarded like the
+  others: a kit without a `docs/` directory no longer kills the run.
+
 ## 1.0.5 — the sync can now bootstrap a repository
 
 Patch. No world needs to do anything.

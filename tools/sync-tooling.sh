@@ -52,19 +52,32 @@ fi
 
 OLD="$(cat "$WORLD_ROOT/TOOLING_VERSION" 2>/dev/null || echo none)"
 
+# What THIS run is executing, saved before the copy below replaces the file on disk. Bash is still
+# reading the old text, so a step added upstream would silently not run. The comparison has to be
+# against this saved copy: comparing the new file with the WORLD's copy cannot notice anything,
+# because the rsync has just made them identical -- which is why the first version of this guard
+# never fired.
+cp "$0" "$TMP/running.sh"
+
 # --exclude local/ is what makes D16 true: a world's own scripts survive every sync.
 rsync -a --delete --exclude 'local/' --exclude '__pycache__' "$TMP/kit/tools/" "$WORLD_ROOT/tools/"
+# A shell tool that arrives without its execute bit is unusable, and the failure is confusing
+# ("Permission denied" on a command the docs tell you to run). Cheap insurance.
+chmod +x "$WORLD_ROOT/tools/"*.sh 2>/dev/null || true
 
 # The copy of THIS script has just been replaced, and bash is still reading the old text: a step
 # added in the new version would silently not run (which is exactly what happened the first time a
 # world took this release - the theme synced but the theme's README did not). Re-exec once, with the
 # new script, and only then continue.
-if [ -z "${SYNC_REEXEC:-}" ] && ! cmp -s "$TMP/kit/tools/sync-tooling.sh" "$WORLD_ROOT/tools/sync-tooling.sh" >/dev/null 2>&1; then
+if [ -z "${SYNC_REEXEC:-}" ] && ! cmp -s "$TMP/running.sh" "$WORLD_ROOT/tools/sync-tooling.sh" >/dev/null 2>&1; then
   echo "sync-tooling: this script itself changed; re-running with the new version"
-  SYNC_REEXEC=1 exec "$WORLD_ROOT/tools/sync-tooling.sh" ${TAG:+"$TAG"}
+  # Through `bash`, not directly: the copy that just arrived may not be executable (a release that
+  # lost the bit is the first defect this script ever had), and a re-exec that fails on permissions
+  # would be worse than no re-exec at all.
+  SYNC_REEXEC=1 exec bash "$WORLD_ROOT/tools/sync-tooling.sh" ${TAG:+"$TAG"}
 fi
 mkdir -p "$WORLD_ROOT/tools/docs"
-rsync -a --delete "$TMP/kit/docs/" "$WORLD_ROOT/tools/docs/"
+[ -d "$TMP/kit/docs" ] && rsync -a --delete "$TMP/kit/docs/" "$WORLD_ROOT/tools/docs/"
 mkdir -p "$WORLD_ROOT/meta/templates"
 [ -d "$TMP/kit/meta/templates" ] && rsync -a --delete "$TMP/kit/meta/templates/" "$WORLD_ROOT/meta/templates/"
 
