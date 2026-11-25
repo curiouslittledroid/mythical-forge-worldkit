@@ -3,7 +3,7 @@
 The scripts that read a world codex and produce the things made from it: the Game Ready
 Repository, the public site, the atlas, and the checks that keep the vault honest.
 
-**Nothing here is Hollowfall-specific.** Every world value lives in `world.config.yaml` at the
+**Nothing here is specific to one world.** Every world value lives in `world.config.yaml` at the
 vault root and in the world's fenced vault blocks, both read by `kit_config` (Python and Node).
 A script that needs to know the world's name, its section list, its era vocabulary or where its
 flags note lives asks the config. See `ROADMAP-EXTRACTION.md` for the design and the reasoning.

@@ -206,9 +206,13 @@ The exporter reads the vault only. It writes `site/src/content/generated/`, plus
 ## 8. Deploy
 
 
-- **AWS S3 + CloudFront**, set up in Phase 3. **Live at https://d13myumhho8nau.cloudfront.net** — no domain yet.
-- Bucket `hollowfall-site` (private; CloudFront reads it through an origin access control) and distribution `E3R7X648RR10ZU`, both in `ap-southeast-2`. Setup, ids and commands: **`site/infra/README.md`**; the recorded state is `site/infra/state.json`.
-- **Publishing is manual.** Nothing deploys on a push (`workflow_dispatch` only). A manual run builds and stops; ticking the `publish` input deploys: vault checks → export → build → **audit report into the job summary** → audit gate (fails on unresolved or ambiguous links) → internal link check → upload → sync → invalidate. It assumes **its own least-privilege role**, `hollowfall-site-deploy` (trust scoped to this repository, the `production` environment and `refs/heads/main`; permission to write the bucket and invalidate this one distribution, nothing else). No long-lived keys, and no dependency on any role another repository manages.
+- **AWS S3 + CloudFront**, set up by the world. The world's URL, bucket, distribution and role names
+  are its own, and belong in its own site note and its deploy record (`site/infra/`), not here.
+- **The bucket is private** and CloudFront reads it through an origin access control. Setup, ids and
+  commands live in the world's `site/infra/README.md`; the recorded state is `site/infra/state.json`.
+- **Publishing is manual.** Nothing deploys on a push (`workflow_dispatch` only). A manual run builds and stops; ticking the `publish` input deploys: vault checks → export → build → **audit report into the job summary** → audit gate (fails on unresolved or ambiguous links) → internal link check → upload → sync → invalidate. It assumes **its own least-privilege role** (trust scoped to that repository, the `production`
+  environment and `refs/heads/main`; permission to write the bucket and invalidate that one
+  distribution, nothing else). No long-lived keys, and no dependency on any role another repository manages.
 - **URLs:** an S3 REST origin has no directory index, so a CloudFront viewer-request function (`site/infra/index-rewrite.js`) appends `index.html` to directory requests; anything with a file extension passes through.
 - **Caching:** hashed assets (`_astro/*`, pagefind fragments) immutable for a year; HTML, images and the pagefind entry files revalidate. Every deploy invalidates `/*`. 403 and 404 both serve `/404.html` with a 404 status.
 - `./site/deploy.sh` is the workstation fallback; adding a domain is four steps in `site/infra/README.md`.

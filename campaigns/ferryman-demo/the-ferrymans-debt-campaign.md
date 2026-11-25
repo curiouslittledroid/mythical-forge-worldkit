@@ -24,7 +24,7 @@ tags: []
 ```engine
 kind: CAMPAIGN
 id: camp_ferry_demo
-world_id: world_hollowfall
+world_id: world_ferry_demo
 title: "The Ferryman's Debt"
 summary: "A teaching Campaign: a ferryman owes the creditors, and the party decides how the debt ends."
 start_level: 1

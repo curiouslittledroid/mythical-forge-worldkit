@@ -673,7 +673,7 @@ A Campaign does four things to a thread: it **arms** it, it **starts it at a sta
 ```yaml
 kind: CAMPAIGN
 id: camp_ferry_demo
-world_id: world_hollowfall
+world_id: world_ferry_demo
 title: "The Ferryman's Debt"
 summary: "A teaching Campaign: a ferryman owes the creditors, and the party decides how the debt ends."
 start_level: 1
@@ -688,7 +688,7 @@ unlocks:
 
 | Field | Notes |
 |---|---|
-| `world_id` | the one place `world_id` is authored: `world_hollowfall` |
+| `world_id` | the one place `world_id` is authored: the demo world's `world_ferry_demo` |
 | `start_level`, `start_day`, `start_location` | the clock starts at `start_day` (default 0); `start_location` is a `loc_` id |
 | `opening_module` | must be in `modules` |
 | `content_descriptors` | required, at least one; informational only |

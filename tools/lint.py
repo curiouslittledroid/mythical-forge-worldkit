@@ -579,7 +579,7 @@ class Linter:
 
 
 def main(argv: list[str]) -> int:
-    ap = argparse.ArgumentParser(description="Lint the Hollowfall vault.")
+    ap = argparse.ArgumentParser(description="Lint a world's vault.")
     ap.add_argument("paths", nargs="*", help="limit reporting to these paths (relative to the repo root)")
     ap.add_argument("--strict", action="store_true", help="warnings also fail the run")
     ap.add_argument("--json", action="store_true", help="output JSON")

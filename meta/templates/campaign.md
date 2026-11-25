@@ -36,7 +36,7 @@ REPLACE
 ```engine-example
 kind: CAMPAIGN
 id: camp_example
-world_id: world_hollowfall
+world_id: world_REPLACE
 title: Example Campaign
 summary: "Short summary for the picker."
 start_level: 1

@@ -224,7 +224,7 @@ class RealWorldCase(unittest.TestCase):
     def test_identity(self):
         """The live config must be *shaped* right, not equal to any one world's values.
 
-        This test used to assert `world_hollowfall`. The kit ships a demo world, so an assertion on
+        This test used to assert the first world's own id. The kit ships a demo world, so an assertion on
         a world's own name is exactly the literal the extraction removes: what matters is the form
         the engine and the tools require.
         """

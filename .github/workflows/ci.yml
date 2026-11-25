@@ -17,10 +17,6 @@ jobs:
         with:
           node-version: '20'
 
-      # The platform repository is private, so the end-to-end proof (`verify-kit.sh`) cannot run
-      # here: it needs `MYTHICAL_FORGE_ROOT`, because the transformer and the validator are the
-      # engine's own code. Run it locally before tagging a release; CI covers everything that does
-      # not need the platform.
       - name: The Python suites
         run: |
           for suite in tools/test_*.py; do
@@ -31,9 +27,32 @@ jobs:
       - name: The demo world lints clean
         run: python3 tools/lint.py
 
-      - name: No world literals
+      - name: The guide's blocks match the demo world
+        run: node tools/check-guide.mjs
+
+      - name: The protocol region is in sync
+        run: python3 tools/sync-agent-protocol.py --check
+
+      # The invariant: no world's identity inside the kit's own machinery. Scoped on purpose -
+      # CHANGELOG, README, ROADMAP, CONTRIBUTING and meta/platform-requests are PROVENANCE, and
+      # they exist to say where the kit came from and who asked for what. A world's identity in a
+      # tool, a template, a doc's mechanism or the demo world's config is the defect.
+      - name: No world identity in the machinery
         run: |
-          if grep -rIn --exclude-dir=.git --exclude-dir=node_modules -i 'hollowfall\|dustport\|saltmarch' . ; then
-            echo "::error::a world's own name, place or person is in the kit. The example is the Ferryman's Debt."
+          if grep -rIn --exclude-dir=.git --exclude-dir=node_modules \
+               --exclude=CHANGELOG.md --exclude=README.md --exclude=ROADMAP.md \
+               --exclude=CONTRIBUTING.md \
+               -e 'world_hollowfall' -e 'hollowfall-' -e 'Hollowfall' \
+               docs/ tools/ meta/templates/ world/ campaigns/ world.config.yaml 2>/dev/null; then
+            echo "::error::a world's identity is inside the kit's machinery."
+            echo "  A template names no world; a doc's mechanism names none; the demo world is not the first world."
             exit 1
           fi
+          echo "clean: no world identity in docs/, tools/, meta/templates/, the demo world or the config"
+
+      # NOT run here: ./verify-kit.sh. It needs MYTHICAL_FORGE_ROOT - the platform repository, which
+      # is private - because the transformer and the validator are the engine's own code. It is a
+      # local step before a tag. See ROADMAP.md, "Verification".
+      - name: Note what CI cannot prove
+        run: |
+          echo "verify-kit.sh is a local, pre-tag step (needs MYTHICAL_FORGE_ROOT)."
