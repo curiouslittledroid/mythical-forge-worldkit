@@ -1,0 +1,58 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { changelogEntries, formatDate, sectionLabel } from '../lib/site';
+
+const byDate = new Map<string, typeof changelogEntries>();
+for (const entry of changelogEntries) {
+  byDate.set(entry.date, [...(byDate.get(entry.date) ?? []), entry]);
+}
+const days = [...byDate.entries()].sort((a, b) => b[0].localeCompare(a[0]));
+---
+
+<BaseLayout
+  title="What changed"
+  description="Every published change to the Hollowfall codex, newest first."
+  section="changelog"
+>
+  <div class="mx-auto max-w-6xl px-5 pt-12 sm:px-8 sm:pt-16">
+    <header class="max-w-2xl">
+      <p class="eyebrow">Living draft</p>
+      <h1 class="mt-3 text-[clamp(2.2rem,5vw,3.2rem)]">What changed</h1>
+      <p class="mt-4 text-[1.18rem] text-ash">
+        The codex is written in the open, and this is what has changed. Newest first.
+      </p>
+      <span class="rule-ember mt-6"></span>
+    </header>
+
+    {
+      days.length === 0 && (
+        <p class="marginalia mt-10">Nothing published yet.</p>
+      )
+    }
+
+    <div class="mt-12 max-w-2xl space-y-12">
+      {
+        days.map(([date, entries]) => (
+          <section>
+            <h2 class="font-display text-[1.4rem]">{formatDate(date)}</h2>
+            <ul class="mt-4 divide-y divide-[var(--rule-soft)] border-y border-[var(--rule-soft)]">
+              {entries.map((entry) => (
+                <li class="flex flex-wrap items-baseline gap-x-3 gap-y-1 py-3">
+                  <a
+                    href={`/${entry.section}/${entry.slug}/`}
+                    class="no-underline text-ash hover:text-ember"
+                  >
+                    {entry.title}
+                  </a>
+                  <span class="marginalia">
+                    {sectionLabel(entry.section)} · {entry.change === 'added' ? 'new entry' : 'revised'}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </section>
+        ))
+      }
+    </div>
+  </div>
+</BaseLayout>

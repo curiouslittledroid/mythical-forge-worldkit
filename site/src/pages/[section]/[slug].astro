@@ -1,0 +1,35 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import { getCollection, render } from 'astro:content';
+import EntryLayout from '../../layouts/EntryLayout.astro';
+import { byTimeThenTitle } from '../../lib/site';
+
+export async function getStaticPaths() {
+  const pages = await getCollection('pages');
+  const bySection = new Map<string, CollectionEntry<'pages'>[]>();
+  for (const page of pages) {
+    const list = bySection.get(page.data.section) ?? [];
+    list.push(page);
+    bySection.set(page.data.section, list);
+  }
+
+  const paths = [];
+  for (const [, list] of bySection) {
+    list.sort(byTimeThenTitle); // nearby = previous/next on the timeline where there is one
+    for (let i = 0; i < list.length; i += 1) {
+      paths.push({
+        params: { section: list[i].data.section, slug: list[i].data.slug },
+        props: { entry: list[i], prev: list[i - 1], next: list[i + 1] },
+      });
+    }
+  }
+  return paths;
+}
+
+const { entry, prev, next } = Astro.props;
+const { Content, headings } = await render(entry);
+---
+
+<EntryLayout entry={entry} headings={headings} prev={prev} next={next}>
+  <Content />
+</EntryLayout>

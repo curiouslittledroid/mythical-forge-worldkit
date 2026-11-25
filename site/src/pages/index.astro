@@ -1,0 +1,305 @@
+---
+import { existsSync } from 'node:fs';
+import { join } from 'node:path';
+import { getCollection } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import FollowForm from '../components/FollowForm.astro';
+import {
+  SITE,
+  contentDescriptors,
+  doorways,
+  formatDate,
+  sections,
+  whatToExpect,
+  codexUpdated,
+} from '../lib/site';
+
+const pages = await getCollection('pages');
+const sectionCounts = new Map(sections.map((s) => [s.slug, s.count]));
+
+// Hero art: drop one of these into site/public/img/ and it is used; without it, the SVG scene
+// below is drawn instead. The basename is the world's (`site.hero_file` in world.config.yaml), and
+// the prompt that produces it is the world's own note in site/image-prompts/.
+const HERO_FILES = ['avif', 'webp', 'jpg', 'png', 'svg'].map((ext) => `${SITE.heroFile}.${ext}`);
+const heroImage = HERO_FILES.find((f) => existsSync(join(process.cwd(), 'public', 'img', f)));
+---
+
+<BaseLayout>
+  <!-- The hero. One image lands later (the hero prompt in site/image-prompts/); until then,
+       the scene is drawn in CSS so the page is honest about what it is. -->
+  <section class="hero flex min-h-[70vh] max-h-[680px] items-end md:max-h-none">
+    <!-- Until the hero art lands (the hero prompt in site/image-prompts/), the scene is drawn
+         here: a closed gate seen across a salt flat, at dusk. -->
+    {!heroImage && (
+    <svg
+      class="hero-scene"
+      viewBox="0 0 1600 420"
+      preserveAspectRatio="xMidYMax meet"
+      aria-hidden="true"
+      focusable="false"
+    >
+      <defs>
+        <linearGradient id="gate-glow" x1="0" y1="1" x2="0" y2="0">
+          <stop offset="0%" stop-color="#c2502a" stop-opacity="0.95" />
+          <stop offset="55%" stop-color="#a8411f" stop-opacity="0.45" />
+          <stop offset="100%" stop-color="#6b2a12" stop-opacity="0" />
+        </linearGradient>
+        <radialGradient id="spill" cx="50%" cy="100%" r="70%">
+          <stop offset="0%" stop-color="#c2502a" stop-opacity="0.4" />
+          <stop offset="100%" stop-color="#c2502a" stop-opacity="0" />
+        </radialGradient>
+      </defs>
+
+      <!-- light spilling from the gate onto the flat -->
+      <ellipse cx="1150" cy="338" rx="260" ry="52" fill="url(#spill)" />
+
+      <!-- the low ruin field, left of the road -->
+      <g fill="#0b0a09" opacity="0.9">
+        <rect x="470" y="316" width="52" height="24" />
+        <rect x="528" y="306" width="28" height="34" />
+        <rect x="562" y="322" width="66" height="18" />
+        <rect x="636" y="310" width="22" height="30" />
+        <rect x="664" y="326" width="84" height="14" />
+        <rect x="756" y="318" width="34" height="22" />
+        <rect x="800" y="328" width="42" height="12" />
+      </g>
+
+      <!-- the walled city, right of centre -->
+      <g fill="#0b0a09">
+        <rect x="900" y="246" width="42" height="94" />
+        <rect x="896" y="236" width="50" height="12" />
+        <rect x="942" y="262" width="376" height="78" />
+        <rect x="1276" y="224" width="44" height="116" />
+        <rect x="1272" y="214" width="52" height="12" />
+        <rect x="960" y="252" width="14" height="11" />
+        <rect x="1002" y="252" width="14" height="11" />
+        <rect x="1044" y="252" width="14" height="11" />
+        <rect x="1188" y="252" width="14" height="11" />
+        <rect x="1230" y="252" width="14" height="11" />
+      </g>
+
+      <!-- the gate arch, lit -->
+      <path d="M1096 340 V282 a30 30 0 0 1 60 0 v58 Z" fill="url(#gate-glow)" />
+      <path
+        d="M1096 340 V282 a30 30 0 0 1 60 0 v58"
+        fill="none"
+        stroke="#0b0a09"
+        stroke-width="6"
+      />
+
+      <!-- horizon, road, and one figure on it -->
+      <rect x="0" y="339" width="1600" height="1.4" fill="#f7f2e6" opacity="0.15" />
+      <rect x="1125" y="340" width="4" height="80" fill="#f7f2e6" opacity="0.05" />
+      <g fill="#0b0a09">
+        <rect x="1004" y="328" width="2.2" height="10" />
+        <rect x="1003.4" y="324" width="3.2" height="4" />
+      </g>
+    </svg>
+    )}
+
+    {
+      heroImage && (
+        <>
+          <img
+            class="hero-image"
+            src={`/img/${heroImage}`}
+            alt={SITE.heroAlt}
+            fetchpriority="high"
+            decoding="async"
+          />
+          <div class="hero-shade" aria-hidden="true" />
+        </>
+      )
+    }
+
+    <div class="relative z-10 mx-auto w-full max-w-6xl px-5 pb-24 pt-28 sm:px-8 sm:pb-32">
+      <p class="eyebrow text-sand/80">A world for tabletop roleplaying</p>
+      <h1 class="wordmark mt-5 text-[clamp(2.6rem,9vw,6.5rem)] text-bone">{SITE.name}</h1>
+      <p class="mt-6 max-w-2xl font-display text-[clamp(1.3rem,2.6vw,1.7rem)] leading-snug text-parchment/90">
+        {SITE.tagline}
+      </p>
+      {heroImage && SITE.heroCredit && (
+        <p class="mt-6 text-[0.7rem] uppercase tracking-[0.16em] text-sand/50">{SITE.heroCredit}</p>
+      )}
+      <div class="mt-10 flex flex-wrap items-center gap-x-8 gap-y-3">
+        <a
+          href="/codex/"
+          class="border border-ember bg-ember px-6 py-3 text-[0.8rem] uppercase tracking-[0.16em] text-bone no-underline transition-colors hover:border-bone hover:bg-transparent hover:text-bone"
+        >
+          Enter the codex
+        </a>
+        <a href="#the-world" class="scroll-cue text-sand/80 no-underline hover:text-bone"
+          >Read the world ↓</a
+        >
+      </div>
+    </div>
+  </section>
+
+  <!-- 1. The world that broke -->
+  <section id="the-world" class="mx-auto max-w-6xl px-5 py-20 sm:px-8 sm:py-28">
+    <div class="grid gap-x-14 gap-y-8 md:grid-cols-[minmax(0,42rem)_13rem]">
+      <div>
+        <p class="eyebrow">The world</p>
+        <h2 class="mt-3 text-[clamp(1.9rem,4vw,2.6rem)]">The world that broke</h2>
+        <div class="prose-hollow mt-6 max-w-[62ch] text-[1.1rem]">
+          <p>
+            Three great powers went to war over the magic that ran through the world — humans, elves
+            and dwarves — and each of them reached for a weapon it could not put down. The weapons
+            worked.
+          </p>
+          <p>
+            The leylines that carried magic and held the climate steady were cut, poisoned and
+            broken. The seas have been falling ever since. The ice creeps south, the storm belts
+            wander, and nine hundred years have not made any of it better.
+          </p>
+          <p>
+            Nothing that survived can be repaired. What is left is a hard, crowded, beautiful world:
+            walled towns, salt flats, failing wells, and long grudges held by people with nowhere
+            else to go.
+          </p>
+        </div>
+      </div>
+      <aside class="marginalia border-l border-[var(--rule)] pl-5 md:border-l-0 md:border-t md:pl-0 md:pt-5">
+        <p>
+          Nine hundred years of history, and the people living in it are not waiting for a hero.
+          They are waiting for water.
+        </p>
+        <p class="mt-4">
+          <a href="/history/the-fall/" class="no-underline">The Fall →</a>
+        </p>
+      </aside>
+    </div>
+  </section>
+
+  <!-- 2. What this is -->
+  <section class="border-y border-[var(--rule)] bg-parchment/45">
+    <div class="mx-auto max-w-6xl px-5 py-16 sm:px-8">
+      <div class="grid gap-10 md:grid-cols-[1fr_1fr] md:gap-16">
+        <div>
+          <p class="eyebrow">What this is</p>
+          <h2 class="mt-3 text-[clamp(1.7rem,3.4vw,2.2rem)]">A world bible, written in the open</h2>
+          <p class="mt-5 max-w-[46ch] text-[1.05rem] text-ash">
+            Hollowfall is a world being built for tabletop campaigns. This site is its player-facing
+            codex: the history, the gods, the towns, the magic and the things that are wrong with all
+            of them.
+          </p>
+          <p class="mt-4 max-w-[46ch] text-[1.05rem] text-ash">
+            It is a living draft. Entries change as the world is worked out, and each revision is
+            recorded. Built to run in the Mythical Forge game engine.
+          </p>
+        </div>
+        <dl class="grid grid-cols-2 gap-x-6 gap-y-5 self-start">
+          <div>
+            <dt class="eyebrow">Entries</dt>
+            <dd class="font-display text-[2rem] leading-none">{pages.length}</dd>
+          </div>
+          <div>
+            <dt class="eyebrow">Sections</dt>
+            <dd class="font-display text-[2rem] leading-none">{sectionCounts.size}</dd>
+          </div>
+          <div>
+            <dt class="eyebrow">Last rebuilt</dt>
+            <dd class="mt-1 text-[0.95rem] text-ash">{formatDate(codexUpdated)}</dd>
+          </div>
+          <div>
+            <dt class="eyebrow">Spoilers</dt>
+            <dd class="mt-1 text-[0.95rem] text-ash">None. Residents' knowledge only.</dd>
+          </div>
+        </dl>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3. Doorways -->
+  <section class="mx-auto max-w-6xl px-5 py-20 sm:px-8 sm:py-24" aria-labelledby="doorways">
+    <h2 id="doorways" class="text-[clamp(1.7rem,3.4vw,2.2rem)]">Four ways in</h2>
+    <ul class="mt-8 grid gap-4 sm:grid-cols-2">
+      {
+        doorways.map((d) => (
+          <li>
+            <a href={d.href} class="entry-card group block h-full p-6 no-underline">
+              <h3 class="text-[1.35rem] group-hover:text-ember">{d.label}</h3>
+              <p class="mt-2 max-w-[38ch] text-[0.97rem] text-ash/90">{d.blurb}</p>
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </section>
+
+  <!-- 4. What to expect -->
+  <section class="border-y border-[var(--rule)] bg-parchment/45" aria-labelledby="expect">
+    <div class="mx-auto max-w-6xl px-5 py-16 sm:px-8 sm:py-20">
+      <p class="eyebrow">At the table</p>
+      <h2 id="expect" class="mt-3 text-[clamp(1.7rem,3.4vw,2.2rem)]">What to expect</h2>
+      <ul class="mt-8 grid gap-x-12 gap-y-5 md:grid-cols-2">
+        {
+          whatToExpect.map((line) => (
+            <li class="border-l-2 border-ember/70 pl-4 text-[1.02rem] text-ash">{line}</li>
+          ))
+        }
+      </ul>
+      <p class="marginalia mt-8">
+        Hollowfall campaigns use the content descriptors
+        <span class="not-italic tracking-wide text-ash">
+          {contentDescriptors.join(', ')}
+        </span>
+        unless a campaign says otherwise.
+      </p>
+    </div>
+  </section>
+
+  <!-- 5. The spoilers promise -->
+  <section class="mx-auto max-w-6xl px-5 py-20 sm:px-8" aria-labelledby="spoilers">
+    <div class="grid gap-10 md:grid-cols-[1fr_1fr] md:gap-16">
+      <div>
+        <p class="eyebrow">The promise</p>
+        <h2 id="spoilers" class="mt-3 text-[clamp(1.7rem,3.4vw,2.2rem)]">
+          Only what a resident would know
+        </h2>
+        <p class="mt-5 max-w-[46ch] text-[1.05rem] text-ash">
+          Everything here is drawn from the parts of the codex that ordinary people in Hollowfall
+          could know, believe or repeat. The secrets — and there are secrets, layered ones, the kind
+          a campaign is built to find — are not on this site.
+        </p>
+        <p class="mt-4 max-w-[46ch] text-[1.05rem] text-ash">
+          Where the world disagrees with itself, you will see the disagreement: the official line,
+          the popular myth, and what a rival power says instead.
+        </p>
+      </div>
+      <div class="no-spoilers self-start">
+        <p class="font-display text-[1.25rem] leading-snug">
+          “Nine hundred years of unbroken records, and nobody answers the gate.”
+        </p>
+        <p class="mt-3 text-[0.95rem]">
+          Said of the Silent Cities. Three of the ten dead wardstone cities are still sealed, their
+          wardstones lit. Nobody knows who is keeping them.
+        </p>
+        <p class="mt-3 text-[0.95rem]">
+          <a href="/world/silent-cities/" class="no-underline">The Silent Cities →</a>
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6. Follow along -->
+  <section class="border-t border-[var(--rule)]" aria-labelledby="follow">
+    <div class="mx-auto max-w-6xl px-5 py-16 sm:px-8 sm:py-20">
+      <div class="grid gap-10 md:grid-cols-[1fr_1fr] md:gap-16">
+        <div>
+          <p class="eyebrow">Follow along</p>
+          <h2 id="follow" class="mt-3 text-[clamp(1.7rem,3.4vw,2.2rem)]">
+            The world is still being written
+          </h2>
+          <p class="mt-4 max-w-[44ch] text-[1.02rem] text-ash">
+            New entries and revisions land as the codex grows. There is a
+            <a href="/changelog/">changelog</a> if you would rather check in yourself.
+          </p>
+        </div>
+        <div class="self-center">
+          <FollowForm />
+        </div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

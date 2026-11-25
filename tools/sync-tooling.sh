@@ -19,7 +19,10 @@
 #   meta/templates/   the canonical note templates (mirrored: this directory is wholly the kit's,
 #                     so a template deleted upstream goes away. A world's own examples live in its
 #                     own folder, never here.)
-#   site/             the Astro theme (when the kit ships one and the world uses it)
+#   site/             the theme: src/ (minus the generated pages), the Astro config, package.json,
+#                     deploy.sh, the infra process, the image-prompt process, the workflow. A
+#                     world's own art, prompt notes, audit, deploy state and hero stay.
+#   .pi/prompts/      the agent prompts (atlas-refresh, new-creature, the image pipeline)
 #
 # It never touches: tools/local/, the world's lore, its world.config.yaml, its meta/ notes, its
 # AGENTS.md brief (only the marked protocol region is re-synced, by tools/sync-agent-protocol.py).
@@ -53,7 +56,23 @@ rsync -a --delete --exclude 'local/' --exclude '__pycache__' "$TMP/kit/tools/" "
 mkdir -p "$WORLD_ROOT/tools/docs"
 rsync -a --delete "$TMP/kit/docs/" "$WORLD_ROOT/tools/docs/"
 [ -d "$TMP/kit/meta/templates" ] && rsync -a --delete "$TMP/kit/meta/templates/" "$WORLD_ROOT/meta/templates/"
-[ -d "$TMP/kit/site/src" ] && rsync -a --delete "$TMP/kit/site/src/" "$WORLD_ROOT/site/src/"
+
+# The theme. `--delete` everywhere the kit owns the file; the exclusions are what a world keeps:
+# the generated pages, its art, its own prompt notes, and its deploy state.
+if [ -d "$TMP/kit/site" ] && [ -d "$WORLD_ROOT/site" ]; then
+  rsync -a --delete --exclude 'content/generated' --exclude 'data/generated' \
+        "$TMP/kit/site/src/" "$WORLD_ROOT/site/src/"
+  for f in astro.config.mjs package.json package-lock.json deploy.sh README.md; do
+    [ -f "$TMP/kit/site/$f" ] && cp "$TMP/kit/site/$f" "$WORLD_ROOT/site/$f"
+  done
+  [ -d "$TMP/kit/site/infra" ] && rsync -a --exclude 'state.json' \
+        "$TMP/kit/site/infra/" "$WORLD_ROOT/site/infra/"
+  [ -f "$TMP/kit/site/image-prompts/README.md" ] && \
+    cp "$TMP/kit/site/image-prompts/README.md" "$WORLD_ROOT/site/image-prompts/README.md"
+fi
+[ -d "$TMP/kit/.pi/prompts" ] && rsync -a --delete "$TMP/kit/.pi/prompts/" "$WORLD_ROOT/.pi/prompts/"
+[ -f "$TMP/kit/.github/workflows/site.yml" ] && \
+  cp "$TMP/kit/.github/workflows/site.yml" "$WORLD_ROOT/.github/workflows/site.yml"
 
 printf '%s\n' "$TAG" > "$WORLD_ROOT/TOOLING_VERSION"
 

@@ -1,0 +1,487 @@
+@import 'tailwindcss';
+
+/* ============================================================================
+   Dust Road — the design tokens (meta/site.md section 5).
+   Bleached sand, bone, ash, charcoal; deep indigo for night; ONE ember accent.
+   ========================================================================= */
+@theme {
+  --color-bone: #f2e8d5;
+  --color-parchment: #e8dabb;
+  --color-sand: #d9c8a6;
+  --color-dune: #a8926f;
+  --color-ash: #3a332c;
+  --color-ink: #191512;
+  --color-slate: #59617a;
+  --color-indigo: #151b29;
+  --color-indigo-deep: #0d1119;
+  --color-ember: #a8411f;
+  --color-ember-bright: #c2502a;
+  --color-salt: #f7f2e6;
+
+  /* One superfamily: Plex Sans for text, Plex Sans Condensed for display and the wordmark, and
+     Plex Serif — a sibling cut, not a second typeface — for quoted matter only: the pull-quote
+     and the account itself. It is the one place the page changes colour of voice, so it is the
+     one place the type changes with it. */
+  --font-body: 'IBM Plex Sans', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-display: 'IBM Plex Sans Condensed', 'IBM Plex Sans', ui-sans-serif, system-ui, sans-serif;
+  --font-marginalia: 'IBM Plex Sans', ui-sans-serif, system-ui, sans-serif;
+  --font-quote: 'IBM Plex Serif', 'IBM Plex Sans', Georgia, serif;
+}
+
+@layer base {
+  :root {
+    color-scheme: light;
+    --rule: color-mix(in srgb, var(--color-dune) 45%, transparent);
+    --rule-soft: color-mix(in srgb, var(--color-dune) 25%, transparent);
+  }
+
+  html {
+    background-color: var(--color-bone);
+    color: var(--color-ink);
+    scroll-behavior: smooth;
+  }
+
+  body {
+    font-family: var(--font-body);
+    font-size: 1.0625rem;
+    line-height: 1.62;
+    font-kerning: normal;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Paper grain and a soft vignette: CSS only, no bitmap. */
+  body::before,
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 60;
+  }
+  body::before {
+    opacity: 0.05;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='240' height='240' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+  body::after {
+    background: radial-gradient(120% 90% at 50% 40%, transparent 55%, rgba(25, 21, 18, 0.16) 100%);
+  }
+
+  h1, h2 {
+    font-family: var(--font-display);
+    font-weight: 600;
+    line-height: 1.12;
+    letter-spacing: -0.008em;
+    color: var(--color-ink);
+    text-wrap: balance;
+  }
+  h3, h4 {
+    font-family: var(--font-body);
+    font-weight: 600;
+    line-height: 1.25;
+    letter-spacing: -0.006em;
+    color: var(--color-ink);
+    text-wrap: balance;
+  }
+
+  a {
+    color: var(--color-ember);
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 3px;
+    text-decoration-color: color-mix(in srgb, var(--color-ember) 40%, transparent);
+    transition: color 120ms ease, text-decoration-color 120ms ease;
+  }
+  a:hover {
+    color: var(--color-ash);
+    text-decoration-color: currentColor;
+  }
+
+  ::selection {
+    background: var(--color-ember);
+    color: var(--color-salt);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-ember);
+    outline-offset: 3px;
+  }
+
+  hr {
+    border: 0;
+    border-top: 1px solid var(--rule);
+    margin: 2.5rem 0;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    * { animation: none !important; transition: none !important; }
+  }
+}
+
+@layer components {
+  /* --- the wordmark ------------------------------------------------------- */
+  .wordmark {
+    font-family: var(--font-display);
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    text-decoration: none;
+    color: inherit;
+  }
+
+  .eyebrow {
+    font-family: var(--font-display);
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: var(--color-slate);
+  }
+
+  .rule-ember {
+    display: block;
+    width: 3.5rem;
+    height: 2px;
+    background: var(--color-ember);
+    opacity: 0.85;
+  }
+
+  .scroll-cue {
+    font-family: var(--font-marginalia);
+    font-style: italic;
+    font-size: 0.95rem;
+    letter-spacing: 0.02em;
+  }
+
+  /* --- the hero: a CSS scene until the commissioned art lands ------------- */
+  .hero {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    background:
+      radial-gradient(120% 70% at 78% 108%, rgba(194, 80, 42, 0.55) 0%, rgba(194, 80, 42, 0) 58%),
+      radial-gradient(90% 60% at 82% 96%, rgba(247, 242, 230, 0.16) 0%, rgba(247, 242, 230, 0) 55%),
+      linear-gradient(180deg, var(--color-indigo-deep) 0%, var(--color-indigo) 46%, #2a2b34 74%, #4a4034 88%, #6b5a41 100%);
+  }
+  /* Hero art, when there is a file in public/img/. The shade keeps the wordmark legible
+     over any image, however bright. */
+  .hero-image {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    /* On a phone the cover crop is a vertical slice: keep the gate in it. */
+    object-position: 74% 56%;
+    z-index: 0;
+  }
+  .hero-shade {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    background:
+      linear-gradient(180deg, rgba(13, 17, 25, 0.55) 0%, rgba(13, 17, 25, 0.2) 38%, rgba(13, 17, 25, 0.88) 100%),
+      linear-gradient(90deg, rgba(13, 17, 25, 0.7) 0%, rgba(13, 17, 25, 0.4) 40%, rgba(13, 17, 25, 0) 72%);
+  }
+  @media (min-width: 768px) {
+    .hero-image {
+      object-position: center 62%;
+    }
+  }
+
+  .hero-scene {
+    position: absolute;
+    inset-inline: 0;
+    bottom: 0;
+    width: 100%;
+    height: auto;
+    z-index: 1;
+    pointer-events: none;
+    /* haze: the far wall dissolves into the sky */
+    mask-image: linear-gradient(to top, black 62%, transparent 100%);
+  }
+  .hero::after {
+    /* the salt flat: thin horizontal strata, faint */
+    content: '';
+    position: absolute;
+    inset: auto 0 0 0;
+    height: 22%;
+    background-image: repeating-linear-gradient(
+      0deg,
+      rgba(247, 242, 230, 0.1) 0px,
+      rgba(247, 242, 230, 0.1) 1px,
+      transparent 1px,
+      transparent 7px
+    );
+    mask-image: linear-gradient(180deg, transparent 0%, black 70%);
+    opacity: 0.7;
+  }
+
+  /* --- prose ------------------------------------------------------------- */
+  .prose-hollow {
+    font-size: 1.0625rem;
+    overflow-wrap: break-word;
+  }
+  .prose-hollow > * + * {
+    margin-top: 0.9rem;
+  }
+  .prose-hollow h2 {
+    font-size: clamp(1.32rem, 2.1vw, 1.55rem);
+    margin-top: 2.4rem;
+    margin-bottom: 0.8rem;
+    padding-bottom: 0.4rem;
+    border-bottom: 1px solid var(--rule);
+    letter-spacing: 0.002em;
+    color: var(--color-ink);
+  }
+  .prose-hollow h3 {
+    font-size: 1.05rem;
+    margin-top: 1.8rem;
+    margin-bottom: 0.45rem;
+    color: var(--color-ash);
+  }
+  .prose-hollow h2 + *,
+  .prose-hollow h3 + * {
+    margin-top: 0;
+  }
+  .prose-hollow strong {
+    font-weight: 600;
+    color: var(--color-ash);
+  }
+  .prose-hollow p > strong:first-child,
+  .prose-hollow li > strong:first-child {
+    color: var(--color-slate);
+    font-weight: 600;
+  }
+  .prose-hollow ul {
+    list-style: none;
+    padding-left: 1.15rem;
+  }
+  .prose-hollow li {
+    position: relative;
+    margin: 0.4rem 0;
+  }
+  .prose-hollow ul > li::before {
+    content: '◆';
+    position: absolute;
+    left: -1.15rem;
+    top: 0.42em;
+    font-size: 0.46em;
+    line-height: 1;
+    color: var(--color-dune);
+  }
+  .prose-hollow ol {
+    list-style: decimal;
+    padding-left: 1.7rem;
+  }
+  .prose-hollow ol > li::marker {
+    font-family: var(--font-display);
+    font-size: 0.95em;
+    color: var(--color-ember);
+  }
+  .prose-hollow ol ul,
+  .prose-hollow ul ol,
+  .prose-hollow ol ol {
+    margin-top: 0.4rem;
+    margin-bottom: 0.4rem;
+  }
+  .prose-hollow ol + ul,
+  .prose-hollow ul + ol {
+    margin-top: 0.7rem;
+  }
+  .prose-hollow ul ul > li::before {
+    content: '–';
+    color: var(--color-dune);
+  }
+  .prose-hollow em {
+    font-style: italic;
+  }
+  .prose-hollow table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1.5rem 0;
+    font-size: 0.9rem;
+  }
+  .prose-hollow th {
+    font-family: var(--font-display);
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    font-size: 0.7rem;
+    text-align: left;
+    color: var(--color-slate);
+    border-bottom: 1px solid var(--rule);
+    padding: 0.5rem 0.7rem 0.45rem;
+  }
+  .prose-hollow td {
+    border-bottom: 1px solid var(--rule-soft);
+    padding: 0.5rem 0.7rem;
+    vertical-align: top;
+  }
+  .prose-hollow tr:last-child td {
+    border-bottom: 0;
+  }
+  .prose-hollow blockquote {
+    border-left: 2px solid var(--color-ember);
+    padding-left: 1.1rem;
+    font-family: var(--font-marginalia);
+    font-size: 1.05rem;
+    color: var(--color-ash);
+  }
+  /* The first paragraph of an entry opens with a heavier lead line instead of a drop cap. */
+  .prose-hollow > p:first-of-type {
+    font-size: 1.06em;
+  }
+
+  /* --- marginalia -------------------------------------------------------- */
+  .marginalia {
+    font-family: var(--font-marginalia);
+    font-size: 0.9rem;
+    line-height: 1.55;
+    color: var(--color-slate);
+  }
+  .marginalia a {
+    color: var(--color-ash);
+    text-decoration-color: var(--rule);
+  }
+
+  /* --- cards and lists --------------------------------------------------- */
+  .hairline {
+    border: 1px solid var(--rule);
+  }
+  .entry-card {
+    position: relative;
+    display: block;
+    padding: 1.05rem 1.15rem;
+    background: color-mix(in srgb, var(--color-parchment) 55%, transparent);
+    border: 1px solid var(--rule-soft);
+    text-decoration: none;
+    color: inherit;
+    transition: border-color 140ms ease, background-color 140ms ease, transform 140ms ease;
+  }
+  .entry-card:hover {
+    border-color: color-mix(in srgb, var(--color-ember) 55%, transparent);
+    background: color-mix(in srgb, var(--color-parchment) 85%, transparent);
+  }
+  .entry-card h3 {
+    font-size: 1.02rem;
+    margin-bottom: 0.2rem;
+    letter-spacing: 0;
+  }
+  .entry-card a {
+    color: inherit;
+  }
+  .entry-card:hover h3 a,
+  .entry-card h3 a:hover {
+    color: var(--color-ember);
+  }
+  /* the whole card is the link target */
+  .stretch-link::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+  }
+  /* links inside a summary keep their own target */
+  .entry-card p a {
+    position: relative;
+    z-index: 1;
+    color: var(--color-ember);
+  }
+
+  .letter-heading {
+    font-family: var(--font-display);
+    font-size: 1.45rem;
+    color: var(--color-dune);
+    letter-spacing: 0.08em;
+    border-bottom: 1px solid var(--rule-soft);
+    padding-bottom: 0.2rem;
+    margin-top: 2.2rem;
+  }
+
+  /* --- the search field -------------------------------------------------- */
+  .search-input {
+    width: 100%;
+    background: transparent;
+    border: 0;
+    border-bottom: 1px solid var(--rule);
+    font-family: var(--font-display);
+    font-size: 1.5rem;
+    padding: 0.5rem 0.1rem;
+    color: var(--color-ink);
+  }
+  .search-input::placeholder {
+    color: color-mix(in srgb, var(--color-slate) 60%, transparent);
+    font-style: italic;
+  }
+  .search-input:focus {
+    outline: none;
+    border-bottom-color: var(--color-ember);
+  }
+
+  /* --- Quoted matter: the Reader's book ------------------------------------------------ */
+  /* Everything in an account is set in Plex Serif, because it is not the codex speaking. The
+     attribution is deliberately left in the sans: that line is the site's own frame. */
+  .testimony-pull {
+    border-left: 2px solid color-mix(in srgb, var(--color-ember) 55%, var(--rule));
+    padding-left: 1.15rem;
+  }
+  .testimony-pull blockquote {
+    font-family: var(--font-quote);
+    font-style: italic;
+    font-size: 1.16rem;
+    line-height: 1.62;
+    color: var(--color-ink);
+    margin: 0;
+  }
+  .testimony-pull figcaption {
+    font-family: var(--font-display);
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    font-size: 0.72rem;
+    color: var(--color-slate);
+    margin-top: 0.7rem;
+  }
+
+  .testimony {
+    border-top: 1px solid var(--rule);
+    margin-top: 3.2rem;
+    padding-top: 1.4rem;
+  }
+  /* The entry heading he always writes first: the date, then the person, then the place. */
+  .testimony-heading {
+    font-family: var(--font-quote);
+    font-weight: 600;
+    font-size: 1.02rem;
+    color: var(--color-ink);
+    margin-top: 0.45rem;
+    padding-bottom: 0.85rem;
+    border-bottom: 1px solid var(--rule-soft);
+  }
+  .testimony-body {
+    font-family: var(--font-quote);
+    font-size: 1.045rem;
+    line-height: 1.72;
+    color: var(--color-ink);
+    max-width: 62ch;
+  }
+  .testimony-body > p + p {
+    margin-top: 0.9rem;
+    text-indent: 0;
+  }
+  /* The opening line is his hand starting a new entry, not a new section. */
+  .testimony-body > p:first-child::first-letter {
+    font-weight: 600;
+  }
+
+  .no-spoilers {
+    border: 1px solid var(--rule);
+    background: color-mix(in srgb, var(--color-parchment) 50%, transparent);
+    padding: 1.25rem 1.4rem;
+    font-family: var(--font-marginalia);
+    font-size: 1.02rem;
+  }
+}

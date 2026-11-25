@@ -69,6 +69,9 @@ PUBLISHED_TAGS: tuple[str, ...] = ()
 # Thread surfaces that are also ordinary in-world vocabulary, so their appearance in open prose is
 # not a leak. Each needs a reason; anything else is reported and moved to `## Hooks`.
 REVIEWED_PLOT_WEB_SURFACES: set[str] = set()
+# The world's player-facing copy that the theme renders: the tone statement, and how its tags read.
+WHAT_TO_EXPECT: tuple[str, ...] = ()
+TAG_LABELS: dict[str, str] = {}
 # The world's date pattern. Built from `chronology.date_prefix`; the literal here is only the
 # pre-`_reload()` placeholder, for a helper called outside an entry point.
 TAKEN_RE: "re.Pattern[str]" = re.compile(r"\bCY\s*(\d{2,4})\b")
@@ -94,6 +97,7 @@ def _reload() -> None:
     """Re-read the world's config, so the exporter never mixes two worlds' settings."""
     global CFG, SECTIONS, SECTION_OF_KIND, SECTION_LABEL, DEFERRED_KINDS, KEYSTONE_TERMS
     global PUBLISHED_TAGS, REVIEWED_PLOT_WEB_SURFACES, INFRASTRUCTURE_FILES, TAKEN_RE
+    global WHAT_TO_EXPECT, TAG_LABELS
     CFG = lint.world_config()
     if CFG is None:
         raise SystemExit(f"no world.config.yaml in {lint.ROOT}: the site exporter needs one")
@@ -106,6 +110,10 @@ def _reload() -> None:
     KEYSTONE_TERMS = tuple(vocab.get("keystones", ()))
     PUBLISHED_TAGS = tuple(vocab.get("published_tags", ()))
     REVIEWED_PLOT_WEB_SURFACES = set(vocab.get("plot_web_surfaces", ()))
+    # Player-facing copy the theme renders but must not author (the world's tone statement, and how
+    # its tags read). A world that declares neither gets an empty list and title-cased tag slugs.
+    WHAT_TO_EXPECT = tuple(vocab.get("what_to_expect", ()))
+    TAG_LABELS = dict(vocab.get("tag_labels", {}))
     INFRASTRUCTURE_FILES = {rel for rel in (_rel_of("flags"),) if rel}
     prefix = str((CFG.block("calendar") or {}).get("date_prefix", "CY"))
     TAKEN_RE = re.compile(rf"\b{re.escape(prefix)}\s*(\d{{2,4}})\b")
@@ -1188,6 +1196,14 @@ def build(today: str | None = None, out: Path | None = None, data: Path | None =
             "buttondownUser": CFG.site.buttondown_user,
             "heroAlt": CFG.site.hero_alt,
             "heroCredit": CFG.site.hero_credit,
+            # Everything here is the world's: the theme has no opinion about any of it.
+            "contentDescriptors": list(CFG.site.content_descriptors),
+            "t0Prefix": CFG.site.t0_prefix,
+            "t0Epoch": CFG.site.t0_epoch,
+            "doorways": [{"href": d.href, "label": d.label, "blurb": d.blurb}
+                         for d in CFG.site.doorways],
+            "whatToExpect": list(WHAT_TO_EXPECT),
+            "tagLabels": dict(TAG_LABELS),
         })
         write_json(data / "navigation.json", navigation)
         write_json(data / "changelog.json", list(reversed(entries[-100:])))

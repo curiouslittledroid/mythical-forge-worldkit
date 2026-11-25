@@ -57,8 +57,13 @@ _TOP_KEYS = {"version", "world", "vault", "features", "site"}
 _WORLD_KEYS = {"id", "title", "slug", "tagline", "description", "author", "license", "overland",
                "game_ready_repo"}
 _VAULT_KEYS = {"notes", "process_docs", "scenarios", "spelling"}
-_SITE_KEYS = {"url", "buttondown_user", "hero_alt", "hero_credit", "deferred_kinds", "sections"}
+_SITE_KEYS = {"url", "buttondown_user", "hero_alt", "hero_credit", "deferred_kinds", "sections",
+              # The theme reads these from `site.json`, so a world's look and copy never live in
+              # the theme's source: navigation cards, the engine's content descriptors, and what
+              # the world calls its year zero.
+              "content_descriptors", "t0_prefix", "t0_epoch", "doorways", "hero_file"}
 _SECTION_KEYS = {"slug", "label", "kinds"}
+_DOORWAY_KEYS = {"href", "label", "blurb"}
 
 _FM_ID_RE = re.compile(r"^---\s*\n(.*?)\n---\s*(\n|$)", re.S)
 _ID_LINE_RE = re.compile(r"^id:\s*(\S+)\s*$", re.M)
@@ -76,6 +81,15 @@ class Section:
 
 
 @dataclass
+@dataclass(frozen=True)
+class Doorway:
+    """A card on the landing page. The world's copy; the theme renders it."""
+    href: str
+    label: str
+    blurb: str = ""
+
+
+@dataclass(frozen=True)
 class Site:
     url: str
     buttondown_user: str
@@ -83,6 +97,16 @@ class Site:
     hero_credit: str
     sections: tuple[Section, ...]
     deferred_kinds: frozenset[str] = field(default_factory=frozenset)
+    # --- what the theme needs and must not hardcode ---
+    content_descriptors: tuple[str, ...] = ()
+    # The year-zero prefix and its name in prose ("T0", "the Severing"). The theme formats a page's
+    # offset; what the zero *means* is the world's.
+    t0_prefix: str = "T0"
+    t0_epoch: str = ""
+    doorways: tuple[Doorway, ...] = ()
+    # The hero image's basename in public/img/, without an extension: `hero` finds hero.webp;
+    # `hero-dust-road` finds hero-dust-road.webp. The world names its own art.
+    hero_file: str = "hero"
 
     def label_of(self, slug: str) -> str:
         for s in self.sections:
@@ -144,6 +168,12 @@ class Config:
                 sections=tuple(Section(s["slug"], s["label"], tuple(s["kinds"]))
                                for s in site.get("sections", [])),
                 deferred_kinds=frozenset(site.get("deferred_kinds", [])),
+                content_descriptors=tuple(site.get("content_descriptors", [])),
+                t0_prefix=site.get("t0_prefix", "T0"),
+                t0_epoch=site.get("t0_epoch", ""),
+                doorways=tuple(Doorway(d["href"], d["label"], d.get("blurb", ""))
+                               for d in site.get("doorways", [])),
+                hero_file=site.get("hero_file", "hero"),
             )
 
     # --- validation -------------------------------------------------------------------

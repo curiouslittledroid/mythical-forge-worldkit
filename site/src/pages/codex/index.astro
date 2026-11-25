@@ -1,0 +1,153 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import SearchBox from '../../components/SearchBox.astro';
+import { changelogEntries, formatDate, inline, sections, sortKey, urlFor, sectionLabel } from '../../lib/site';
+
+const pages = await getCollection('pages');
+
+const alphabet = new Map<string, typeof pages>();
+for (const page of [...pages].sort((a, b) =>
+  sortKey(a.data.title).localeCompare(sortKey(b.data.title), 'en'),
+)) {
+  const first = sortKey(page.data.title).charAt(0).toUpperCase();
+  const letter = /[A-Z]/.test(first) ? first : '#';
+  alphabet.set(letter, [...(alphabet.get(letter) ?? []), page]);
+}
+const letters = [...alphabet.keys()];
+const themeCount = new Set(pages.flatMap((page) => page.data.tags)).size;
+
+const changeDates = [...new Set(changelogEntries.map((c) => c.date))].sort((a, b) =>
+  b.localeCompare(a),
+);
+const firstPublication =
+  changeDates.length === 1 && changelogEntries.every((c) => c.change === 'added');
+const recentByDate = changeDates.slice(0, 6).map((date) => ({
+  date,
+  entries: changelogEntries.filter((c) => c.date === date),
+}));
+---
+
+<BaseLayout
+  title="The Codex"
+  description="Every published entry of the Hollowfall codex: search it, browse it by section, or read it from A to Z."
+  section="codex"
+>
+  <div class="mx-auto max-w-6xl px-5 pt-12 sm:px-8 sm:pt-16">
+    <header class="max-w-2xl">
+      <p class="eyebrow">The player-facing codex</p>
+      <h1 class="mt-3 text-[clamp(2.2rem,5vw,3.2rem)]">The Codex</h1>
+      <p class="mt-4 text-[1.18rem] text-ash">
+        {pages.length} entries, and nothing the people of this world would not know. Search it by
+        word, browse it by section, or read it from A to Z.
+      </p>
+      <span class="rule-ember mt-6"></span>
+    </header>
+
+    <div class="mt-10 max-w-2xl" id="search">
+      <SearchBox />
+    </div>
+
+    <section class="mt-16" aria-labelledby="browse">
+      <h2 id="browse" class="text-[1.5rem]">Browse</h2>
+      <ul class="mt-5 flex flex-wrap gap-2">
+        {
+          sections.map((s) => (
+            <li>
+              <a
+                href={`/${s.slug}/`}
+                class="inline-flex items-baseline gap-3 border border-[var(--rule)] bg-parchment/40 px-4 py-2 text-[0.98rem] text-ash no-underline transition-colors hover:border-ember hover:text-ember"
+              >
+                {s.label}
+                <span class="marginalia">{s.count}</span>
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+      <p class="marginalia mt-4">
+        Or follow a thread across sections: <a href="/tags/">{themeCount} themes</a>, from the Choir
+        to the waygates.
+      </p>
+    </section>
+
+    <section class="mt-16" aria-labelledby="recently">
+      <h2 id="recently" class="text-[1.5rem]">What changed</h2>
+      {
+        firstPublication ? (
+          <p class="marginalia mt-2 max-w-xl">
+            First published {formatDate(changeDates[0])}: all {pages.length} entries at once. New
+            revisions will appear here as the codex is written — the full record is on the{' '}
+            <a href="/changelog/">changelog</a>.
+          </p>
+        ) : (
+          <div class="mt-5 space-y-8">
+            {recentByDate.map(({ date, entries }) => (
+              <div>
+                <h3 class="font-display text-[1.15rem] text-ash">{formatDate(date)}</h3>
+                <ul class="mt-2 divide-y divide-[var(--rule-soft)] border-y border-[var(--rule-soft)]">
+                  {entries.slice(0, 8).map((change) => (
+                    <li class="flex flex-wrap items-baseline gap-x-3 gap-y-1 py-2.5">
+                      <a
+                        href={`/${change.section}/${change.slug}/`}
+                        class="no-underline text-ash hover:text-ember"
+                      >
+                        {change.title}
+                      </a>
+                      <span class="marginalia">
+                        {sectionLabel(change.section)} ·{' '}
+                        {change.change === 'added' ? 'new entry' : 'revised'}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+            <p class="marginalia">
+              <a href="/changelog/" class="no-underline">The full changelog →</a>
+            </p>
+          </div>
+        )
+      }
+    </section>
+
+    <section class="mt-16" aria-labelledby="atoz">
+      <h2 id="atoz" class="text-[1.5rem]">A–Z</h2>
+      <div class="mt-4 flex flex-wrap gap-x-3 gap-y-1">
+        {
+          letters.map((letter) => (
+            <a href={`#letter-${letter}`} class="marginalia no-underline hover:text-ember">
+              {letter}
+            </a>
+          ))
+        }
+      </div>
+
+      {
+        letters.map((letter) => (
+          <div>
+            <h3 id={`letter-${letter}`} class="letter-heading">
+              {letter}
+            </h3>
+            <ul class="mt-3 space-y-2">
+              {(alphabet.get(letter) ?? []).map((page) => (
+                <li class="grid gap-x-4 sm:grid-cols-[14rem_1fr]">
+                  <a
+                    href={urlFor(page.data.section, page.data.slug)}
+                    class="no-underline text-ash hover:text-ember"
+                  >
+                    {page.data.title}
+                  </a>
+                  <span
+                    class="text-[0.93rem] leading-snug text-ash/80"
+                    set:html={inline(page.data.summary || '')}
+                  />
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))
+      }
+    </section>
+  </div>
+</BaseLayout>

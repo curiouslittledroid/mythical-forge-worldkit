@@ -1,0 +1,137 @@
+name: Site
+
+# Publishes the player-facing site (roadmap Step 16). The codex repository stays private: only
+# site/dist is uploaded, to a private bucket read through CloudFront (site/infra/).
+#
+# Publishing is MANUAL: nothing deploys on a push. Run it from Actions -> Site -> Run workflow
+# (on main), after reading the build's audit summary.
+on:
+  workflow_dispatch:
+    inputs:
+      publish:
+        description: 'Publish to CloudFront after the build passes. Leave off to only build and read the audit.'
+        required: false
+        type: boolean
+        default: false
+
+concurrency:
+  group: site
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  NODE_VERSION: '22'
+  PYTHON_VERSION: '3.12'
+
+jobs:
+  build:
+    name: Build the site
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: site/package-lock.json
+
+      - name: Vault checks
+        run: |
+          python3 tools/lint.py
+          python3 tools/disclosure.py --check
+          python3 tools/test_lint.py
+          python3 tools/test_disclosure.py
+          python3 tools/test_site_export.py
+
+      - name: Install and build
+        working-directory: site
+        env:
+          SITE_URL: ${{ vars.SITE_URL }}
+        run: |
+          npm ci --no-audit --no-fund
+          npm run build
+
+      - name: Publish audit to the run summary
+        run: python3 tools/site_audit_report.py >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Audit gate
+        run: python3 tools/site_audit_report.py --strict
+
+      - name: Internal link check
+        run: python3 tools/site_link_check.py
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: site-dist
+          path: site/dist
+          retention-days: 7
+
+  deploy:
+    name: Deploy to CloudFront
+    needs: build
+    # Runs only when you asked for it: this workflow is the only way to publish, so the
+    # default manual run builds and stops, letting you read the audit before you publish.
+    if: inputs.publish
+    runs-on: ubuntu-latest
+    # Approve deploys here if you want a human gate (see site/infra/README.md):
+    # add required reviewers to the `production` environment, and the run pauses until approved.
+    environment: production
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      # Manual runs can be started from any branch, but the deploy role only trusts main.
+      # Fail early with a clear message instead of an opaque AssumeRole error.
+      - name: Require main
+        if: github.ref != 'refs/heads/main'
+        run: |
+          echo "::error::Deploys must be started from main (this run is ${{ github.ref }}). Re-run from main."
+          exit 1
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: site-dist
+          path: dist
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v6
+        with:
+          role-to-assume: ${{ vars.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION || 'ap-southeast-2' }}
+
+      - name: Upload (HTML and images revalidate, hashed assets are immutable)
+        env:
+          BUCKET: ${{ vars.SITE_BUCKET }}
+        run: |
+          set -euo pipefail
+          # 1. Everything, with revalidation. Hashed directories are excluded here so that
+          #    their long-lived headers below are not overwritten.
+          aws s3 sync dist "s3://$BUCKET" --delete \
+            --exclude "_astro/*" --exclude "pagefind/*" \
+            --cache-control "public,max-age=0,must-revalidate"
+          # 2. Astro's hashed assets never change: cache for a year.
+          aws s3 sync dist/_astro "s3://$BUCKET/_astro" \
+            --cache-control "public,max-age=31536000,immutable"
+          # 3. Pagefind's index files are content-hashed too; its entry point and worker are not.
+          aws s3 sync dist/pagefind "s3://$BUCKET/pagefind" \
+            --exclude "pagefind-entry.json" --exclude "pagefind.js" \
+            --cache-control "public,max-age=31536000,immutable"
+          for f in pagefind-entry.json pagefind.js; do
+            aws s3 cp "dist/pagefind/$f" "s3://$BUCKET/pagefind/$f" \
+              --cache-control "public,max-age=0,must-revalidate"
+          done
+
+      - name: Invalidate
+        env:
+          DISTRIBUTION: ${{ vars.CLOUDFRONT_DISTRIBUTION_ID }}
+        run: |
+          aws cloudfront create-invalidation \
+            --distribution-id "$DISTRIBUTION" --paths "/*" >/dev/null
+          echo "Published to https://${{ vars.SITE_URL }}" >> "$GITHUB_STEP_SUMMARY"

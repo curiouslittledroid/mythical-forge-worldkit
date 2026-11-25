@@ -1,0 +1,24 @@
+{
+  "name": "worldkit-site",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "The worldkit site theme. Generated from a world's vault by tools/site_export.py.",
+  "scripts": {
+    "export": "python3 ../tools/site_export.py",
+    "dev": "npm run export && astro dev",
+    "build": "npm run export && astro build && pagefind --site dist --output-subdir pagefind",
+    "preview": "astro preview",
+    "check": "astro check"
+  },
+  "dependencies": {
+    "@astrojs/rss": "^4.0.19",
+    "@fontsource/ibm-plex-sans": "^5.3.0",
+    "@fontsource/ibm-plex-sans-condensed": "^5.3.0",
+    "@fontsource/ibm-plex-serif": "^5.3.0",
+    "@tailwindcss/vite": "^4.0.0",
+    "astro": "^5.0.0",
+    "pagefind": "^1.3.0",
+    "tailwindcss": "^4.0.0"
+  }
+}

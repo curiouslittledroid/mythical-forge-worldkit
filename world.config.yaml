@@ -55,6 +55,23 @@ site:
   hero_alt: "A wooden ferry tied at a stone quay at dawn, a low town of bridges behind it."
   hero_credit: ""
   deferred_kinds: [NPC]
+  # The demo's own copy and look. Every one of these arrives in site.json and is rendered by the
+  # theme, which authors none of it.
+  content_descriptors: [VIOLENCE, MATURE_THEMES]
+  t0_prefix: CY
+  t0_epoch: the founding
+  hero_file: hero
+  doorways:
+    - href: /world/
+      label: The World
+      blurb: "One small thread, three people, and the debt that owns them."
+    - href: /places/
+      label: Places
+      blurb: "Three towns on one reach of river."
+    - href: /campaigns/
+      label: The Demo
+      blurb: "The Campaign, its two Modules and its six scenarios."
+
   # Navigation order. The first section whose `kinds` contains a note's kind owns that note.
   sections:
     - slug: world

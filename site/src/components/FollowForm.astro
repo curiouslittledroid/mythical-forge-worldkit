@@ -1,0 +1,53 @@
+---
+import { SITE } from '../lib/site';
+
+interface Props {
+  compact?: boolean;
+}
+const { compact = false } = Astro.props;
+const live = SITE.buttondownUser !== 'REPLACE_ME';
+---
+
+{
+  live ? (
+    <form
+      action={`https://buttondown.email/api/emails/embed-subscribe/${SITE.buttondownUser}`}
+      method="post"
+      target="_blank"
+      class="flex flex-col gap-3 sm:flex-row sm:items-end"
+    >
+      <div class="flex-1">
+        <label for="follow-email" class="eyebrow">
+          Get word when the codex changes
+        </label>
+        <input
+          id="follow-email"
+          name="email"
+          type="email"
+          required
+          placeholder="you@example.com"
+          class="search-input mt-2 text-[1.1rem]"
+        />
+      </div>
+      <input type="hidden" name="embed" value="1" />
+      <button
+        type="submit"
+        class="border border-ember bg-ember px-5 py-2.5 text-[0.82rem] uppercase tracking-[0.14em] text-bone transition-colors hover:bg-ash hover:border-ash"
+      >
+        Follow
+      </button>
+    </form>
+  ) : (
+    <p class="marginalia">
+      A letter, sent when the codex grows. The list opens soon — the codex is new enough that
+      there is nothing to send yet.
+    </p>
+  )
+}
+{
+  !compact && (
+    <p class="marginalia mt-3 opacity-75">
+      No schedule and no marketing: word goes out when new lore is published.
+    </p>
+  )
+}

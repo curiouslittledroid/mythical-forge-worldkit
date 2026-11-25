@@ -1,0 +1,65 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import EntryCard from '../../components/EntryCard.astro';
+import { byTimeThenTitle, tagLabel, tagSlug } from '../../lib/site';
+
+export async function getStaticPaths() {
+  const pages = await getCollection('pages');
+  const byTag = new Map<string, CollectionEntry<'pages'>[]>();
+  for (const page of pages) {
+    // A note that carries the same tag twice is still one entry on the theme page.
+    for (const tag of new Set(page.data.tags)) {
+      byTag.set(tag, [...(byTag.get(tag) ?? []), page]);
+    }
+  }
+  return [...byTag.entries()].map(([tag, list]) => ({
+    params: { tag: tagSlug(tag) },
+    // A theme crosses sections, so History entries keep their place in time and everything
+    // else runs alphabetically: oldest first, then A–Z (site.ts byTimeThenTitle).
+    props: { tag, entries: [...list].sort(byTimeThenTitle) },
+  }));
+}
+
+interface Props {
+  tag: string;
+  entries: CollectionEntry<'pages'>[];
+}
+
+const { tag, entries } = Astro.props;
+const label = tagLabel(tag);
+const description = `Every entry of the Hollowfall codex tagged ${label}: ${entries.length} pages across the codex.`;
+---
+
+<BaseLayout title={label} description={description} section="codex">
+  <div class="mx-auto max-w-6xl px-5 pt-12 sm:px-8 sm:pt-16">
+    <header class="max-w-2xl">
+      <p class="eyebrow">
+        <a href="/codex/" class="no-underline text-slate hover:text-ember">The Codex</a>
+        <span aria-hidden="true" class="mx-2 text-dune">◆</span>
+        <a href="/tags/" class="no-underline text-slate hover:text-ember">Themes</a>
+      </p>
+      <h1 class="mt-3 text-[clamp(2.2rem,5vw,3.2rem)]">{label}</h1>
+      <span class="rule-ember mt-6"></span>
+      <p class="marginalia mt-4">
+        {entries.length} {entries.length === 1 ? 'entry' : 'entries'} tagged{' '}
+        <span class="text-dune">#{tag}</span>, in codex order.
+      </p>
+    </header>
+
+    <ul class="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      {
+        entries.map((entry) => (
+          <li>
+            <EntryCard entry={entry} showSection />
+          </li>
+        ))
+      }
+    </ul>
+
+    <p class="marginalia mt-16 border-t border-[var(--rule)] pt-6">
+      <a href="/tags/" class="no-underline">← All themes</a>
+    </p>
+  </div>
+</BaseLayout>

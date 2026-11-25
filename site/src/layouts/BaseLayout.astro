@@ -1,0 +1,117 @@
+---
+import '@fontsource/ibm-plex-sans/400.css';
+import '@fontsource/ibm-plex-sans/400-italic.css';
+import '@fontsource/ibm-plex-sans/500.css';
+import '@fontsource/ibm-plex-sans/600.css';
+import '@fontsource/ibm-plex-sans-condensed/600.css';
+import '@fontsource/ibm-plex-sans-condensed/700.css';
+// The quoted register: the Reader's book. Same superfamily as Plex Sans, by design — a sibling
+// cut, not a second typeface (meta/site.md section 5).
+import '@fontsource/ibm-plex-serif/400.css';
+import '@fontsource/ibm-plex-serif/400-italic.css';
+import '@fontsource/ibm-plex-serif/600.css';
+import '../styles/app.css';
+import { SITE, sections, codexUpdated, formatDate } from '../lib/site';
+
+interface Props {
+  title?: string;
+  description?: string;
+  section?: string;
+  bodyClass?: string;
+}
+
+const { title, description = SITE.description, section, bodyClass = '' } = Astro.props;
+const pageTitle = title ? `${title} · ${SITE.name}` : `${SITE.name} — ${SITE.tagline}`;
+const canonical = new URL(Astro.url.pathname, Astro.site ?? Astro.url).href;
+---
+
+<!doctype html>
+<html lang="en-GB">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{pageTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <meta name="theme-color" content="#151b29" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={SITE.name} />
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:description" content={description} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="generator" content="Astro" />
+  </head>
+  <body class={bodyClass}>
+    <a
+      href="#main"
+      class="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:bg-bone focus:px-3 focus:py-2"
+      >Skip to content</a
+    >
+
+    <header class="relative z-20 border-b border-[var(--rule)] bg-bone/85 backdrop-blur-sm">
+      <div class="mx-auto flex max-w-6xl flex-wrap items-baseline gap-x-8 gap-y-3 px-5 py-4 sm:px-8">
+        <a href="/" class="wordmark text-[1.02rem] text-ink hover:text-ember">{SITE.name}</a>
+        <nav aria-label="Sections" class="flex flex-wrap items-baseline gap-x-5 gap-y-1">
+          {
+            sections.filter((s) => s.slug !== 'people' && s.slug !== 'creatures').map((s) => (
+              <a
+                href={`/${s.slug}/`}
+                class:list={[
+                  'text-[0.82rem] tracking-[0.14em] uppercase no-underline transition-colors',
+                  section === s.slug ? 'text-ember' : 'text-slate hover:text-ink',
+                ]}
+                aria-current={section === s.slug ? 'page' : undefined}
+              >
+                {s.label}
+              </a>
+            ))
+          }
+          <a
+            href="/codex/"
+            class:list={[
+              'text-[0.82rem] tracking-[0.14em] uppercase no-underline transition-colors',
+              Astro.url.pathname === '/codex/' ? 'text-ember' : 'text-slate hover:text-ink',
+            ]}
+            >The Codex</a
+          >
+        </nav>
+      </div>
+    </header>
+
+    <main id="main" class="relative z-10 flex-1">
+      <slot />
+    </main>
+
+    <footer class="relative z-10 mt-20 border-t border-[var(--rule)] bg-parchment/40">
+      <div class="mx-auto grid max-w-6xl gap-10 px-5 py-12 sm:px-8 md:grid-cols-[1.4fr_1fr_1.2fr]">
+        <div>
+          <p class="wordmark text-[0.95rem] text-ink">{SITE.name}</p>
+          <p class="marginalia mt-3 max-w-xs">
+            A world bible written in the open, for a tabletop roleplaying game currently in development.
+          </p>
+          <p class="marginalia mt-4">
+            Built to run in the Mythical Forge TTRPG game engine.
+          </p>
+        </div>
+        <nav aria-label="More" class="flex flex-col gap-2 text-[0.9rem]">
+          <a href="/codex/" class="no-underline text-ash hover:text-ember">The Codex</a>
+          <a href="/about/" class="no-underline text-ash hover:text-ember">About the game</a>
+          <a href="/follow/" class="no-underline text-ash hover:text-ember">Follow along</a>
+          <a href="/changelog/" class="no-underline text-ash hover:text-ember">What changed</a>
+        </nav>
+        <div class="marginalia space-y-2">
+          <p>
+            <span class="eyebrow">Living draft</span><br />
+            Nine hundred years of history, still being written. Names in this codex are working
+            titles.
+          </p>
+          <p class="text-[0.86rem] opacity-80">
+            Codex rebuilt {formatDate(codexUpdated)}. © {new Date().getUTCFullYear()}
+            {' '}{SITE.author}. {SITE.license}
+          </p>
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>

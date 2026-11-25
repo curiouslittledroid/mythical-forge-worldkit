@@ -1,0 +1,51 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import { formatT0, inline, sectionLabel, urlFor } from '../lib/site';
+
+interface Props {
+  entry: CollectionEntry<'pages'>;
+  compact?: boolean;
+  /** Say which section the entry is in: needed where a list crosses sections (theme pages). */
+  showSection?: boolean;
+}
+
+const { entry, compact = false, showSection = false } = Astro.props;
+const { title, summary, section, slug, kind, t0 } = entry.data;
+const href = urlFor(section, slug);
+// A dated entry (history) carries its place on the timeline above the title, so a grid of
+// tiles reads chronologically as well as one tile does.
+const time = formatT0(t0);
+// A card is not an anchor: summaries contain links, and anchors cannot nest. The title link is
+// stretched over the card instead, and any link in the summary sits above it.
+---
+
+<div class="entry-card group h-full">
+  {
+    (time || showSection) && (
+      <p class="eyebrow mb-1.5 flex flex-wrap items-center gap-x-2">
+        {time && <span>{time}</span>}
+        {time && showSection && (
+          <span aria-hidden="true" class="text-dune">
+            ·
+          </span>
+        )}
+        {showSection && <span class="text-dune">{sectionLabel(section)}</span>}
+      </p>
+    )
+  }
+  <h3>
+    <a href={href} class="stretch-link no-underline">{title}</a>
+  </h3>
+  {
+    summary && !compact && (
+      <p class="mt-1 text-[0.92rem] leading-snug text-ash/90" set:html={inline(summary)} />
+    )
+  }
+  {
+    compact && (
+      <p class="mt-0.5 text-[0.78rem] uppercase tracking-[0.12em] text-dune">
+        {kind.replace(/_/g, ' ').toLowerCase()}
+      </p>
+    )
+  }
+</div>

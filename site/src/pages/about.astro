@@ -1,0 +1,87 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { SITE, contentDescriptors, whatToExpect } from '../lib/site';
+---
+
+<BaseLayout
+  title="About the game"
+  description="What Hollowfall is, what a game in it feels like, and what it is not."
+  section="about"
+>
+  <div class="mx-auto max-w-6xl px-5 pt-12 sm:px-8 sm:pt-16">
+    <header class="max-w-2xl">
+      <p class="eyebrow">About</p>
+      <h1 class="mt-3 text-[clamp(2.2rem,5vw,3.2rem)]">About the game</h1>
+      <p class="mt-4 text-[1.18rem] text-ash">
+        Hollowfall is a world for fantasy tabletop roleplaying, set nine hundred years after a war that
+        broke it.
+      </p>
+      <span class="rule-ember mt-6"></span>
+    </header>
+
+    <div class="mt-12 grid gap-x-14 gap-y-12 md:grid-cols-[minmax(0,42rem)_13rem]">
+      <div class="prose-hollow max-w-[64ch]">
+        <h2>What this site is</h2>
+        <p>
+          A world bible, written in the open, and the codex a game master can run from. Note however that 
+          it is the player facing portion of the codex. It is not a
+          campaign and it is not a novel: it is the world several campaigns will share, designed so
+          that the politics, the magic and the monsters all trace back to the same history.
+        </p>
+        <p>
+          The rules and engine are in development. The world is not waiting for them — it is built to be played
+          in with whatever system you bring. It is being written as the first campaign world for the 
+          <em> Mythical Forge game engine</em>. A platform to support TTRPG style solo (initially) game play.
+          Its not a 3D FPS style engine, but rather one that acts as a GM for pen and paper style fantasy RPG's.
+        </p>
+
+        <h2>What a game feels like</h2>
+        <p>
+          You are not heroes arriving to save a world. You are people with debts, in a place where
+          water is money, where every road ends at a gate someone else controls, and where the
+          powerful have good reasons to keep you ignorant.
+        </p>
+        <p>
+          The interesting decisions are not good against evil. They are who eats, who is owed, who is
+          told, and which of two people you disappoint.
+        </p>
+
+        <h2>The tone, plainly</h2>
+        <ul>
+          {whatToExpect.map((line) => <li>{line}</li>)}
+        </ul>
+
+        <h2>Content</h2>
+        <p>
+          Hollowfall campaigns use the content descriptors of
+          <strong>{contentDescriptors.join(', ')}</strong> unless a campaign says otherwise. The horror
+          is quiet and it is mostly people; the violence is not glamorous; the world is not fair.
+        </p>
+
+        <h2>What is not here</h2>
+        <p>
+          No secrets. Everything on this site is knowledge a resident of the world could have —
+          official history, common belief, rumour, and the disagreements between them. The truth
+          underneath is the part a campaign is for.
+        </p>
+      </div>
+
+      <aside class="marginalia md:border-l md:border-[var(--rule)] md:pl-5">
+        <p class="eyebrow mb-2">In one line</p>
+        <p>
+          A grim dark world of failing water and long grudges, where the world cannot be saved but
+          the people in it can still be helped — or not.
+        </p>
+        <p class="mt-6 eyebrow mb-2">Status</p>
+        <p>
+          A living draft. Names are working titles; entries change; the
+          <a href="/changelog/" class="no-underline">changelog</a> says what did.
+        </p>
+        <p class="mt-6 eyebrow mb-2">Credit</p>
+        <p>
+          Written and built by {SITE.author}. {SITE.license}
+        </p>
+      </aside>
+    </div>
+  </div>
+</BaseLayout>

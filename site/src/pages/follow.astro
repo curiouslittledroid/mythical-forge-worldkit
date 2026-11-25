@@ -1,0 +1,38 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import FollowForm from '../components/FollowForm.astro';
+import { codexUpdated, formatDate } from '../lib/site';
+---
+
+<BaseLayout
+  title="Follow along"
+  description="Get word when the Hollowfall codex changes."
+  section="follow"
+>
+  <div class="mx-auto max-w-6xl px-5 pt-12 sm:px-8 sm:pt-16">
+    <header class="max-w-2xl">
+      <p class="eyebrow">Follow along</p>
+      <h1 class="mt-3 text-[clamp(2.2rem,5vw,3.2rem)]">The world is still being written</h1>
+      <p class="mt-4 text-[1.18rem] text-ash">
+        Follow along as the codex grows: new entries, revised entries, and the odd thing that turned out
+        to be wrong.
+      </p>
+      <span class="rule-ember mt-6"></span>
+    </header>
+
+    <div class="mt-12 grid gap-10 md:grid-cols-[minmax(0,34rem)_13rem] md:gap-16">
+      <div>
+        <FollowForm />
+        <p class="marginalia mt-8">
+          Prefer to look for yourself? The <a href="/changelog/">changelog</a> lists every published
+          change, newest first, and the whole codex is browsable from
+          <a href="/codex/">the Codex</a>.
+        </p>
+      </div>
+      <aside class="marginalia md:border-l md:border-[var(--rule)] md:pl-5">
+        <p class="eyebrow mb-2">Last rebuilt</p>
+        <p>{formatDate(codexUpdated)}</p>
+      </aside>
+    </div>
+  </div>
+</BaseLayout>

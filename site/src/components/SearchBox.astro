@@ -1,0 +1,79 @@
+---
+// Pagefind runs against the built site. In `astro dev` the index does not exist, so the
+// component says so rather than failing.
+---
+
+<div class="relative" id="search-root">
+  <label for="codex-search" class="eyebrow">Search the codex</label>
+  <input
+    id="codex-search"
+    class="search-input mt-2"
+    type="search"
+    placeholder="water, wardstone, the Choir…"
+    autocomplete="off"
+    spellcheck="false"
+  />
+  <p id="search-status" class="marginalia mt-2 h-5" aria-live="polite"></p>
+  <ol id="search-results" class="mt-4 divide-y divide-[var(--rule-soft)]"></ol>
+</div>
+
+<script>
+  const input = document.getElementById('codex-search') as HTMLInputElement | null;
+  const results = document.getElementById('search-results') as HTMLOListElement | null;
+  const status = document.getElementById('search-status') as HTMLParagraphElement | null;
+  if (input && results && status) {
+    let pagefind: any = null;
+    let failed = false;
+
+    async function load() {
+      if (pagefind || failed) return pagefind;
+      try {
+        // Built at deploy time by the pagefind CLI, so it must stay out of the bundle.
+        const path = '/pagefind/pagefind.js';
+        pagefind = await import(/* @vite-ignore */ path);
+        await pagefind.options({ excerptLength: 28 });
+        return pagefind;
+      } catch {
+        failed = true;
+        status.textContent = 'Search is only available on the published site.';
+        return null;
+      }
+    }
+
+    const escapeHtml = (s: string) =>
+      s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+    let timer: number | undefined;
+    input.addEventListener('input', () => {
+      window.clearTimeout(timer);
+      timer = window.setTimeout(() => run(input.value.trim()), 140);
+    });
+
+    async function run(query: string) {
+      results.innerHTML = '';
+      if (query.length < 2) {
+        status.textContent = '';
+        return;
+      }
+      const pf = await load();
+      if (!pf) return;
+      status.textContent = 'Searching…';
+      const search = await pf.search(query);
+      const items = await Promise.all(search.results.slice(0, 12).map((r: any) => r.data()));
+      status.textContent = items.length
+        ? `${search.results.length} ${search.results.length === 1 ? 'entry' : 'entries'}`
+        : 'Nothing in the codex by that name. Try a place, a god, or a word like "salt".';
+      results.innerHTML = items
+        .map(
+          (item: any) => `
+          <li class="py-4">
+            <a href="${item.url}" class="no-underline">
+              <span class="font-display text-[1.15rem] text-ink">${escapeHtml(item.meta.title)}</span>
+            </a>
+            <p class="marginalia mt-1">${item.excerpt}</p>
+          </li>`,
+        )
+        .join('');
+    }
+  }
+</script>
