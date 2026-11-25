@@ -85,6 +85,26 @@ if [ -d "$TMP/kit/site" ] && [ -d "$WORLD_ROOT/site" ]; then
   [ -f "$TMP/kit/site/image-prompts/README.md" ] && \
     cp "$TMP/kit/site/image-prompts/README.md" "$WORLD_ROOT/site/image-prompts/README.md"
 fi
+# The template mirrors the kit's EXAMPLE WORLD: one copy of the fixture, so the example an author
+# reads can never drift from the one the kit's own tests run against. `template: true` in
+# world.config.yaml is the switch; a world forked from the template keeps whatever it already has,
+# and `init-world.sh` removes it. lint.py and the exporter ignore the directory by name (it is a
+# world, but it is not THIS vault).
+if grep -qE '^template:[[:space:]]*true' "$WORLD_ROOT/world.config.yaml" 2>/dev/null; then
+  echo "-> example-world/ (the kit's demo world, mirrored)"
+  mkdir -p "$WORLD_ROOT/example-world"
+  rsync -a --delete "$TMP/kit/world/" "$WORLD_ROOT/example-world/world/"
+  [ -d "$TMP/kit/campaigns" ] && rsync -a --delete "$TMP/kit/campaigns/" \
+        "$WORLD_ROOT/example-world/campaigns/"
+  # The kit's meta/ mixes the demo world's notes with the kit's own documents; only the former are
+  # part of the example.
+  [ -d "$TMP/kit/meta" ] && rsync -a --delete \
+        --exclude 'templates/' --exclude 'platform-requests/' \
+        --exclude 'campaign-authoring-guide.md' --exclude 'world-conventions.md' \
+        "$TMP/kit/meta/" "$WORLD_ROOT/example-world/meta/"
+  cp "$TMP/kit/world.config.yaml" "$WORLD_ROOT/example-world/world.config.yaml"
+fi
+
 [ -d "$TMP/kit/.pi/prompts" ] && rsync -a --delete "$TMP/kit/.pi/prompts/" "$WORLD_ROOT/.pi/prompts/"
 [ -f "$TMP/kit/.github/workflows/site.yml" ] && \
   cp "$TMP/kit/.github/workflows/site.yml" "$WORLD_ROOT/.github/workflows/site.yml"

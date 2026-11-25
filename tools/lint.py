@@ -81,6 +81,10 @@ FORBIDDEN_ENGINE_KEYS = {"hp", "ac", "bab", "cr", "author_id"}
 PREDICATE_NAMES = {"npc_alive", "fact_revealed", "quest_state"}
 EXCLUDE_DIRS = {".git", ".obsidian", "node_modules", ".trash", "tools", "meta/templates",
                 "site", ".pi",
+                # The template's mirrored example world is a world, but it is not THIS vault: it must
+                # neither be linted as one nor be published by the exporter (which reuses load_notes).
+                # The id resolver never sees it either: it walks SCOPE_DIRS, not the vault root.
+                "example-world",
                 # The kit's own documents (conventions, the registers, the guide) and the draft
                 # specs written for the platform repository. Neither is a vault note: the kit is
                 # not a world, and only its `verify-kit.sh` fixture vault is linted.
