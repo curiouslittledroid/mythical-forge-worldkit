@@ -61,6 +61,9 @@ docs/                  the rules and the registers - the kit's own documents
   campaign-authoring-guide.md  how to author a thread, a Campaign, its Modules and Quests
   thread-pattern.md            why a thread is a state graph (the reference behind the guide)
   site.md                      how a site is generated from a vault
+  testimony.md                 the first-person device, the voice sheets and the two checks
+  tag-vocabulary.md            the five rules, the block the linter reads, how themes are chosen
+  atlas.md                     the map pipeline, the data layer, and what stays the world's
 meta/templates/        one template per note type. The end-to-end example IS the demo world
                        (world/, campaigns/ferryman-demo/), so there is no second copy to drift
 meta/platform-requests/  draft specs written for the platform repository - not the kit's backlog
