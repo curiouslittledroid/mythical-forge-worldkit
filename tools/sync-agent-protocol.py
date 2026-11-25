@@ -64,6 +64,7 @@ def main() -> int:
 
     root = find_root()
     source = find_source(root)
+    want = region_of(source.read_text(encoding="utf-8"), start=START, stop=STOP, what=str(source))
     if source.parent == root / "docs":
         # The kit itself: this repository owns the protocol, so there is nothing to sync into its
         # own AGENTS.md. A self-sync would copy a file onto itself and say nothing (D36).

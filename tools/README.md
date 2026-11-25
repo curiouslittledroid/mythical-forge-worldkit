@@ -73,18 +73,19 @@ to run rather than guessing.
 
 ## Atlas tools
 
-How to run them, and the recipes for changing the map, are in
-[[atlas-howto|Keeping the Map Up to Date]] (`maps/atlas-howto.md`). Short version:
+The mechanism, the data schema and the recipes are the kit's `docs/atlas.md`; a world's own frame,
+sheets and drawing rules are that world's business. Short version:
 
 ```
 python3 tools/atlas_yaml.py maps/atlas-features.yaml   # validate
 python3 tools/atlas_tables.py                          # maps/atlas-features.md
-python3 tools/local/make_atlas.py                            # maps/svg/*.svg
+python3 tools/local/make_atlas.py                      # maps/svg/*.svg (the world's renderer)
 python3 tools/atlas_diff.py                            # what changed
 tools/atlas_previews.sh                                # PNG previews
 ```
 
-`/atlas-refresh` (`.pi/prompts/atlas-refresh.md`) does all of it from the place notes.
+A world may wire those four commands into one prompt or script; the kit does not, because
+what to re-read and what to reconcile is the world's.
 
 ## Transformer and thread tools
 
