@@ -46,8 +46,10 @@ echo "== voice         (each account against its teller's sheet; then canon that
 python3 "$ROOT/tools/voice_lint.py" | tail -3 || true
 python3 "$ROOT/tools/voice_stale.py" | tail -5 || true
 
-# The transform writes codex-threads.yaml into the vault, so it runs on a copy: the world's own
-# directory is never modified by a check.
+# Every check runs on a COPY of the world, so the world's own directory is never modified by a
+# check -- even if a tool misbehaves. (The transform writes into the Game Ready Repository, not the
+# vault; the first version of this comment said otherwise, which is the kind of small lie a
+# maintainer eventually trusts.)
 rsync -a --exclude .git --exclude node_modules --exclude __pycache__ --exclude site/dist \
       "$ROOT/" "$TMP/world/"
 cd "$TMP/world"

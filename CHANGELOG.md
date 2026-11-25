@@ -4,6 +4,16 @@ A world pins the kit by copying its version into `TOOLING_VERSION` and updating 
 `tools/sync-tooling.sh`. **A change a world cannot absorb silently is a major bump and gets a
 migration note here.**
 
+## 1.0.12 — a comment that told a small lie
+
+Patch. A world should sync: `tools/verify-world.sh` is replaced.
+
+The comment above the copy said the transform writes `codex-threads.yaml` into the vault, and that
+this is why the checks run on a copy. It does not: it writes into the Game Ready Repository. The
+copy is still right — a check should not be able to modify the world it is checking — but the reason
+is now the real one rather than a plausible-sounding one. Nobody would have caught this by reading
+the code; it was caught by grepping for the write the comment promised.
+
 ## 1.0.11 — the drift check failed on every world
 
 Patch, and a lesson in shipping a check you have not run. `tooling-drift.yml` compared the kit's
