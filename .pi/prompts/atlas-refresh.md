@@ -53,7 +53,7 @@ For each source note, list the drawable features it owns:
 - **Cities, towns and villages** — every settlement with a population.
 - **Holds** — dwarven holds, named and unnamed.
 - **Ruins and sites** — by `origin` (golden age, war wound, Choir, sentinel; [[ruin-sites]]), plus the sealed cities, wreck-fields and the mega-dungeon.
-- **Sentinels** — every site in `sentinels.md`.
+- **Sentinels** — every site that has a note of its own (the world's index, if it keeps one).
 - **Leylines** — lines, remnants, wells, knots, the Gathering wells.
 - **Routes** — roads, tracks, the aqueduct, deep-roads, the ruin line, the sea lane.
 - **Route legs** — the distances the notes state, with terrain.

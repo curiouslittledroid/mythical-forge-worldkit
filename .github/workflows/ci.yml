@@ -39,14 +39,17 @@ jobs:
       # The invariant: no world's identity inside the kit's own machinery. Scoped on purpose -
       # CHANGELOG, README, ROADMAP, CONTRIBUTING and meta/platform-requests are PROVENANCE, and
       # they exist to say where the kit came from and who asked for what. A world's identity in a
-      # tool, a template, a doc's mechanism or the demo world's config is the defect.
+      # tool, a template, an agent prompt, a doc's mechanism or the demo world's config is the defect.
+      # `.pi/prompts/` is included because it was not, and a prompt arrived full of one world's
+      # monster rules. `site/` is excluded until K6 settles the theme's default look (the first
+      # world's art style and prompts are in there, deliberately, as the worked example).
       - name: No world identity in the machinery
         run: |
           if grep -rIn --exclude-dir=.git --exclude-dir=node_modules \
                --exclude=CHANGELOG.md --exclude=README.md --exclude=ROADMAP.md \
                --exclude=CONTRIBUTING.md \
                -e 'world_hollowfall' -e 'hollowfall-' -e 'Hollowfall' \
-               docs/ tools/ meta/templates/ world/ campaigns/ world.config.yaml 2>/dev/null; then
+               docs/ tools/ meta/templates/ world/ campaigns/ .pi/prompts/ world.config.yaml 2>/dev/null; then
             echo "::error::a world's identity is inside the kit's machinery."
             echo "  A template names no world; a doc's mechanism names none; the demo world is not the first world."
             exit 1

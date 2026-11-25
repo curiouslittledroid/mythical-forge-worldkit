@@ -71,8 +71,8 @@ Short forms and variants worth knowing:
 | `README.md` | This file: the process and the rules. |
 | `_style.md` | The house style blocks (`sketch`, `painted`, `plate`). The **only** place the look is defined. |
 | `NN-slug.md` | One plate: frontmatter, `Must say`, `Prompt`, `Avoid`, `Checks`, `Variants`, `Notes`, `Iteration log`. |
-| `04-ward-post-plate.md` | The reference plate, **accepted** (v7). Copy its shape. |
-| `05-run-grate.md` | A detail study: the buried run, with the grate as the subject. |
+| the world's reference plate | The plate it has already accepted. Every later plate copies its shape. |
+| every other `NN-slug.md` | A world's own plate, one per image. **The world's file, never the kit's.** |
 | `candidates/<slug>/v<N>-<i>.png` | Every generated candidate. **Ignored by git** — evidence, not deliverable. |
 
 An accepted image is the only thing that leaves this folder: `site/public/img/<stem>-<ratio>.<ext>`.
@@ -248,7 +248,8 @@ What happens on `npm run export` (or `npm run build`, which runs it first):
 
 So the whole procedure for a new page image is: accept the plate (`/image-accept`), make sure it has `canon:` and `alt:`, then `npm run build`. To take an image off the site again, set its status back to `iterating` — do not delete the files.
 
-Plate 04 is the worked example: `status: accepted`, `canon:` lists `wardstones.md` and `stonehold.md`, `page_image: plate-ward-post-16x9.jpg`.
+An accepted plate is the worked example: `status: accepted`, and its `canon:` lists the world's own notes
+that license what the image shows, with `page_image:` naming the file it produced.
 
 ## 11. Housekeeping
 

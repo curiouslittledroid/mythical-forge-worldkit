@@ -7,7 +7,7 @@ the rule that follows from it — **no world literals anywhere**.
 
 A tool is a script in `tools/` plus a test beside it. Keep both in the same commit.
 
-1. **Name it for what it does**, not for where it is used: `voice_stale.py`, not `hollowfall-voices.py`.
+1. **Name it for what it does**, not for where it is used: `voice_stale.py`, not `myworld-voices.py`.
 2. **Read the world through the config.** `import kit_config` (Python) or `./kit_config.mjs` (Node)
    and take the world's identity, its note ids and its feature switches from there. Never take a
    world's path, title or id as a default: if the tool needs one, the config is where it comes from,

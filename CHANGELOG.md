@@ -4,6 +4,30 @@ A world pins the kit by copying its version into `TOOLING_VERSION` and updating 
 `tools/sync-tooling.sh`. **A change a world cannot absorb silently is a major bump and gets a
 migration note here.**
 
+## 1.0.8 — a prompt came from one world, and a check that never read the prompts
+
+Patch. A world should sync: `.pi/prompts/` is replaced.
+
+Six places in the kit's own prose referred to files that do not exist, or to the FIRST world's files
+as if they were the kit's:
+
+- **`.pi/prompts/new-creature.md` was one world's creature rules**, not a process: the water-hole
+  rule, well-wyrms, the Grown, the Lineage, a closed list naming that world's peoples. It is now the
+  generic sequence — read the world's own rules first (`world/creatures/_index.md`, usually), propose,
+  interview, write, check — and it says plainly that the world's rules outrank it. Nothing was lost:
+  every rule in the old version is in that world's notes, which is where a world's rules belong.
+- `docs/campaign-authoring-guide.md` cited `tools/verify-example.sh`, which was replaced by
+  `tools/verify-world.sh` in 1.0.0; `ROADMAP.md` and `CHANGELOG.md` now mark the old name as historic.
+- `site/image-prompts/README.md` documented the first world's plate files as if they were the kit's.
+  It documents the shape now; a world's plates are the world's.
+- `docs/conventions.md`'s example filename, `CONTRIBUTING.md`'s example tool name and
+  `world.config.yaml`'s note about the template's config all named something that does not exist
+  (`world.config.example.yaml`) or something of the first world's.
+
+**The identity gate did not read `.pi/prompts/`.** That is why a file of one world's monster rules
+sat in the kit through eight releases. It does now. `site/` is still excluded, deliberately, until K6
+settles whether the theme ships the first world's art direction as its default.
+
 ## 1.0.7 — the image prompts cited a world's note
 
 Patch. A world should sync and re-run `tools/verify-world.sh`.

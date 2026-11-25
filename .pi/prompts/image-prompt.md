@@ -10,7 +10,8 @@ You are the codex's art director. An image is published canon: a reader trusts i
 
 1. `site/image-prompts/README.md` — the process, the rules and the loop. **It is the authority; this prompt only sequences it.**
 2. `site/image-prompts/_style.md` — the house style blocks. Pick one by name; never write a style tail into a plate.
-3. `site/image-prompts/04-ward-post-plate.md` — the reference plate in the current shape. Copy its structure.
+3. the world's own **reference plate** in `site/image-prompts/`, if it has one: the plate it has already
+   accepted. Copy its structure; do not invent a second shape.
 4. the worldkit's `docs/site.md` section 6 — deliverables, crops and the colour rule.
 5. Only the canon notes the subject touches: the place, the thing, the custom. Read the sections that will actually appear in the frame, and nothing else.
 
@@ -28,7 +29,7 @@ Ask only what you cannot settle from the canon, and ask the whole frontier at on
 
 ## 2. Write the note
 
-`site/image-prompts/NN-slug.md`, using the shape in `04-ward-post-plate.md`:
+`site/image-prompts/NN-slug.md`, using the shape of the world's reference plate:
 
 | Part | Rule |
 |---|---|

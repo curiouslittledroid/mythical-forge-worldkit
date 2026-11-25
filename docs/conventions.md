@@ -80,7 +80,8 @@ The **top-level contracts** are fixed, because the tooling depends on them:
 - **Ids** use the engine grammar: lowercase ASCII tokens joined by single underscores, starting with a
   letter, at least two tokens, max 100 characters (e.g. `npc_harbourmaster`). **Ids never change once
   published.**
-- **Filenames are the kebab-case slug of the title** (e.g. `the-first-waygate.md`). The id lives in
+- **Filenames are the kebab-case slug of the title** (a note titled *The Long Eclipse* is
+  `the-long-eclipse.md`). The id lives in
   frontmatter, so renaming a title or file does not change the id. **Filenames are unique vault-wide**
   (the one deliberate exception is `_index.md`, one per folder — link it with its folder path, e.g.
   `[[gods/_index|Gods]]`); add a suffix when two titles collide. Link with wikilinks, using an alias

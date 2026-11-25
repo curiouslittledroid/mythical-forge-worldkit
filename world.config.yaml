@@ -1,7 +1,8 @@
 # world.config.yaml — the world's identity, in one place.
 #
 # This is the DEMO WORLD of the kit: the smallest complete vault the tools can run against, and
-# what `verify-kit.sh` builds and tests. A new world copies `world.config.example.yaml` from the
+# what `verify-kit.sh` builds and tests. A new world starts from the template's `world.config.yaml`,
+# which is this file with every value left as a placeholder:
 # template instead; this file is the kit's own fixture.
 #
 # Read by tools/kit_config.py (Python) and tools/kit_config.mjs (Node). Both parse the strict
