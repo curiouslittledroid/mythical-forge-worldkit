@@ -43,6 +43,7 @@ to run rather than guessing.
 | `kit_config.mjs` | The same, for Node. `loadConfig()`, `mfRoot()`, `block()`, `notePath()`. |
 | `yaml_subset.py` | The strict YAML reader behind both config readers and the atlas. |
 | `lint.py` | The vault linter (only standard-library Python). See the kit's `docs/conventions.md` §16. |
+| `check_citations.py` | Resolves every `§N` citation against the document it names and fails on one that does not exist. See the kit's `docs/conventions.md` §16.1. |
 | `test_lint.py` | Its tests. |
 | `testkit.py` | Fixture helper for the suites (config + vocabulary note). |
 | `test_kit_config.py` | Tests for the two config readers and the subset parser, including a **parity test** that the Python and Node readers agree on the live config. |

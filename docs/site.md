@@ -5,8 +5,9 @@ published, in what shape, on what stack, and how it is refreshed. **The site is 
 hand-edited** — every page that shows canon comes from an `open` section of a note, so the codex
 stays the only source of truth.
 
-**This is the kit's mechanism.** A world owns §1 (audience and purpose), §4 (its landing page) and §5
-(its visual direction); what is fixed here is the publish axis, the redaction rules, the audit, the
+**This is the kit's mechanism.** The sections that are not here — a world's audience and purpose,
+its landing page, its visual direction — stay in the world's own site note, under the numbers its
+notes already cite. What is fixed here is the publish axis, the redaction rules, the audit, the
 page shape, the stack and the deploy. **The section numbers are kept** from the document this was
 split out of, because a world's notes cite them by number.
 
@@ -47,7 +48,7 @@ Publishable at the time of writing: **464 open sections, ~32,400 words, 229 note
 | Links to a note with no open content | **delete the link, keep the label**, log as `no-open-content` |
 | Links that resolve to nothing | keep the label, log as `unresolved` (and fix the note later) |
 
-Reference figure (first full build): of **1,155 wikilinks in published text, 1,077 point at a published page**. Of the 78 that do not, **31 are design infrastructure**, **26 are section-index jumps** and **21 are the seven open-face gaps** in section 11. **0 unresolved, 0 ambiguous.**
+Reference figure (first full build): of **1,155 wikilinks in published text, 1,077 point at a published page**. Of the 78 that do not, **31 are design infrastructure**, **26 are section-index jumps** and **21 are the world's seven open-face gaps.** **0 unresolved, 0 ambiguous.**
 
 Reference figure (the session that closed the plot-web and design-citation leaks): **235 pages, 157 flattened links** — down from 196 — broken down as **deferred 97**, **no-open-content 26**, **section-index 34** and **infrastructure 0**. It was 43. Every plot-web thread reference moved under `## Hooks` and every design-doc citation under `## Author Notes`, which together took `internal_references` and `plot_web_text_mentions` to **0** as well. All three counts are now regression signals: any non-zero value is a new leak, not a known backlog.
 
@@ -143,9 +144,9 @@ deny-by-default way it decides which sections do: `PUBLISHED_TAGS` in `tools/sit
 - **Tags are outside the changelog hash.** Refiling a note is not a lore revision. Tags are inside
   the keystone scan, though: a sealed term in a tag is a hit like any other.
 
-**Voice:** lore pages in third person, present tense; the landing and About pages in direct address ("you"). **The one exception is testimony** (section 3.4), which is first person by definition and always attributed to a named teller.
+**Voice:** lore pages in third person, present tense; the landing and About pages in direct address ("you"). **The one exception is testimony** (`docs/testimony.md` section 3.4), which is first person by definition and always attributed to a named teller.
 
-**Testimony and voice sheets** (§3.4 and §3.5 of the document this was split out of) are the site's
+**Testimony and voice sheets** (`docs/testimony.md` §3.4 and §3.5) are the site's
 one first-person device and the two checks that guard it. They are in `testimony.md`, because they
 are about the *writing* rather than the page.
 

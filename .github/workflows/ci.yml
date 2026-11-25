@@ -27,6 +27,9 @@ jobs:
       - name: The demo world lints clean
         run: python3 tools/lint.py
 
+      - name: Every section citation resolves
+        run: python3 tools/check_citations.py
+
       - name: The guide's blocks match the demo world
         run: node tools/check-guide.mjs
 

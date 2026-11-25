@@ -52,6 +52,8 @@ rsync -a --exclude .git --exclude node_modules --exclude __pycache__ --exclude s
       "$ROOT/" "$TMP/world/"
 cd "$TMP/world"
 
+echo "== citations     (every section citation names a section the document has)"
+python3 tools/check_citations.py
 echo "== lint          (frontmatter, ids, dead links, undeclared flags)"
 python3 tools/lint.py | tail -6
 echo "== disclosure    (every lore section has a class; exits 1 if any is unreviewed)"

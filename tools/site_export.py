@@ -156,7 +156,7 @@ EMPTY_PARENS_RE = re.compile(r"[ \t]*\(\s*\)")
 # describe the present. An account with no year silently claims to be current, so it is reported.
 # The teller is the first bold run **that is not the date**, so a heading may open with either.
 #
-# See meta/site.md section 3.4.
+# See docs/testimony.md section 3.4.
 TESTIMONY_HEADING = "testimony"
 TESTIMONY_RANGE_RE = re.compile(r"^\s*(\d{2,4})\s*[-–]\s*(\d{2,4})\s*$")
 # `**CY 649, in the BLAZE.**` — the date's own bold run, at the head of the line.
@@ -836,7 +836,7 @@ def page_for(note: lint.Note, index: Index, log: dict,
             continue
 
         if cls == "open" and heading.strip().lower() == TESTIMONY_HEADING:
-            # Not a body section: lifted into the page's frontmatter (site.md section 3.4).
+            # Not a body section: lifted into the page's frontmatter (docs/testimony.md section 3.4).
             parsed = parse_testimony(clean_lines(lines, kind, note.rel, log))
             if parsed is None:
                 log["dropped_sections"].append(

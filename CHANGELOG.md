@@ -4,6 +4,28 @@ A world pins the kit by copying its version into `TOOLING_VERSION` and updating 
 `tools/sync-tooling.sh`. **A change a world cannot absorb silently is a major bump and gets a
 migration note here.**
 
+## 1.0.1 — the citation check
+
+Patch: no world's content changes and no section number moves. **Re-run your own proof**
+(`tools/verify-world.sh`) — the check below is new, and it will report citations that were already
+wrong before this release.
+
+**New: `tools/check_citations.py`.** Every `§N` citation is resolved against the document it names.
+It fails when the number does not exist, when the document numbers nothing, and when the document
+cannot be found. Renumbering a document is the change it exists to catch: a section that moves takes
+every citation of it with it, silently, here and in every world that synced the old numbers. Wired
+into `verify-kit.sh`, `verify-world.sh` and CI. The rule it enforces is in `docs/conventions.md`
+§16.1.
+
+**Fixed — the check's first findings.** Twelve citations gave the testimony specification its old
+document name (`docs/site.md`) although those sections are `docs/testimony.md` §3.4/3.5; the atlas
+refresh prompt cited the register's corrections table and its build section by the numbers they had
+before a renumbering; and a few citations in the kit's own docs pointed at sections that do not
+exist. A world that cites these documents will see the same findings.
+
+**Nothing else changed.** `template: true`, the `example-world` linter exclusion and the sync's
+example mirror are groundwork for the world template and land in the next release.
+
 ## 1.0.0 — the extraction
 
 The first release: the tooling and the general rules lifted out of the first world

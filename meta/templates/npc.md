@@ -10,7 +10,7 @@ era: present
 tags: []
 sources: []
 groups: []                   # factions only, e.g. [{ id: faction_example_order, rank: select }]  rank: common | select | inner
-race: race_REPLACE           # the people, a codex race id; resolves race-level group knowledge (section 9.5)
+race: race_REPLACE           # the people, a codex race id; resolves race-level group knowledge (conventions section 9.5)
 home: loc_REPLACE
 ---
 

@@ -70,10 +70,10 @@ The **top-level contracts** are fixed, because the tooling depends on them:
 3. **The Game Ready Repository is generated.** Never hand-edit it.
 4. **The canon digest is a summary**, one to two pages, GM-level. It never holds the only copy of a
    decision. Update it at the end of each session.
-5. **Closed vocabularies are not extended in the codex** (§2.5). Log the gap; do not invent it.
+5. **Closed vocabularies are not extended in the codex** (§2, item 5). Log the gap; do not invent it.
 6. **Status is explicit** (§6), so a fresh session can see what is settled.
-7. **Never author derived or stamped values** (§2.6).
-8. **No canon in Dataview queries** (§2.7).
+7. **Never author derived or stamped values** (§2, item 6).
+8. **No canon in Dataview queries** (§2, item 7).
 
 ## 5. Ids and filenames
 
@@ -555,3 +555,20 @@ frontmatter group fields (`groups`, `home`, `zone`, `race`; REF001), missing or 
 
 The linter does **not** check engine schemas (the transformer does that with
 `@mythical-forge/authored-content`), canon consistency, or whether prose is any good.
+
+### 16.1 Citing a document
+
+When a note cites a rule by number, name the document in the same sentence:
+
+- In the kit's own voice: `docs/conventions.md` §9.6. A world cites the same document as "the
+  worldkit's `docs/conventions.md` §9.6, vendored at `tools/docs/conventions.md`".
+- **Never a wikilink** into the kit (the kit is not a vault) and **never a bare basename**: `site.md`
+  is two different documents in a world — the kit's `docs/site.md` and the world's `meta/site.md`.
+- **A number only if the document numbers its sections.** A document whose sections have names is
+  cited by name: "the section on required reviewers".
+- A citation of where something *used to be* says so: "formerly `docs/site.md` §3.4".
+
+`tools/check_citations.py` enforces all four and fails on a number that does not exist. **A document
+that renumbers must sweep its citations** — in this repository and in every world that has synced it.
+The check is what makes that sweep mechanical rather than a promise, and it is the only thing in the
+toolchain that notices: a stale number reads exactly like a correct one.

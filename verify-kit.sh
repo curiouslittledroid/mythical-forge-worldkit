@@ -23,6 +23,8 @@ rsync -a --exclude .git --exclude node_modules --exclude __pycache__ --exclude s
 mkdir -p "$TMP/gameready"
 cd "$TMP/world"
 
+echo "== suites";     for suite in tools/test_*.py; do printf '%s ' "$suite"; python3 "$suite" | tail -1; done
+echo "== citations";  python3 tools/check_citations.py | tail -2
 echo "== lint";       python3 tools/lint.py | tail -6
 echo "== transform";  GAME_READY_REPO="$TMP/gameready" node tools/transform.mjs | grep -E "Wrote|thread ferry" || true
 echo "== validate";   GAME_READY_REPO="$TMP/gameready" node tools/validate-world.mjs 2>&1 | grep -E "schema error|✗" || true

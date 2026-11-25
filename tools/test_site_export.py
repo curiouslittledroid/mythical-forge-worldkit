@@ -634,7 +634,7 @@ class TestProseShape(SiteCase):
 
 
 class TestTestimony(SiteCase):
-    """A `## Testimony` section is lifted into frontmatter (meta/site.md section 3.4)."""
+    """A `## Testimony` section is lifted into frontmatter (docs/testimony.md section 3.4)."""
 
     ACCOUNT = (
         "## Testimony\n**Disclosure:** open\n"

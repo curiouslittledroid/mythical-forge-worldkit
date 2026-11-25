@@ -95,7 +95,7 @@ A feature already in the YAML probably has no new fact. Do not restate the whole
 3. **Change only what the canon changed.** If a note still says 390 km and the YAML says 390,
    leave it alone even if you would have phrased it differently.
 4. **A new number in a note is a change.** Update the entry, and add a row to the register's
-   corrections table (§11) explaining what was wrong.
+   `maps/atlas-register.md` §14 explaining what was wrong.
 5. **Do not invent coastlines, new towns or new ruins.** A blank space is a plot. If the map
    needs a feature the notes do not have, ask instead of adding it.
 6. **Unplaced features stay unplaced.** The seven ordinary Silent Cities and any unnamed
@@ -132,12 +132,12 @@ no feature missing that the diff added. Fix label placement in `tools/local/make
 `maps/atlas-register.md` is authored, not generated. Update only what the change falsifies:
 
 - **§3 sheet plan** if a plate's frame, scale or paper changed.
-- **§5–§11** (feature register, the plates, the legs) if a section gained a feature that
+- **§5–§12** (feature register, the plates, the legs) if a section gained a feature that
   needs a drawing instruction, or a plate's frame changed.
 - **§13 GM overlay** if a secret site moved.
 - **§14 corrections applied** — add a numbered row for every contradiction you fixed, with
   what the notes now say.
-- **§16 skeleton files** if a file was added or renamed.
+- **§15 how it is built** if a sheet file was added or renamed.
 - **Open questions** — close what is settled, add what you found.
 
 Keep the voice: concise, British English, tables over prose, recommendations attached.

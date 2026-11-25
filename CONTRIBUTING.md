@@ -59,3 +59,6 @@ can find its own work without re-reading the catalogue.
    change no world can take.
 5. `python3 tools/sync-agent-protocol.py` — if the protocol changed, every world's `AGENTS.md` region
    must be re-synced, and its `--check` is what notices.
+6. `python3 tools/check_citations.py` — if a document's sections moved, every citation of it moved
+   too, here and in every world that synced the old numbers. The check is the sweep; do not rely on
+   reading the diff.
