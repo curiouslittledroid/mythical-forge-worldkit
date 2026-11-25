@@ -39,6 +39,13 @@ trap '[ -n "$KEEP" ] || rm -rf "$TMP"' EXIT
 GR="$TMP/gameready"
 mkdir -p "$GR"
 
+# The voice checks run against the world ITSELF, before the copy: `voice_stale.py` reads git history,
+# and a copy without .git cannot tell it anything (it says so, which is honest but useless). Both are
+# read-only.
+echo "== voice         (each account against its teller's sheet; then canon that moved after it)"
+python3 "$ROOT/tools/voice_lint.py" | tail -3 || true
+python3 "$ROOT/tools/voice_stale.py" | tail -5 || true
+
 # The transform writes codex-threads.yaml into the vault, so it runs on a copy: the world's own
 # directory is never modified by a check.
 rsync -a --exclude .git --exclude node_modules --exclude __pycache__ --exclude site/dist \
@@ -55,9 +62,6 @@ echo "== validate      (the engine's own schema and reference checks)"
 GAME_READY_REPO="$GR" node tools/validate-world.mjs --repo "$GR" 2>&1 | grep -E "schema error|✗" || true
 echo "== thread-check  (flag registry, own-stage guards, references, thread interfaces)"
 node tools/thread-check.mjs --repo "$GR" | grep -E "OK|problem|Missing|never|Dangling|mismatch" || true
-echo "== voice"
-python3 tools/voice_lint.py | tail -3 || true
-python3 tools/voice_stale.py | tail -3 || true
 if [ "${#SCENARIOS[@]}" -gt 0 ]; then
   echo "== scenarios     (${#SCENARIOS[@]} named)"
   node tools/simulate-world.mjs --repo "$GR" --quiet "${SCENARIOS[@]}"
