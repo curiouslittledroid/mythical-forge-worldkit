@@ -64,9 +64,17 @@ echo "== validate      (the engine's own schema and reference checks)"
 GAME_READY_REPO="$GR" node tools/validate-world.mjs --repo "$GR" 2>&1 | grep -E "schema error|✗" || true
 echo "== thread-check  (flag registry, own-stage guards, references, thread interfaces)"
 node tools/thread-check.mjs --repo "$GR" | grep -E "OK|problem|Missing|never|Dangling|mismatch" || true
+# A world that has not written a scenario yet is not a broken world: it is a world at Step 0b. Say
+# so and pass -- but only when there is genuinely nothing to run. If scenario files exist and the
+# config does not name them, the simulator's own error is the honest answer, and it still fires.
+SCENARIO_FILES="$(find campaigns -path '*/scenarios/*.yaml' 2>/dev/null | head -1 || true)"
 if [ "${#SCENARIOS[@]}" -gt 0 ]; then
   echo "== scenarios     (${#SCENARIOS[@]} named)"
   node tools/simulate-world.mjs --repo "$GR" --quiet "${SCENARIOS[@]}"
+elif [ -z "$SCENARIO_FILES" ]; then
+  echo "== scenarios     (none yet: no campaign has a scenario file)"
+  echo "                  Expected while a world is still writing lore. Step 12a writes the first,"
+  echo "                  and this step starts proving behaviour from then on."
 else
   echo "== scenarios     (every scenario in vault.scenarios, with coverage)"
   node tools/simulate-world.mjs --repo "$GR" --coverage --quiet

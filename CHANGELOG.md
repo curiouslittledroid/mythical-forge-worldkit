@@ -4,6 +4,19 @@ A world pins the kit by copying its version into `TOOLING_VERSION` and updating 
 `tools/sync-tooling.sh`. **A change a world cannot absorb silently is a major bump and gets a
 migration note here.**
 
+## 1.0.9 — a new world could not pass its own proof
+
+Patch. A world should sync: `tools/verify-world.sh` is replaced.
+
+`verify-world.sh` exited 2 with "no scenarios: name some, or set `vault.scenarios`" on a world that had
+written no scenarios yet — which is every world for its first eleven steps, and the exact state the
+template hands to a new author. The proof script now says so plainly and passes, and only when there
+is genuinely nothing to run: if scenario files exist and the config does not name them, the
+simulator's own error still fires.
+
+The distinction matters because the template's promise is "fork it and the pipeline is green". A
+green that requires inventing a fake campaign first is not a green.
+
 ## 1.0.8 — a prompt came from one world, and a check that never read the prompts
 
 Patch. A world should sync: `.pi/prompts/` is replaced.
