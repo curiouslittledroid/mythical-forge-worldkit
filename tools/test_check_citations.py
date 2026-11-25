@@ -107,9 +107,18 @@ class TestDeliberatelySkipped(VaultCase):
         self.assertEqual([], self.issues())
 
     def test_a_worlds_own_document_is_not_checked_here(self):
-        """The kit cites a world's atlas register, which only a world has."""
+        """The kit cites a world's atlas register, which only a world has -- reported, not failed."""
         self.write("note.md", "Update `maps/atlas-register.md` §14.\n")
-        self.assertEqual([], self.issues())
+        (_, level, message), = self.issues()
+        self.assertEqual("note", level)
+        self.assertIn("does not have", message)
+
+    def test_a_note_that_numbers_nothing_warns_rather_than_failing(self):
+        """A changelog can say "a world note's section 6" without citing a document."""
+        self.write("world/notes.md", "no headings here\n")
+        self.write("note.md", "`world/notes.md` told authors about its section 6.\n")
+        (_, level, _), = self.issues()
+        self.assertEqual("warning", level)
 
     def test_a_vault_note_that_numbers_nothing_does_not_shadow(self):
         self.write("world/places/a.md", "---\nid: loc_a\n---\n\nNo headings here.\n")

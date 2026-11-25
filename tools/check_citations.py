@@ -20,6 +20,10 @@ What this checks:
 Deliberately not checked: citations of the platform's specs (`Design 23 §1.1`), paths outside the
 repository, and **historical** citations — "formerly `docs/site.md` §3.4" describes where something
 used to be, so the rule is to write it with a word that says so. A line containing the words
+A reference to a document this repository does not have (a kit prompt citing a world's atlas
+register, say) is reported as a NOTE: checked where it lives, and visible here, because silence is
+how a stale citation in a template stayed invisible until a world ran the check.
+
 `citations: ignore` opts out — on a line, for an example of a bad citation in prose, or in the
 first five lines of a file, for a test whose fixtures cite documents that exist only inside it.
 
@@ -39,8 +43,16 @@ ROOT = Path(__file__).resolve().parent.parent
 
 # Directories that are not the vault: build output, vendored kit prose that is checked where it
 # lives (the kit), and the template's mirrored example world.
-SKIP_DIRS = {".git", ".obsidian", ".trash", "node_modules", "site", "example-world",
+# Directories that are not prose to check: build output, caches, and the template's mirrored
+# example world. `site/` is NOT skipped -- the art prompts are markdown that cites sections.
+SKIP_DIRS = {".git", ".obsidian", ".trash", "node_modules", "example-world",
              "__pycache__", ".astro", "dist"}
+SKIP_PATHS = {".git", "node_modules", "example-world", "site/node_modules", "site/dist",
+              "site/.astro", "site/src/content/generated", "site/src/data/generated"}
+
+
+def skipped(rel: str) -> bool:
+    return any(rel == d or rel.startswith(d + "/") for d in SKIP_PATHS)
 SCAN_SUFFIXES = {".md", ".py", ".sh", ".mjs", ".yaml", ".yml"}
 
 # The kit's own documents, as prose names them. A world cites the vendored copies by the same
@@ -105,7 +117,7 @@ def scan_docs(root: Path) -> dict[str, Doc]:
     docs: dict[str, Doc] = {}
     for path in sorted(root.rglob("*.md")):
         rel = path.relative_to(root).as_posix()
-        if any(part in SKIP_DIRS for part in rel.split("/")[:-1]):
+        if skipped(rel):
             continue
         docs[rel] = Doc(path, rel)
     return docs
@@ -121,7 +133,9 @@ def candidate_docs(token: str, docs: dict[str, Doc]) -> list[Doc]:
         for rel, doc in docs.items():
             if rel.endswith("/" + token):
                 found.append(doc)
-    if not found:
+    if not found and "/" not in token:
+        # A bare basename may match anywhere (there is nothing else to go on), but a token that names
+        # a directory must not: `meta/site.md` is not the kit's `docs/site.md`.
         base = token.split("/")[-1]
         found = [doc for rel, doc in docs.items() if rel.split("/")[-1] == base]
     if not found:
@@ -149,6 +163,11 @@ def context(text: str, pos: int) -> str:
 
 
 VAULT_DIRS = ("world/", "campaigns/", "principles/", "maps/", "meta/")
+
+
+def vaultish(token: str) -> bool:
+    """A reference to something that looks like one of a world's own documents."""
+    return token.startswith(VAULT_DIRS) or token in ALIASES
 
 
 def references(ctx: str, docs: dict[str, Doc]) -> list[tuple[int, list[Doc], str]]:
@@ -213,7 +232,9 @@ def check_file(path: Path, rel: str, docs: dict[str, Doc]) -> list[tuple[int, st
         # The nearest reference BEFORE the number wins, but a token that matches no document (a
         # fixture path in a test, say) must not stop the search: fall back to the previous one.
         before = [r for r in references(ctx, docs) if r[0] <= ctx_offset]
-        refs = [r for r in before if r[1]]
+        # Keep the nearest reference even when this repository has no such document: it is the one
+        # the sentence cites, and saying so (a NOTE) beats silently checking a document it did not.
+        refs = [r for r in before if r[1] or vaultish(r[2])]
         if refs:
             refs = [refs[-1]]
         if EXTERNAL.search(ctx):
@@ -222,6 +243,15 @@ def check_file(path: Path, rel: str, docs: dict[str, Doc]) -> list[tuple[int, st
             # No document named at all: the file's own numbering (a ROADMAP cites its own §0.1).
             if before:
                 _, _, token = before[-1]
+                if vaultish(token):
+                    if candidate_docs(token, docs):
+                        issues.append((line_no, "warning",
+                                       f"§{number} is read against `{token}`, which numbers nothing. "
+                                       f"If another document was meant, name it here."))
+                    else:
+                        issues.append((line_no, "note",
+                                       f"§{number} cites `{token}`, which this repository does not have"))
+                    continue
                 if not (token.startswith("docs/") or token.startswith("tools/docs/")):
                     continue                          # not a document of ours; checked where it lives
                 issues.append((line_no, "error", f"§{number}: no document matches `{token}`"))
@@ -240,8 +270,15 @@ def check_file(path: Path, rel: str, docs: dict[str, Doc]) -> list[tuple[int, st
         if "Design" in token or "/Users/" in token:
             continue
         if not docs_here:
-            if token.startswith(VAULT_DIRS) or token in ALIASES:
-                continue                 # a world's own document: checked in the world, not here
+            if vaultish(token):
+                if candidate_docs(token, docs):
+                    issues.append((line_no, "warning",
+                                   f"§{number} is read against `{token}`, which numbers nothing. "
+                                   f"If another document was meant, name it here."))
+                else:
+                    issues.append((line_no, "note",
+                                   f"§{number} cites `{token}`, which this repository does not have"))
+                continue
             issues.append((line_no, "error", f"§{number}: no document matches `{token}`"))
             continue
         if len(docs_here) > 1:
@@ -272,22 +309,25 @@ def main(argv: list[str]) -> int:
             return 2 if argv[1] not in {"-h", "--help"} else 0
         target = (ROOT / argv[1]).resolve()
     docs = scan_docs(ROOT)
-    errors = warnings = checked = 0
+    errors = warnings = notes = checked = 0
     for path in sorted(target.rglob("*")):
         if not path.is_file() or path.suffix not in SCAN_SUFFIXES:
             continue
         rel = path.relative_to(ROOT).as_posix()
-        if any(part in SKIP_DIRS for part in rel.split("/")[:-1]):
+        if skipped(rel):
             continue
         issues = check_file(path, rel, docs)
         for line_no, level, message in issues:
             checked += 1
             if level == "error":
                 errors += 1
-            else:
+            elif level == "warning":
                 warnings += 1
+            else:
+                notes += 1
             print(f"{rel}:{line_no}: {level.upper()}: {message}")
-    print(f"{checked} citation problem(s): {errors} error(s), {warnings} warning(s)")
+    print(f"{checked} citation problem(s): {errors} error(s), {warnings} warning(s)"
+          + (f", {notes} note(s): references to documents this repository does not have" if notes else ""))
     return 1 if errors else 0
 
 

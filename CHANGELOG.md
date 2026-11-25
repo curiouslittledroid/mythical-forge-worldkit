@@ -4,14 +4,36 @@ A world pins the kit by copying its version into `TOOLING_VERSION` and updating 
 `tools/sync-tooling.sh`. **A change a world cannot absorb silently is a major bump and gets a
 migration note here.**
 
+## 1.0.4 — the check got stricter, and found more
+
+Patch. A world should sync and re-run `tools/verify-world.sh`.
+
+Three changes to `tools/check_citations.py`, each of which found citations that the previous
+version accepted:
+
+- **It now reads the site's markdown.** `site/` was skipped wholesale, so the art prompts -- which
+  cite section numbers in a checks table -- were never checked. Three of them cited a section of the
+  world's site note that does not exist; one cited the palette in the wrong section.
+- **A reference to a document this repository does not have is reported, not skipped.** A kit prompt
+  legitimately cites a world's atlas register, and in the kit that reference resolved to nothing and
+  vanished. That silence is exactly how the `thread` template kept a stale citation until a world ran
+  the check (1.0.3). These are printed as NOTES at the end of a run: visible, and not failures.
+- **A reference that names a directory no longer falls back to a bare basename match.** `meta/site.md`
+  was matching the kit's `docs/site.md`, which made a citation of the world's note look like a
+  citation of the kit's -- and the same bug hid the palette citation named above.
+
+Also fixed, all in the kit's own files: `tools/site_export.py`, `site/astro.config.mjs` and
+`site/image-prompts/_style.md` cited `meta/site.md` where they meant `docs/site.md`. In a world the
+first path is the world's own site note with different numbers.
+
 ## 1.0.3 — a template that cited a world note by number
 
 Patch. A world should sync and re-run `tools/verify-world.sh`.
 
-`meta/templates/thread.md` told an author that the thread classes are in a world note's section 6.
+`meta/templates/thread.md` told an author that the thread classes were in a section of a world note.
 The kit could not see the problem: that note lives in a world, so in the kit the citation resolved to
 nothing and the check passed. In a world it resolved, and the number was wrong -- the note has been
-cut back and no longer has a section 6 at all. The classes are the kit's own concept, so the template
+cut back, and that section is no longer there. The classes are the kit's own concept, so the template
 now cites the kit's `docs/thread-pattern.md` §6.
 
 The rule this teaches: **a template cites the kit's documents, never a world's.** A template is

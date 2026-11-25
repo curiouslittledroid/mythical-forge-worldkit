@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Export the player-facing view of the codex for the public site (roadmap Step 16).
 
-The rules this implements live in `meta/site.md` section 2. In one line: **publish the
+The rules this implements live in `docs/site.md` section 2. In one line: **publish the
 `open` part of every section, and nothing else.** Standard library only.
 
     python3 tools/site_export.py              # build into site/

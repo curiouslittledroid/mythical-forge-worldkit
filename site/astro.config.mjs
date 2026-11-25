@@ -7,7 +7,7 @@ import { loadConfig } from '../tools/kit_config.mjs';
 // The site URL is needed for absolute links in the RSS feed and the social card. It comes from
 // the world's config; $SITE_URL overrides it (CI sets it to the deployed hostname, which may
 // differ from the one a world has recorded). No domain yet is a normal state: a CloudFront
-// hostname stands in until a real one lands (meta/site.md section 8).
+// hostname stands in until a real one lands (the kit's `docs/site.md` §8).
 const cfg = loadConfig();
 const SITE_URL = process.env.SITE_URL || cfg.site?.url;
 if (!SITE_URL) {
