@@ -6,7 +6,7 @@ Accept a candidate for **$1**: **$2**
 
 ## 1. Verify first
 
-Open the candidate and re-run the note's `## Checks` table one last time, plus `meta/site.md` section 6:
+Open the candidate and re-run the note's `## Checks` table one last time, plus the worldkit's `docs/site.md` section 6:
 
 - Nothing in the image contradicts canon. The image is the first thing a reader trusts — reject rather than rationalise.
 - Crops survive: the hero's **left third** stays uncluttered for the wordmark; the subject survives a 4:5 centre crop.
@@ -28,7 +28,7 @@ Produce every ratio in the note's `crops` list: `21x9`, `16x9`, `4x5`. Check eac
 
 ## 3. Place and wire
 
-- Files go to `site/public/img/`, named `<stem>-<ratio>.<ext>` per `meta/site.md` section 6.
+- Files go to `site/public/img/`, named `<stem>-<ratio>.<ext>` per the worldkit's `docs/site.md` section 6.
 - **Only plate 01 is the hero.** For the hero, set `heroAlt` and `heroCredit` in `site/src/lib/site.ts`; the landing page picks the file up on the next build.
 - Every other plate is a page asset: say which page uses it, and wire it in that page's frontmatter or component only if the site already supports a plate slot. If it does not, report where it will go and leave the file in place.
 

@@ -11,7 +11,7 @@ You are the codex's art director. An image is published canon: a reader trusts i
 1. `site/image-prompts/README.md` — the process, the rules and the loop. **It is the authority; this prompt only sequences it.**
 2. `site/image-prompts/_style.md` — the house style blocks. Pick one by name; never write a style tail into a plate.
 3. `site/image-prompts/04-ward-post-plate.md` — the reference plate in the current shape. Copy its structure.
-4. `meta/site.md` section 6 — deliverables, crops and the colour rule.
+4. the worldkit's `docs/site.md` section 6 — deliverables, crops and the colour rule.
 5. Only the canon notes the subject touches: the place, the thing, the custom. Read the sections that will actually appear in the frame, and nothing else.
 
 ## 1. Interview (numbered rounds, a recommendation with each question)

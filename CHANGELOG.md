@@ -4,6 +4,20 @@ A world pins the kit by copying its version into `TOOLING_VERSION` and updating 
 `tools/sync-tooling.sh`. **A change a world cannot absorb silently is a major bump and gets a
 migration note here.**
 
+## 1.0.7 — the image prompts cited a world's note
+
+Patch. A world should sync and re-run `tools/verify-world.sh`.
+
+`.pi/prompts/image-accept.md` and `image-prompt.md` sent an author to `meta/site.md` section 6 for
+the image deliverables and the colour rule. That path is the WORLD's own site note: in the first
+world it numbers its sections, and in a new world it need not -- so the citation dangled in a
+template and warned in every world that does not number its notes. The rules are the kit's, and they
+are in the kit's `docs/site.md` §6.
+
+This is the third variant of the same mistake (1.0.2, 1.0.3, here): a kit file citing a world's
+document by path or number. The convention is in `docs/conventions.md` §16.1 -- a kit document cites
+the kit's documents -- and the check reports the rest as NOTES.
+
 ## 1.0.6 — the re-exec guard never fired
 
 Patch. No world needs to do anything, but a world more than one release behind should take this
