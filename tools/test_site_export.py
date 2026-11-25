@@ -7,6 +7,7 @@ Every redaction rule in meta/site.md section 2.2 has a test here. The rule that 
 from __future__ import annotations
 
 import json
+import re
 import sys
 import tempfile
 import unittest
@@ -14,6 +15,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import lint  # noqa: E402
+import kit_config  # noqa: E402
 import site_export  # noqa: E402
 import testkit  # noqa: E402
 
@@ -785,6 +787,38 @@ class TestTestimony(SiteCase):
         self.write("world/places/a.md", note(disclosure="open", body="## Details\n- some lore\n\n" + self.ACCOUNT))
         self.build()
         self.assertNotIn("## The accounts", self.page("places/a.md"))
+
+
+
+class ConfigSeamTest(unittest.TestCase):
+    """Every config value the theme reads must reach it through site.json.
+
+    A forgotten field is silent: `SITE.searchPlaceholder` renders as an empty placeholder and a
+    missing `heroFile` makes the hero art never resolve -- neither raises. So compare the keys the
+    theme asks for against the keys the exporter writes, by calling the exporter's payload
+    function (no side effects, no stale file on disk).
+    """
+
+    def test_theme_reads_only_fields_the_exporter_writes(self):
+        root = kit_config.load().root
+        theme = root / "site/src/lib/site.ts"
+        if not theme.exists():
+            self.skipTest("no theme in this repo")
+        wanted = set(re.findall(r"generated\.(\w+)", theme.read_text(encoding="utf-8")))
+        self.assertTrue(wanted, "site.ts reads nothing from site.json")
+        written = set(site_export.site_json(kit_config.load()))
+        self.assertEqual(set(), wanted - written,
+                         f"the theme reads fields site.json does not carry: {sorted(wanted - written)}")
+
+    def test_the_worlds_own_site_settings_reach_the_theme(self):
+        """The fields whose absence is invisible: a hint that renders empty, a hero that 404s."""
+        root = kit_config.load().root
+        if not (root / "site/src/lib/site.ts").exists():
+            self.skipTest("no theme in this repo")
+        cfg = kit_config.load().site
+        written = site_export.site_json(kit_config.load())
+        self.assertEqual(cfg.hero_file, written.get("heroFile"))
+        self.assertEqual(cfg.search_placeholder, written.get("searchPlaceholder"))
 
 
 if __name__ == "__main__":

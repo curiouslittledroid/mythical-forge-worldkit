@@ -1186,27 +1186,7 @@ def build(today: str | None = None, out: Path | None = None, data: Path | None =
             path.write_text(rendered[page.id][1], encoding="utf-8")
         # The Astro build cannot call Python, so the world's branding reaches it here. `site.ts`
         # imports this instead of holding a second copy of the world's name and tagline.
-        write_json(data / "site.json", {
-            "name": CFG.title,
-            "worldId": CFG.world_id,
-            "slug": CFG.slug,
-            "tagline": CFG.tagline,
-            "description": CFG.description,
-            "author": CFG.author,
-            "license": CFG.license,
-            "url": CFG.site.url,
-            "buttondownUser": CFG.site.buttondown_user,
-            "heroAlt": CFG.site.hero_alt,
-            "heroCredit": CFG.site.hero_credit,
-            # Everything here is the world's: the theme has no opinion about any of it.
-            "contentDescriptors": list(CFG.site.content_descriptors),
-            "t0Prefix": CFG.site.t0_prefix,
-            "t0Epoch": CFG.site.t0_epoch,
-            "doorways": [{"href": d.href, "label": d.label, "blurb": d.blurb}
-                         for d in CFG.site.doorways],
-            "whatToExpect": list(WHAT_TO_EXPECT),
-            "tagLabels": dict(TAG_LABELS),
-        })
+        write_json(data / "site.json", site_json())
         write_json(data / "navigation.json", navigation)
         write_json(data / "changelog.json", list(reversed(entries[-100:])))
         write_json(data / "redirects.json", redirects)
@@ -1240,6 +1220,44 @@ def summarise(audit: dict) -> str:
         f" ({len(audit['withheld_tags'])} tags) | empty tags {len(audit['empty_tags'])}",
     ]
     return "\n".join(lines)
+
+
+def site_json(cfg=None, what_to_expect=None, tag_labels=None) -> dict[str, object]:
+    """The world's branding, as the theme reads it from site/src/data/generated/site.json.
+
+    A function rather than an inline literal so the seam can be tested: every field here is a
+    value the THEME reads, and a field the theme reads but this omits is silent - an empty
+    search hint, a hero image that never resolves - so test_site_export checks the two lists
+    against each other.
+    """
+    cfg = CFG if cfg is None else cfg
+    what_to_expect = WHAT_TO_EXPECT if what_to_expect is None else what_to_expect
+    tag_labels = TAG_LABELS if tag_labels is None else tag_labels
+    return {
+
+            "name": cfg.title,
+            "worldId": cfg.world_id,
+            "slug": cfg.slug,
+            "tagline": cfg.tagline,
+            "description": cfg.description,
+            "author": cfg.author,
+            "license": cfg.license,
+            "url": cfg.site.url,
+            "buttondownUser": cfg.site.buttondown_user,
+            "heroAlt": cfg.site.hero_alt,
+            "heroCredit": cfg.site.hero_credit,
+            "heroFile": cfg.site.hero_file,
+            "searchPlaceholder": cfg.site.search_placeholder,
+            # Everything here is the world's: the theme has no opinion about any of it.
+            "contentDescriptors": list(cfg.site.content_descriptors),
+            "t0Prefix": cfg.site.t0_prefix,
+            "t0Epoch": cfg.site.t0_epoch,
+            "doorways": [{"href": d.href, "label": d.label, "blurb": d.blurb}
+                         for d in cfg.site.doorways],
+            "whatToExpect": list(what_to_expect),
+            "tagLabels": dict(tag_labels),
+            }
+
 
 
 def main(argv: list[str]) -> int:
