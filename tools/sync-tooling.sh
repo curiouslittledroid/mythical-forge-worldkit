@@ -65,6 +65,7 @@ if [ -z "${SYNC_REEXEC:-}" ] && ! cmp -s "$TMP/kit/tools/sync-tooling.sh" "$WORL
 fi
 mkdir -p "$WORLD_ROOT/tools/docs"
 rsync -a --delete "$TMP/kit/docs/" "$WORLD_ROOT/tools/docs/"
+mkdir -p "$WORLD_ROOT/meta/templates"
 [ -d "$TMP/kit/meta/templates" ] && rsync -a --delete "$TMP/kit/meta/templates/" "$WORLD_ROOT/meta/templates/"
 
 # The theme. `--delete` everywhere the kit owns the file; the exclusions are what a world keeps:
@@ -73,6 +74,7 @@ if [ -d "$TMP/kit/site" ] && [ -d "$WORLD_ROOT/site" ]; then
   # Three pages are the WORLD'S copy, not theme chrome: the landing page, About and Follow. The kit
   # ships a neutral version of each so a new world has a working site, and then leaves them alone -
   # a world's About page is its own prose, and a sync that rewrote it would be destroying content.
+  mkdir -p "$WORLD_ROOT/site/src" "$WORLD_ROOT/site/infra" "$WORLD_ROOT/site/image-prompts"
   rsync -a --delete \
         --exclude 'content/generated' --exclude 'data/generated' \
         --exclude 'pages/index.astro' --exclude 'pages/about.astro' --exclude 'pages/follow.astro' \
@@ -92,7 +94,8 @@ fi
 # world, but it is not THIS vault).
 if grep -qE '^template:[[:space:]]*true' "$WORLD_ROOT/world.config.yaml" 2>/dev/null; then
   echo "-> example-world/ (the kit's demo world, mirrored)"
-  mkdir -p "$WORLD_ROOT/example-world"
+  mkdir -p "$WORLD_ROOT/example-world/world" "$WORLD_ROOT/example-world/campaigns" \
+           "$WORLD_ROOT/example-world/meta"
   rsync -a --delete "$TMP/kit/world/" "$WORLD_ROOT/example-world/world/"
   [ -d "$TMP/kit/campaigns" ] && rsync -a --delete "$TMP/kit/campaigns/" \
         "$WORLD_ROOT/example-world/campaigns/"
@@ -105,7 +108,9 @@ if grep -qE '^template:[[:space:]]*true' "$WORLD_ROOT/world.config.yaml" 2>/dev/
   cp "$TMP/kit/world.config.yaml" "$WORLD_ROOT/example-world/world.config.yaml"
 fi
 
+mkdir -p "$WORLD_ROOT/.pi/prompts"
 [ -d "$TMP/kit/.pi/prompts" ] && rsync -a --delete "$TMP/kit/.pi/prompts/" "$WORLD_ROOT/.pi/prompts/"
+mkdir -p "$WORLD_ROOT/.github/workflows"
 [ -f "$TMP/kit/.github/workflows/site.yml" ] && \
   cp "$TMP/kit/.github/workflows/site.yml" "$WORLD_ROOT/.github/workflows/site.yml"
 

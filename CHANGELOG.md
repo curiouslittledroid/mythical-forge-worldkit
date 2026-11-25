@@ -4,6 +4,22 @@ A world pins the kit by copying its version into `TOOLING_VERSION` and updating 
 `tools/sync-tooling.sh`. **A change a world cannot absorb silently is a major bump and gets a
 migration note here.**
 
+## 1.0.5 — the sync can now bootstrap a repository
+
+Patch. No world needs to do anything.
+
+`tools/sync-tooling.sh` assumed its destinations existed: it rsynced into `meta/templates/`,
+`site/src/`, `.pi/prompts/` and `.github/workflows/` without creating them first. A world always has
+those directories, so this never showed -- and the first repository that did not (the world template,
+which is meant to start nearly empty) failed on its very first sync with
+
+    rsync: mkdir ".../meta/templates" failed: No such file or directory
+
+Every destination is now created with `mkdir -p` before anything is written into it, and
+`example-world/` gets its three subdirectories for the same reason. Found by bootstrapping the
+template through the sync rather than by copying files around it, which is the point of the template
+existing at all.
+
 ## 1.0.4 — the check got stricter, and found more
 
 Patch. A world should sync and re-run `tools/verify-world.sh`.
