@@ -61,7 +61,8 @@ docs/                  the rules and the registers - the kit's own documents
   campaign-authoring-guide.md  how to author a thread, a Campaign, its Modules and Quests
   thread-pattern.md            why a thread is a state graph (the reference behind the guide)
   site.md                      how a site is generated from a vault
-meta/templates/        one template per note type, with the end-to-end example in examples/ferryman/
+meta/templates/        one template per note type. The end-to-end example IS the demo world
+                       (world/, campaigns/ferryman-demo/), so there is no second copy to drift
 meta/platform-requests/  draft specs written for the platform repository - not the kit's backlog
 tools/                 the scripts and their tests
 world/, campaigns/, meta/  the DEMO WORLD: the smallest complete vault the tools can run against

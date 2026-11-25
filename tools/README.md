@@ -61,6 +61,7 @@ to run rather than guessing.
 | `test_site_export.py` | Its tests: one per redaction rule. |
 | `site_link_check.py` | Fails the build on any internal link to a file that does not exist. |
 | `site_audit_report.py` | Prints the publish audit into a CI run summary; `--strict` gates the build. |
+| `sync-tooling.sh` | **A world's updater.** Fetches a release tag of the worldkit and replaces this repo's `tools/` (except `tools/local/`), the kit's `docs/` into `tools/docs/`, the templates and the theme. It is the one command that moves a world's `TOOLING_VERSION` pin, and its diff is the whole review surface. |
 | `check-guide.mjs` | Checks every `yaml` block in the campaign authoring guide against the engine's schema. The guide is a kit document, so its path is **resolved**, not hardcoded: `<kit>/docs/`, the staged `<repo>/worldkit/docs/`, or an argument. |
 | `sync-agent-protocol.py` | Writes the kit's `docs/agent-protocol.md` into `AGENTS.md`, between the marked region. `--check` fails on drift and is what CI runs. A world's `AGENTS.md` is its own brief plus this region; the protocol is duplicated on purpose, because an agent may never follow a link out of the repository, and the duplication is kept honest by this tool. |
 | `atlas_yaml.py` | Reads and validates `maps/atlas-features.yaml` (the reader is `yaml_subset.py`; this owns the atlas schema). |

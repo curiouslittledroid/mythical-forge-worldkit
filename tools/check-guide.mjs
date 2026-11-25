@@ -24,12 +24,10 @@ const { parseAuthoredEntity } = requireMf(join(mfRoot(), 'packages', 'authored-c
 
 /** First path that exists, so one tool serves the worldkit, the staged kit and a world. */
 const firstExisting = (...paths) => paths.find((p) => existsSync(p));
-const KIT_GUIDE = firstExisting(join(ROOT, 'docs', 'campaign-authoring-guide.md'),
-                                join(ROOT, 'worldkit', 'docs', 'campaign-authoring-guide.md'));
-const FERRYMAN = firstExisting(join(ROOT, 'meta', 'templates', 'examples', 'ferryman'),
-                               join(ROOT, 'worldkit', 'meta', 'templates', 'examples', 'ferryman'));
-// A world's pilot thread is checked too when this runs inside a world; in the kit it is absent.
-const PILOT = join(ROOT, 'world', 'plot-web', 'the-lineage-and-the-gate-born.md');
+const DOC_DIRS = [join(ROOT, 'docs'), join(ROOT, 'tools', 'docs'), join(ROOT, 'worldkit', 'docs')];
+const KIT_GUIDE = DOC_DIRS.map((d) => join(d, 'campaign-authoring-guide.md')).find(existsSync);
+// In the kit this is the demo world; in a world it is that world's own vault. Same paths either way.
+const SOURCES = [join(ROOT, 'world'), join(ROOT, 'campaigns')].filter(existsSync);
 
 const strip = (v) => {
   if (Array.isArray(v)) return v.map(strip);
@@ -37,12 +35,12 @@ const strip = (v) => {
   return v;
 };
 
-// Source blocks: the Ferryman kit and the Lineage pilot thread. A guide block with the same id must match its source.
+// Source blocks: the demo world's notes. A guide block with the same id must match the note it was
+// copied from, so a tutorial cannot teach a block the kit does not ship.
 const walk = (d) => (existsSync(d) ? readdirSync(d, { withFileTypes: true }).flatMap((e) => (e.isDirectory() ? walk(join(d, e.name)) : e.name.endsWith('.md') ? [join(d, e.name)] : [])) : []);
 const sorted = (v) => (Array.isArray(v) ? v.map(sorted) : v && typeof v === 'object' ? Object.fromEntries(Object.keys(v).sort().map((k) => [k, sorted(v[k])])) : v);
 const sources = new Map();
-for (const f of [...walk(FERRYMAN ?? ''), PILOT].filter(Boolean)) {
-  if (!existsSync(f)) continue;
+for (const f of SOURCES.flatMap(walk)) {
   for (const m of readFileSync(f, 'utf8').matchAll(/```engine\n([\s\S]*?)```/g)) {
     const obj = strip(YAML.parse(m[1]));
     if (obj?.id) sources.set(obj.id, JSON.stringify(sorted(obj)));
@@ -50,8 +48,8 @@ for (const f of [...walk(FERRYMAN ?? ''), PILOT].filter(Boolean)) {
 }
 
 if (!KIT_GUIDE) {
-  console.error('check-guide: cannot find docs/campaign-authoring-guide.md (looked in ./docs, ./worldkit/docs);' +
-                ' pass the path as an argument');
+  console.error('check-guide: cannot find campaign-authoring-guide.md (looked in ./docs, ./tools/docs,' +
+                ' ./worldkit/docs); pass the path as an argument');
   process.exit(2);
 }
 const files = process.argv.slice(2).length ? process.argv.slice(2) : [KIT_GUIDE];

@@ -10,9 +10,9 @@
 ## How to use this guide
 
 - **Read Part 1 once.** Then follow Parts 3 to 6 with the example open, and copy the pattern for your own thread.
-- **The running example is the Ferryman's Debt**, a small *Resolvable* thread (`meta/templates/examples/ferryman/world/plot-web/the-ferrymans-debt.md`). It is a teaching example, **not canon**. Its notes are in `meta/templates/examples/ferryman/`, laid out exactly as they would sit in the vault.
+- **The running example is the Ferryman's Debt**, a small *Resolvable* thread (`world/plot-web/the-ferrymans-debt.md`). **It is the demo world this repository ships, not canon**, and it is laid out exactly as it would sit in a real vault: its people in `world/npcs/`, its factions in `world/factions/`, its Campaign, Modules and Quests in `campaigns/ferryman-demo/`. Run `./verify-kit.sh` to watch the whole pipeline build and test it.
 - **Every block in this guide is copied from that example**, and the example is built and tested by a script: `tools/verify-example.sh` copies the vault to a throwaway directory, drops the example in, and runs lint, transform, validate, `thread-check` and six scenarios. `tools/check-guide.mjs` checks every `yaml` block in this guide against the engine's own schema. If a block here stops being valid, one of those fails.
-- **For a Managed or Ratchet thread**, read the same patterns in the pilot, the-lineage-and-the-gate-born (22 events, 16 scenarios).
+- **For a Managed or Ratchet thread**, the demo world has only a *Resolvable* one. A real world's pilot thread is the next thing to read: 20 events and 16 scenarios is a reasonable size for a first Managed thread.
 
 | Part | You will |
 |---|---|
@@ -649,7 +649,7 @@ then:
 
 ## 4.10 The thread note
 
-The thread card is the **document that explains the graph**; the blocks are the engine's copy. Use the `thread` template (`meta/templates/thread.md`) and copy the Ferryman's note (`meta/templates/examples/ferryman/world/plot-web/the-ferrymans-debt.md`). Its frontmatter carries two codex-only fields:
+The thread card is the **document that explains the graph**; the blocks are the engine's copy. Use the `thread` template (`meta/templates/thread.md`) and copy the demo world's note (`world/plot-web/the-ferrymans-debt.md`). Its frontmatter carries two codex-only fields:
 
 ```yaml
 thread: ferry

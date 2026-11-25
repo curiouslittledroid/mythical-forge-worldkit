@@ -32,12 +32,13 @@ def find_root() -> Path:
 
 def find_source(root: Path) -> Path:
     """The protocol source, in the kit repo or while the kit is staged inside a world."""
-    for rel in ("worldkit/docs/agent-protocol.md", "docs/agent-protocol.md"):
+    for rel in ("docs/agent-protocol.md", "tools/docs/agent-protocol.md",
+                "worldkit/docs/agent-protocol.md"):
         p = root / rel
         if p.is_file():
             return p
-    sys.exit("sync-agent-protocol: cannot find docs/agent-protocol.md (looked in ./worldkit/docs "
-             "and ./docs). While the worldkit is staged inside a world, the staged copy is used.")
+    sys.exit("sync-agent-protocol: cannot find agent-protocol.md. It is the kit's "
+             "(<kit>/docs/agent-protocol.md); a world vendors it at tools/docs/agent-protocol.md.")
 
 
 def region_of(text: str, *, start: str, stop: str, what: str) -> str:
@@ -62,20 +63,17 @@ def main() -> int:
         sys.exit(f"sync-agent-protocol: unknown argument(s): {' '.join(unknown)}")
 
     root = find_root()
-    if (root / "docs" / "agent-protocol.md").is_file():
-        # The kit itself: this repository is the protocol's source, so there is nothing to sync.
-        # A self-sync would be a copy of a file onto itself and would say nothing (D36).
+    source = find_source(root)
+    if source.parent == root / "docs":
+        # The kit itself: this repository owns the protocol, so there is nothing to sync into its
+        # own AGENTS.md. A self-sync would copy a file onto itself and say nothing (D36).
         print("sync-agent-protocol: this is the worldkit, which owns the protocol; nothing to sync")
         return 0
-    source = find_source(root)
-    want = region_of(source.read_text(encoding="utf-8"), start=START, stop=STOP,
-                      what=str(source))
     agents = root / "AGENTS.md"
     if not agents.is_file():
         sys.exit(f"sync-agent-protocol: no AGENTS.md at {agents}")
     text = agents.read_text(encoding="utf-8")
     have = region_of(text, start=BEGIN, stop=END, what=str(agents))
-
     if have == want:
         print(f"sync-agent-protocol: {agents.name} is up to date with {source.name} "
               f"({len(want.splitlines())} lines)")

@@ -13,7 +13,7 @@ The kit's *users* are worlds; a world's own plan lives in its own `ROADMAP.md`.
 | Version | `1.0.0` (`TOOLING_VERSION`) |
 | Origin | extracted from `hollowfall-codex`, 2026. D1–D36 of that repository's `ROADMAP-EXTRACTION.md` are the decisions; they were made there and are not repeated here |
 | The proof | `./verify-kit.sh` — lint → transform → validate → thread-check → six scenarios, in a throwaway directory |
-| The fixture | the **Ferryman's Debt**: `world/`, `campaigns/ferryman-demo/` and `meta/templates/examples/ferryman/` |
+| The fixture | the **Ferryman's Debt**: `world/` and `campaigns/ferryman-demo/`. One copy only — it used to sit beside the templates as well, and two copies of a fixture drift |
 | Known debt | the fixture's place names are borrowed from the first world (K2). CI cannot run `verify-kit.sh` (the platform repository is private) |
 
 ## 1. The plan

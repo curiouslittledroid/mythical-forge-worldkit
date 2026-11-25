@@ -21,7 +21,7 @@ only serious mistake available in this repository.
 | `docs/campaign-authoring-guide.md` | The how-to for authoring threads, Campaigns, Modules and Quests. |
 | `docs/thread-pattern.md` | The reference behind the guide — **why** a thread is a state graph. (Arrives with extraction T3d.) |
 | `docs/site.md` | How a public site is generated from a vault. A world's page choices are its own. |
-| `meta/templates/` | One template per note type; `meta/templates/examples/ferryman/` is the end-to-end fixture. |
+| `meta/templates/` | One template per note type; The demo world (`world/`, `campaigns/ferryman-demo/`) is the end-to-end fixture. |
 | `tools/` | The scripts, and the tests beside them. |
 | `site/` | The Astro theme a world installs. |
 | `meta/platform-requests/` | Draft specs written for the platform repository. Not the kit's own backlog. |
