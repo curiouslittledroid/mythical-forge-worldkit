@@ -1,56 +1,69 @@
 #!/usr/bin/env bash
-# Builds a world's teaching example into a THROWAWAY copy of the vault and runs the whole pipeline
-# on it: lint, transform, validate, thread-check, and the example's scenarios. Nothing in the real
-# vault or the real Game Ready Repository is touched.
+# A WORLD's proof: build this world's vault into a throwaway Game Ready Repository and run the whole
+# pipeline on the world's OWN content. Nothing here is touched.
 #
-# This is the WORLD's proof. The kit proves itself with ./verify-kit.sh against its demo world; a
-# world proves the pipeline against its own vault plus a small, known-good example laid over it.
-# That way a world's failing pipeline can be told apart from a broken example.
+# The division of labour:
+#   ../verify-kit.sh (in the kit)   proves the TOOLCHAIN, against the kit's demo world
+#   tools/verify-world.sh           proves THIS WORLD, against its own vault and its own scenarios
 #
-# Usage: tools/verify-world.sh [--keep] [example-dir]
-#        the example dir defaults to meta/templates/examples/ferryman
+# A world overlays nothing. It used to overlay a copy of the kit's teaching example, which meant
+# every world carried a duplicate of a fixture it did not own, and a failure could not be attributed:
+# a broken toolchain and broken lore looked the same. Now the kit answers the first question and this
+# answers the second, from the world's own content.
+#
+# Needs MYTHICAL_FORGE_ROOT - the platform repository, i.e. the directory holding
+# packages/authored-content - because the transformer and the validator are the engine's own code.
+#
+# Usage: tools/verify-world.sh [--keep] [--scenario file.yaml ...]
+#        with no scenario arguments, every scenario in `vault.scenarios` is run (`--coverage`).
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-KIT="${2:-$ROOT/meta/templates/examples/ferryman}"
-TMP="$(mktemp -d)"
-trap '[ "${1:-}" = "--keep" ] || rm -rf "$TMP"' EXIT
+KEEP=""
+SCENARIOS=()
+for a in "$@"; do
+  case "$a" in
+    --keep) KEEP=1 ;;
+    *) SCENARIOS+=("$a") ;;
+  esac
+done
 
-if [ ! -d "$KIT" ]; then
-  echo "verify-world: no example at $KIT" >&2
-  echo "  pass one: tools/verify-world.sh --keep <example-dir>" >&2
+if [ -z "${MYTHICAL_FORGE_ROOT:-}" ]; then
+  echo "verify-world: MYTHICAL_FORGE_ROOT is unset. It must point at the platform repository —" >&2
+  echo "              the directory that holds packages/authored-content. The transformer and the" >&2
+  echo "              validator are the engine's own code." >&2
   exit 2
 fi
 
+TMP="$(mktemp -d)"
+trap '[ -n "$KEEP" ] || rm -rf "$TMP"' EXIT
+GR="$TMP/gameready"
+mkdir -p "$GR"
+
+# The transform writes codex-threads.yaml into the vault, so it runs on a copy: the world's own
+# directory is never modified by a check.
 rsync -a --exclude .git --exclude node_modules --exclude __pycache__ --exclude site/dist \
-      "$ROOT/" "$TMP/vault/"
-mkdir -p "$TMP/gameready"
-# The example's notes overlay the vault, in the layout a real world uses.
-cp -R "$KIT/world/." "$TMP/vault/world/" 2>/dev/null || true
-cp -R "$KIT/campaigns/." "$TMP/vault/campaigns/" 2>/dev/null || true
-# An example that declares its own flags has them appended to the World Flags block.
-if [ -f "$KIT/flags-to-add.yaml" ]; then
-  python3 - "$TMP/vault" "$KIT/flags-to-add.yaml" "$TMP/vault/tools" <<'PY'
-import sys
-from pathlib import Path
+      "$ROOT/" "$TMP/world/"
+cd "$TMP/world"
 
-sys.path.insert(0, sys.argv[3])                      # the vault's own copy of the tools
-import kit_config
-
-vault = Path(sys.argv[1])
-add = "".join(l for l in Path(sys.argv[2]).read_text(encoding="utf-8").splitlines(True)
-              if not l.startswith("#"))
-flags = kit_config.load(vault / "world.config.yaml").path_of("flags")
-s = flags.read_text(encoding="utf-8")
-i = s.rindex("```")
-flags.write_text(s[:i] + add + s[i:], encoding="utf-8")
-PY
+echo "== lint          (frontmatter, ids, dead links, undeclared flags)"
+python3 tools/lint.py | tail -6
+echo "== disclosure    (every lore section has a class; exits 1 if any is unreviewed)"
+python3 tools/disclosure.py --check
+echo "== transform"
+GAME_READY_REPO="$GR" node tools/transform.mjs | grep -E "Wrote|thread " || true
+echo "== validate      (the engine's own schema and reference checks)"
+GAME_READY_REPO="$GR" node tools/validate-world.mjs --repo "$GR" 2>&1 | grep -E "schema error|✗" || true
+echo "== thread-check  (flag registry, own-stage guards, references, thread interfaces)"
+node tools/thread-check.mjs --repo "$GR" | grep -E "OK|problem|Missing|never|Dangling|mismatch" || true
+echo "== voice"
+python3 tools/voice_lint.py | tail -3 || true
+python3 tools/voice_stale.py | tail -3 || true
+if [ "${#SCENARIOS[@]}" -gt 0 ]; then
+  echo "== scenarios     (${#SCENARIOS[@]} named)"
+  node tools/simulate-world.mjs --repo "$GR" --quiet "${SCENARIOS[@]}"
+else
+  echo "== scenarios     (every scenario in vault.scenarios, with coverage)"
+  node tools/simulate-world.mjs --repo "$GR" --coverage --quiet
 fi
 
-cd "$TMP/vault"
-echo "== lint";       python3 tools/lint.py | tail -6 || true
-echo "== transform";  GAME_READY_REPO="$TMP/gameready" node tools/transform.mjs | grep -E "Wrote|thread ferry" || true
-echo "== validate";   GAME_READY_REPO="$TMP/gameready" node tools/validate-world.mjs 2>&1 | grep -E "schema error|✗" || true
-echo "== thread-check"; node tools/thread-check.mjs --repo "$TMP/gameready" | grep -E "OK|problem|Missing|never|Dangling|mismatch" || true
-echo "== scenarios";  node tools/simulate-world.mjs --repo "$TMP/gameready" --quiet "$KIT"/scenarios/0*.yaml
-
-[ "${1:-}" = "--keep" ] && echo "kept: $TMP" || true
+[ -n "$KEEP" ] && echo "kept: $TMP" || true

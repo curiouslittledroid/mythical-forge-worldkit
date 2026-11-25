@@ -16,7 +16,9 @@
 #                     the world's agent must be able to read. A pointer in prose therefore names the
 #                     kit document AND its vendored path ("the kit's conventions.md §7, vendored at
 #                     tools/docs/conventions.md"), so the rule is always one file away.
-#   meta/templates/   the canonical note templates
+#   meta/templates/   the canonical note templates (mirrored: this directory is wholly the kit's,
+#                     so a template deleted upstream goes away. A world's own examples live in its
+#                     own folder, never here.)
 #   site/             the Astro theme (when the kit ships one and the world uses it)
 #
 # It never touches: tools/local/, the world's lore, its world.config.yaml, its meta/ notes, its
@@ -50,7 +52,7 @@ OLD="$(cat "$WORLD_ROOT/TOOLING_VERSION" 2>/dev/null || echo none)"
 rsync -a --delete --exclude 'local/' --exclude '__pycache__' "$TMP/kit/tools/" "$WORLD_ROOT/tools/"
 mkdir -p "$WORLD_ROOT/tools/docs"
 rsync -a --delete "$TMP/kit/docs/" "$WORLD_ROOT/tools/docs/"
-[ -d "$TMP/kit/meta/templates" ] && rsync -a "$TMP/kit/meta/templates/" "$WORLD_ROOT/meta/templates/"
+[ -d "$TMP/kit/meta/templates" ] && rsync -a --delete "$TMP/kit/meta/templates/" "$WORLD_ROOT/meta/templates/"
 [ -d "$TMP/kit/site/src" ] && rsync -a --delete "$TMP/kit/site/src/" "$WORLD_ROOT/site/src/"
 
 printf '%s\n' "$TAG" > "$WORLD_ROOT/TOOLING_VERSION"

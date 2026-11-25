@@ -25,3 +25,10 @@ The first release: the tooling and the general rules lifted out of the first wor
 5. **Spelling is a setting** (`vault.spelling`); the linter checks it. Metric stays mandatory.
 6. The documents a world used to hold are now the kit's, cited **by name and section**. A world keeps
    a pointer note for each (see its `meta/campaign-authoring-guide.md` for the pattern).
+7. **A world vendors the kit's documents at `tools/docs/`**, written by the sync: the rules are part
+   of the tooling, because a tool enforces a rule the world's agent has to be able to read.
+8. **`tools/verify-world.sh` replaced `verify-example.sh`**, and it overlays nothing: it runs the
+   world's own vault and its own scenarios. A world no longer carries a copy of a fixture it does not
+   own — delete `meta/templates/examples/ferryman/` and keep the world's examples in `meta/examples/`.
+   `meta/templates/` is now wholly the kit's and is mirrored, so anything a world adds there is
+   removed by the next sync.
