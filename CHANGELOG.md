@@ -4,6 +4,20 @@ A world pins the kit by copying its version into `TOOLING_VERSION` and updating 
 `tools/sync-tooling.sh`. **A change a world cannot absorb silently is a major bump and gets a
 migration note here.**
 
+## 1.0.3 — a template that cited a world note by number
+
+Patch. A world should sync and re-run `tools/verify-world.sh`.
+
+`meta/templates/thread.md` told an author that the thread classes are in a world note's section 6.
+The kit could not see the problem: that note lives in a world, so in the kit the citation resolved to
+nothing and the check passed. In a world it resolved, and the number was wrong -- the note has been
+cut back and no longer has a section 6 at all. The classes are the kit's own concept, so the template
+now cites the kit's `docs/thread-pattern.md` §6.
+
+The rule this teaches: **a template cites the kit's documents, never a world's.** A template is
+copied into a world whose notes are numbered differently or reduced, and the kit's own CI can only
+see the citations that resolve inside the kit.
+
 ## 1.0.2 — two dozen citations the check found in the kit's own voice
 
 Patch. Nothing a world authors changes; a world should sync and re-run `tools/verify-world.sh`.
