@@ -16,7 +16,18 @@ from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 TOOL = HERE / "sync-agent-protocol.py"
-SOURCE = HERE.parent / "docs" / "agent-protocol.md"
+
+
+def find_source() -> Path:
+    """The protocol, wherever the kit keeps it: its own docs/, or a world's vendored tools/docs/."""
+    for rel in ("docs/agent-protocol.md", "tools/docs/agent-protocol.md", "worldkit/docs/agent-protocol.md"):
+        p = HERE.parent / rel
+        if p.is_file():
+            return p
+    raise SystemExit(f"test_sync_agent_protocol: no agent-protocol.md beside {HERE}")
+
+
+SOURCE = find_source()
 
 BEGIN = "<!-- BEGIN agent-protocol — synced; edit that, not this -->"
 END = "<!-- END agent-protocol -->"
