@@ -53,6 +53,15 @@ OLD="$(cat "$WORLD_ROOT/TOOLING_VERSION" 2>/dev/null || echo none)"
 
 # --exclude local/ is what makes D16 true: a world's own scripts survive every sync.
 rsync -a --delete --exclude 'local/' --exclude '__pycache__' "$TMP/kit/tools/" "$WORLD_ROOT/tools/"
+
+# The copy of THIS script has just been replaced, and bash is still reading the old text: a step
+# added in the new version would silently not run (which is exactly what happened the first time a
+# world took this release - the theme synced but the theme's README did not). Re-exec once, with the
+# new script, and only then continue.
+if [ -z "${SYNC_REEXEC:-}" ] && ! cmp -s "$TMP/kit/tools/sync-tooling.sh" "$WORLD_ROOT/tools/sync-tooling.sh" >/dev/null 2>&1; then
+  echo "sync-tooling: this script itself changed; re-running with the new version"
+  SYNC_REEXEC=1 exec "$WORLD_ROOT/tools/sync-tooling.sh" ${TAG:+"$TAG"}
+fi
 mkdir -p "$WORLD_ROOT/tools/docs"
 rsync -a --delete "$TMP/kit/docs/" "$WORLD_ROOT/tools/docs/"
 [ -d "$TMP/kit/meta/templates" ] && rsync -a --delete "$TMP/kit/meta/templates/" "$WORLD_ROOT/meta/templates/"

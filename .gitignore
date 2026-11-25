@@ -1,19 +1,18 @@
-# Python
-__pycache__/
-*.py[co]
-
-# Node
-node_modules/
-site/dist/
-site/.astro/
-site/src/content/generated/
-site/src/data/generated/
-
-# The demo world's throwaway build output, and anything verify-kit.sh leaves behind
-_site/
-.verify-kit/
 
 # Editor and OS
+# Node
+# Python
+# The demo world's throwaway build output, and anything verify-kit.sh leaves behind
+*.py[co]
 .DS_Store
-.obsidian/workspace.json
 .obsidian/appearance.json
+.obsidian/workspace.json
+.verify-kit/
+__pycache__/
+_site/
+node_modules/
+site/.astro/
+site/audit/
+site/dist/
+site/src/content/generated/
+site/src/data/generated/
