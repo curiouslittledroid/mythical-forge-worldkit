@@ -25,26 +25,24 @@ root = os.environ["ROOT"]
 def git(*args):
     return subprocess.run(["git", "-C", root, *args], capture_output=True, text=True).stdout.strip()
 
+# ONE question: is the marker BEHIND the newest tag? That was the bug it exists for -- the kit shipped
+# v1.3.0 while this file said v1.2.3, and sync-tooling.sh reads the file to recognise a worldkit.
+#
+# Two earlier versions asked more and were wrong. Demanding equality fired while PREPARING a release
+# (bump the file, commit, tag -- HEAD is still the old tag at the first step); asking equality only
+# when HEAD is tagged fired at exactly that same moment, because "preparing" and "just tagged" are
+# indistinguishable until the tag exists. False alarms are worse than no check: they teach the reader
+# to ignore it. Being ahead is a version in flight and is never wrong.
 v = pathlib.Path(root, "TOOLING_VERSION").read_text().strip()
 newest = git("describe", "--tags", "--abbrev=0")
 if not newest:
     print("no tags yet: nothing to compare the version to")
 else:
-    at_head = git("describe", "--tags", "--exact-match", "HEAD")
-    if at_head:
-        # Released: HEAD is tagged, so the marker must name that release exactly.
-        if v != at_head:
-            raise SystemExit(f"FAIL: HEAD is tagged {at_head} but TOOLING_VERSION says {v} -- they must agree at a release")
-        print(f"TOOLING_VERSION matches the release at HEAD ({v})")
-    else:
-        # Between releases the marker names the newest release, or the one being prepared. It must
-        # never be BEHIND: that was the real bug (v1.2.3 released as v1.3.0). Being ahead is a normal
-        # release in flight, which is why an equality check here would false-alarm on every release.
-        behind = subprocess.run(["sort", "-V", "-C"], input=f"{newest}\n{v}\n", text=True,
-                                capture_output=True).returncode != 0
-        if behind:
-            raise SystemExit(f"FAIL: TOOLING_VERSION says {v} but the newest tag is {newest} -- it is stale (CONTRIBUTING.md, Release step 2)")
-        print(f"TOOLING_VERSION ({v}) is not behind the newest tag ({newest})")
+    behind = subprocess.run(["sort", "-V", "-C"], input=f"{newest}\n{v}\n", text=True,
+                            capture_output=True).returncode != 0
+    if behind:
+        raise SystemExit(f"FAIL: TOOLING_VERSION says {v} but the newest tag is {newest} -- it is stale (CONTRIBUTING.md, Release step 2)")
+    print(f"TOOLING_VERSION ({v}) is not behind the newest tag ({newest})")
 EOF
 
 rsync -a --exclude .git --exclude node_modules --exclude __pycache__ --exclude site/dist \

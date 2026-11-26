@@ -4,6 +4,21 @@ A world pins the kit by copying its version into `TOOLING_VERSION` and updating 
 `tools/sync-tooling.sh`. **A change a world cannot absorb silently is a major bump and gets a
 migration note here.**
 
+## 1.3.4 — the version rail, third time lucky, and what the three attempts cost
+
+The rail that compares `TOOLING_VERSION` with the newest tag has been wrong twice, and both times it
+false-alarmed on a normal release — which is the one thing a check must not do.
+
+| Attempt | Rule | What it did |
+|---|---|---|
+| 1 | equal the newest tag | failed while *preparing* a release, the state CONTRIBUTING.md's own steps pass through |
+| 2 | equal the tag when HEAD is tagged, else not behind | failed at the same moment: "preparing v1.3.4" and "just tagged v1.3.4" are indistinguishable until the tag exists |
+| 3 | **not behind the newest tag** | asks the only question that is always well-defined, and answers the bug it was written for |
+
+Each attempt was proved by breaking it, and each proof passed — because the proofs tested the *bug*,
+not the *false alarm*. That is the gap: I checked that the check catches what it is for, never that it
+stays quiet when nothing is wrong.
+
 ## 1.3.3 — the identity gate earns its keep, and the drift check stops applying to the kit
 
 Two failures the kit's own CI found once it could run.
