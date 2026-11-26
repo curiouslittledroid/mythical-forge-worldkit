@@ -31,6 +31,8 @@
 #                     deploy.sh, the infra process, the image-prompt process, the workflow. A
 #                     world's own art, prompt notes, audit, deploy state and hero stay.
 #   .pi/prompts/      the agent prompts (atlas-refresh, new-creature, the image pipeline)
+#   tools/LICENSE     the kit's licences, MIT and CC BY 4.0 (tools/LICENSE-CONTENT). MIT requires
+#                     its notice to travel with every copy, and a world's tools/ is a copy.
 #
 # It never touches: tools/local/, the world's lore, its world.config.yaml, its meta/ notes, its
 # AGENTS.md brief (only the marked protocol region is re-synced, by tools/sync-agent-protocol.py).
@@ -119,12 +121,23 @@ OLD="$(cat "$WORLD_ROOT/TOOLING_VERSION" 2>/dev/null || echo none)"
 cp "$0" "$TMP/running.sh"
 
 # --exclude local/ is what makes D16 true: a world's own scripts survive every sync.
-# --exclude docs is not cosmetic. The kit keeps `docs/` as a SIBLING of `tools/`; a world keeps it at
-# `tools/docs/`. Without this exclusion the rsync finds `docs/` in the world and not in the kit, and
-# DELETES it -- on every run -- and the next line recreates it from the kit's `docs/`. The end state
-# was always right, so nobody noticed; but a run that stopped in between left a world with no rules
-# at all, and a refusal is a stop. (The same asymmetry cost 1.0.11 a release in the drift check.)
-$RS --exclude 'local/' --exclude 'docs/' --exclude '__pycache__' "$TMP/kit/tools/" "$WORLD_ROOT/tools/"
+#
+# THE RULE, learned four times: anything this script places INSIDE a world's `tools/` from the KIT'S
+# ROOT must be excluded here. The kit keeps its documents at `docs/` and its licences at `LICENSE`,
+# `LICENSE-CONTENT`; a world keeps all of them inside `tools/`. Without the exclusion, rsync finds
+# them in the world, not in the kit, DELETES them on every run, and the next lines recreate them --
+# so the end state is always right and nobody notices, until a run stops in between (a refusal is a
+# stop) and leaves a world with no rules, or no licence. `docs/` cost the release before this one.
+$RS --exclude 'local/' --exclude 'docs/' \
+    --exclude 'LICENSE' --exclude 'LICENSE-CONTENT' \
+    --exclude '__pycache__' "$TMP/kit/tools/" "$WORLD_ROOT/tools/"
+
+# The licences have to travel with the code they cover: MIT requires its notice in every copy, and a
+# world's `tools/` IS a copy. A world that vendors the kit without this is redistributing it without
+# its licence. `tools/LICENSE-CONTENT` covers the vendored documents, which are CC BY 4.0.
+for licence in LICENSE LICENSE-CONTENT; do
+  [ -f "$TMP/kit/$licence" ] && cpfile "$TMP/kit/$licence" "$WORLD_ROOT/tools/$licence"
+done
 # A shell tool that arrives without its execute bit is unusable, and the failure is confusing
 # ("Permission denied" on a command the docs tell you to run). Cheap insurance.
 [ "$DRY" = 0 ] && chmod +x "$WORLD_ROOT/tools/"*.sh 2>/dev/null || true
@@ -161,7 +174,7 @@ if [ -d "$TMP/kit/site" ] && [ -d "$WORLD_ROOT/site" ]; then
         --exclude 'content' --exclude 'data' \
         --exclude 'pages/index.astro' --exclude 'pages/about.astro' --exclude 'pages/follow.astro' \
         "$TMP/kit/site/src/" "$WORLD_ROOT/site/src/"
-  for f in astro.config.mjs package.json package-lock.json deploy.sh README.md; do
+  for f in astro.config.mjs package.json package-lock.json deploy.sh README.md LICENSES.md; do
     [ -f "$TMP/kit/site/$f" ] && cpfile "$TMP/kit/site/$f" "$WORLD_ROOT/site/$f"
   done
   [ -d "$TMP/kit/site/infra" ] && $RS --exclude 'state.json' \

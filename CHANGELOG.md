@@ -4,6 +4,34 @@ A world pins the kit by copying its version into `TOOLING_VERSION` and updating 
 `tools/sync-tooling.sh`. **A change a world cannot absorb silently is a major bump and gets a
 migration note here.**
 
+## 1.2.0 — the kit has licences, and they travel (K1)
+
+Minor, and it touches every world. A world should sync.
+
+**MIT** for the tools, the theme and the scripts; **CC BY 4.0** for the prose — the documents, the
+note templates, the agent prompts and the example world. The prose is the part that exists to be
+copied into other worlds, which is exactly what that licence is for; BY-SA would have forced a
+world's adapted copy of the docs to be share-alike too, and MIT on the docs would let a world's
+teaching material be sold without attribution.
+
+**The part with a legal edge to it:** MIT requires its notice to travel with every copy, and a
+world's `tools/` *is* a copy. Until now a world vendored the kit's code and never received its
+licence, which is a violation, however minor. The sync now copies `LICENSE` and `LICENSE-CONTENT`
+into `tools/`, the drift check compares them with the pin like everything else, and the sync's test
+asserts they arrive.
+
+**And that found a bug in the sync, immediately, before it shipped:** the kit keeps its licences at
+its root and a world keeps them *inside* `tools/`, so the `tools/` rsync found them in the world,
+not in the kit, and deleted them — the same asymmetry that had just cost 1.1.1 a release over
+`docs/`, and 1.0.11 one over the drift check. The exclusions are in, and the rule is now written
+where the next person will read it: **anything the sync places inside a world's `tools/` from the
+kit's root must be excluded from that rsync.** The regression test that caught it stays.
+
+Also: `site/LICENSES.md` lists the site's build dependencies and carries the SIL OFL notice the
+bundled IBM Plex fonts require, since the built site serves those font files; `site/README.md`
+names the theme's licence; and the demo world's footer sentence now matches its licence instead of
+saying "all rights reserved" about a world that ships with an MIT toolkit.
+
 ## 1.1.2 — the rails cried wolf about the site's generated directories
 
 Patch. A world should sync.

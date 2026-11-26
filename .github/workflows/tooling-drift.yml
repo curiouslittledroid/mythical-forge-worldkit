@@ -108,6 +108,9 @@ jobs:
           compare "tools/"        /tmp/kit/tools        tools             "--exclude=docs" 
           compare "tools/docs/"   /tmp/kit/docs         tools/docs
           compare "meta/templates/" /tmp/kit/meta/templates meta/templates
+          # The licences are vendored like everything else, and for a licence that is the point.
+          compare "tools/LICENSE"  /tmp/kit/LICENSE  tools/LICENSE
+          compare "tools/LICENSE-CONTENT" /tmp/kit/LICENSE-CONTENT tools/LICENSE-CONTENT
           if [ "$status" -eq 0 ]; then
             echo "the vendored machinery matches $pinned exactly"
           fi

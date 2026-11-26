@@ -22,7 +22,7 @@ world:
   tagline: The smallest complete world the tools can run.
   description: "The teaching world of the Mythical Forge worldkit: one small thread, one Campaign, three NPCs and six scenarios. Not a setting; the harness for the tools."
   author: REPLACE_ME
-  license: All rights reserved. Use it at your table.
+  license: "The example world: CC BY 4.0. This is the worldkit's demo, not a campaign setting."
   overland: overland_ferry_demo
   game_ready_repo: ../ferry-demo-gameready
 

@@ -1,5 +1,9 @@
 # The site theme
 
+The theme is the worldkit's, under the kit's MIT licence (`LICENSE` at the kit's root, in a world
+`tools/LICENSE`). Its build dependencies, and the OFL notice the bundled fonts require, are in
+`LICENSES.md`.
+
 The player-facing site for a world codex: an **Astro** project that renders the pages
 `tools/site_export.py` generates. It is the kit's, and it carries **no world's branding** — every
 world value arrives generated, in `src/data/generated/site.json`, from the world's

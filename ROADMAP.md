@@ -22,7 +22,7 @@ Ordered. Each task is one commit, verified before it lands (see `CONTRIBUTING.md
 
 | # | Task | Kind | Status | Done when |
 |---|---|---|---|---|
-| **K1** | Decide the licence | Decision | **Not started** | `LICENSE` exists and the README names it |
+| **K1** | Decide the licence | Decision | **Done** (v1.2.0) — MIT for the tools, the theme and the scripts; CC BY 4.0 for the prose; the sync carries both into a world's `tools/`, because MIT requires its notice to travel with the copy | `LICENSE` and `LICENSE-CONTENT` exist, the README names them, and `tools/LICENSE` arrives at the next sync | - |
 | **K2** | **De-brand the fixture.** Its places are the first world's: `Dustport`, `Saltmarch`, `Vigil`. Rename them to the demo world's own, and remove the three stub place notes they force (`world/places/`, `world/peoples/humans.md`) | Coding | **Not started** | the demo world carries no name that comes from another world, and `verify-kit.sh` is still green |
 | **K3** | ~~**Move the templates in.**~~ `meta/templates/` is already here; **Done.** The 15 templates are here, and the demo world is the single copy of the fixture: it used to sit beside the templates too, and two copies of a fixture drift | Coding | **Done** | — |
 | **K4** | ~~**`verify-kit.sh` and the fixture.**~~ Generalise the last of the extraction's `verify-example.sh` (now `tools/verify-world.sh`): **Done.** It builds the demo world from this repository alone and runs the whole pipeline on it | Coding | **Done** | — |

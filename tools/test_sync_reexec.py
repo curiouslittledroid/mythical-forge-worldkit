@@ -55,6 +55,8 @@ class ReexecCase(unittest.TestCase):
         (self.kit / "site/src/lib").mkdir(parents=True)
         (self.kit / "site/src/lib/site.ts").write_text("// theme\n", encoding="utf-8")
         (self.kit / "docs/conventions.md").write_text("# Conventions\n", encoding="utf-8")
+        (self.kit / "LICENSE").write_text("MIT\n", encoding="utf-8")
+        (self.kit / "LICENSE-CONTENT").write_text("CC BY 4.0\n", encoding="utf-8")
         (self.kit / "TOOLING_VERSION").write_text("v9.9.9\n", encoding="utf-8")
         (self.kit / "meta/templates/npc.md").write_text("# npc\n", encoding="utf-8")
         script = SYNC.read_text(encoding="utf-8").replace(
@@ -114,6 +116,9 @@ class ReexecCase(unittest.TestCase):
 
         second = self.run_sync()
         self.assertIn("sync-tooling: v9.9.9 -> v9.9.9", second)
+        for rel in ("tools/LICENSE", "tools/LICENSE-CONTENT"):
+            self.assertTrue((self.world / rel).exists(),
+                            f"{rel} did not travel with the code it covers")
         for rel in ("site/src/data/generated/x.json", "site/src/content/generated/x.json"):
             self.assertTrue((self.world / rel).exists(), f"the sync deleted {rel}")
         self.assertNotIn("refusing to run", second,
