@@ -4,6 +4,18 @@ A world pins the kit by copying its version into `TOOLING_VERSION` and updating 
 `tools/sync-tooling.sh`. **A change a world cannot absorb silently is a major bump and gets a
 migration note here.**
 
+## 1.3.6 — the new test could not import the new tool
+
+`test_check_workflows.py` did `from check_workflows import duplicates`, and every other suite in this
+kit begins with `sys.path.insert(0, ...)`. Mine did not, so the suite failed with a
+`ModuleNotFoundError` — and `checks.yml` runs every `tools/test_*.py`, so this would have turned every
+world red one release after the last red. The idiom is followed now.
+
+1.3.5 was tagged and synced before this was noticed, which is the argument for running the suites
+*before* the tag rather than in the workflow that follows it. `verify-kit.sh` does run them — and it
+passed, because `verify-kit.sh` runs the suites from inside its temporary world, where the path is
+different. Two callers, one of them correct by accident.
+
 ## 1.3.5 — a check for the check that GitHub refused to load
 
 Fixing the drift check for the kit, I put **two `if:` keys on one step**. GitHub refuses such a file

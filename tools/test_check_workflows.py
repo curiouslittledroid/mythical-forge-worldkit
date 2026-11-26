@@ -8,9 +8,13 @@ every run with nothing a reader can act on.
 
 from __future__ import annotations
 
+import sys
 import unittest
+from pathlib import Path
 
-from check_workflows import duplicates
+sys.path.insert(0, str(Path(__file__).resolve().parent))  # the suite runs from the repository root
+
+from check_workflows import duplicates  # noqa: E402
 
 CLEAN = """\
 name: Tooling drift
