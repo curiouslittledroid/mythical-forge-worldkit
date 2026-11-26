@@ -4,6 +4,27 @@ A world pins the kit by copying its version into `TOOLING_VERSION` and updating 
 `tools/sync-tooling.sh`. **A change a world cannot absorb silently is a major bump and gets a
 migration note here.**
 
+## 1.1.1 — the sync was deleting the world's rules
+
+Patch. A world should sync.
+
+**The bug:** the kit keeps `docs/` as a *sibling* of `tools/`; a world keeps it at `tools/docs/`. The
+`tools/` rsync therefore found `docs/` in the world and not in the kit, and **deleted it on every
+run** — and the next line re-created it from the kit's `docs/`. The end state was always correct, so
+it never showed. But a run that stopped between those two lines left a world with **no rules at all**,
+and 1.1.0's new refusals made that reachable, because a refusal is a stop. `docs/` is excluded from
+that rsync now: the vendored docs are copied, and never removed.
+
+This is the same asymmetry 1.0.11 had to fix in the drift check. It has now cost two releases, which
+is why it is stated in the sync's own comments rather than left to be rediscovered.
+
+**The ordering:** 1.1.0's refusals ran again after the script re-executed itself mid-upgrade, and
+refused a tree its own first half had just changed. They run once now, at the start, on the tree the
+user chose — never in the re-executed second half.
+
+**Both were found by testing the rails on a throwaway copy of a real world, which is also how the
+1.1.0 release was tested.** A rail nobody has watched fire is a rail that does not work.
+
 ## 1.1.0 — the sync has safety rails (K10)
 
 Minor, and it can refuse. A world should sync: `tools/sync-tooling.sh` is replaced. Read the two

@@ -1,5 +1,15 @@
 #!/usr/bin/env python3
-"""The sync re-executes itself when the release replaces the running script.
+"""The sync re-executes itself when the release replaces the running script -- and it must not
+delete the world's rules on the way past.
+
+The second is a regression test for a real bug that the END STATE hid perfectly. The kit keeps
+`docs/` as a sibling of `tools/`; a world keeps it at `tools/docs/`. So the `tools/` rsync found
+`docs/` present in the world and absent from the kit, deleted it, and the next line recreated it --
+on every run. Every finished sync looked correct. A sync that stopped in between (a refusal, a
+Ctrl-C) left a world with no rules at all.
+
+An end-state assertion cannot see that, which is why this one uses a probe: a file in `tools/docs/`
+that the kit does not have. If the rsync can delete it, the exclusion is missing.
 
 Without it, a release that adds a sync step does not run that step when a world takes the release:
 `tools/` is copied early, the running script keeps executing the old text, and the new step is
@@ -74,6 +84,28 @@ class ReexecCase(unittest.TestCase):
     def test_it_does_not_loop(self):
         out = self.run_sync()
         self.assertEqual(1, out.count("re-running with the new version"))
+
+    def test_a_second_sync_has_nothing_to_delete(self):
+        """The regression test for the bug the end state hid.
+
+        The kit keeps `docs/` as a sibling of `tools/`; a world keeps it at `tools/docs/`. So the
+        `tools/` rsync used to find `docs/` in the world and not in the kit, delete it, and let the
+        next line recreate it -- on every run. Every *finished* sync looked correct, which is why it
+        survived two releases.
+
+        One sync puts the docs where a world keeps them, so the second sync is the case that used to
+        plan ten deletions and, once the rails existed, refuse. It must find nothing to do.
+        """
+        first = self.run_sync()
+        self.assertNotIn("refusing to run", first)
+        self.assertEqual("# Conventions\n",
+                         (self.world / "tools/docs/conventions.md").read_text(encoding="utf-8"))
+
+        second = self.run_sync()
+        self.assertIn("sync-tooling: v9.9.9 -> v9.9.9", second)
+        self.assertNotIn("refusing to run", second,
+                         "a normal sync should find nothing to delete inside tools/docs/")
+        self.assertTrue((self.world / "tools/docs/conventions.md").exists())
 
     def test_an_unchanged_script_is_not_re_run(self):
         self._world(script=self.kit / "tools/sync-tooling.sh")   # already the new one

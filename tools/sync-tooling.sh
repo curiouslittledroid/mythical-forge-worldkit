@@ -61,7 +61,7 @@ cpfile() {
 # --- the rails, before anything is fetched or written -----------------------------------------
 # Only the paths this sync actually replaces. `tools/local/`, the world's three site pages and its
 # own art are the world's, so a world is expected to have them dirty.
-if [ "$DRY" = 0 ] && [ "$FORCE" = 0 ] && [ -d "$WORLD_ROOT/.git" ]; then
+if [ "$DRY" = 0 ] && [ "$FORCE" = 0 ] && [ -z "${SYNC_REEXEC:-}" ] && [ -d "$WORLD_ROOT/.git" ]; then
   dirty="$(git -C "$WORLD_ROOT" status --porcelain -- \
              tools meta/templates site/src site/image-prompts/README.md .pi/prompts .github/workflows 2>/dev/null \
            | grep -vE ' tools/local/| site/src/pages/(index|about|follow)\.astro$' || true)"
@@ -77,7 +77,7 @@ fi
 
 # Deletions can only be seen by asking rsync, so ask it: this reruns the whole sync in dry-run mode,
 # reads what it would remove, and throws that away. It costs a second fetch and buys the review.
-if [ "$DRY" = 0 ] && [ "$FORCE" = 0 ]; then
+if [ "$DRY" = 0 ] && [ "$FORCE" = 0 ] && [ -z "${SYNC_REEXEC:-}" ]; then
   plan="$(SYNC_REEXEC=1 bash "$0" --dry-run "$TAG" 2>&1 || true)"
   dels="$(printf '%s\n' "$plan" | grep -E '^\*deleting ' || true)"
   if [ -n "$dels" ]; then
@@ -119,7 +119,12 @@ OLD="$(cat "$WORLD_ROOT/TOOLING_VERSION" 2>/dev/null || echo none)"
 cp "$0" "$TMP/running.sh"
 
 # --exclude local/ is what makes D16 true: a world's own scripts survive every sync.
-$RS --delete --exclude 'local/' --exclude '__pycache__' "$TMP/kit/tools/" "$WORLD_ROOT/tools/"
+# --exclude docs is not cosmetic. The kit keeps `docs/` as a SIBLING of `tools/`; a world keeps it at
+# `tools/docs/`. Without this exclusion the rsync finds `docs/` in the world and not in the kit, and
+# DELETES it -- on every run -- and the next line recreates it from the kit's `docs/`. The end state
+# was always right, so nobody noticed; but a run that stopped in between left a world with no rules
+# at all, and a refusal is a stop. (The same asymmetry cost 1.0.11 a release in the drift check.)
+$RS --exclude 'local/' --exclude 'docs/' --exclude '__pycache__' "$TMP/kit/tools/" "$WORLD_ROOT/tools/"
 # A shell tool that arrives without its execute bit is unusable, and the failure is confusing
 # ("Permission denied" on a command the docs tell you to run). Cheap insurance.
 [ "$DRY" = 0 ] && chmod +x "$WORLD_ROOT/tools/"*.sh 2>/dev/null || true
