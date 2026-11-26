@@ -58,7 +58,21 @@ jobs:
             echo "          A private kit needs a WORLDKIT_TOKEN secret with read access to it."
           fi
 
+      # This workflow is for WORLDS. On the kit itself there is nothing to be behind, and the file
+      # comparison cannot pass: a kit keeps its licences at its ROOT and the SYNC is what copies them
+      # into a world's tools/, so `tools/LICENSE` does not exist here. The kit's own proof is ci.yml.
+      - name: Is this a world?
+        id: kind
+        run: |
+          if [ -f verify-kit.sh ]; then
+            echo "world=0" >> "$GITHUB_OUTPUT"
+            echo "this repository is a worldkit: the drift check is for the worlds that vendor it"
+          else
+            echo "world=1" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Is the pin behind the kit?
+        if: steps.kind.outputs.world == '1'
         if: steps.kit.outputs.reachable == '1'
         run: |
           set -eu

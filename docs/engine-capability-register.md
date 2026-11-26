@@ -271,7 +271,7 @@ Audited after Step 2b: the standard body line for deferred engine fields is now 
 ## Open questions
 
 - [OPEN] Whether the platform accepts the load-bearing set, and which of PR-1…PR-16 it will implement (Step 2c).
-- [OPEN] Whether the SRD library is expanded per world (Hollowfall supplies its own base map) or the platform ships a full SRD.
+- [OPEN] Whether the SRD library is expanded per world (a world supplies its own base map) or the platform ships a full SRD.
 
 ## Links
 [[conventions]], [[pilot-findings]], [[the-conspiracy]], [[the-peacemaker]], [[magic]], [[leylines]], [[metals]], [[economy]], [[the-choir]], [[wardens-of-the-stone]], [[flags|World Flags]]

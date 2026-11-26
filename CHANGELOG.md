@@ -4,6 +4,18 @@ A world pins the kit by copying its version into `TOOLING_VERSION` and updating 
 `tools/sync-tooling.sh`. **A change a world cannot absorb silently is a major bump and gets a
 migration note here.**
 
+## 1.3.3 — the identity gate earns its keep, and the drift check stops applying to the kit
+
+Two failures the kit's own CI found once it could run.
+
+- **A world's name was in the kit's machinery.** Porting `main`'s platform-request text into
+  `docs/engine-capability-register.md` brought the sentence "(Hollowfall supplies its own base map)"
+  with it. The identity gate caught it in CI within a minute of the push — the second time that gate
+  has caught something real, and both times it was a batch edit made after a local check.
+- **`tooling-drift.yml` cannot pass on the kit**, and now says so and skips. It is a check for worlds:
+  a kit keeps its licences at its ROOT and the sync is what copies them into a world's `tools/`, so
+  `tools/LICENSE` does not exist here. The kit's proof is `ci.yml`.
+
 ## 1.3.2 — four failures, and one of them was a check that could never pass
 
 The first runs of the newly published workflows found four defects. Three were real; the fourth was a
