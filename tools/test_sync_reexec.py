@@ -49,6 +49,11 @@ class ReexecCase(unittest.TestCase):
         (self.kit / "tools").mkdir(parents=True)
         (self.kit / "docs").mkdir(parents=True)
         (self.kit / "meta/templates").mkdir(parents=True)
+        # A theme, or the site step does not run at all -- and then the test cannot see what the
+        # site step does to a world's generated directories. (It could not: the first version of
+        # this fixture had no site/, so the assertion passed with the bug present.)
+        (self.kit / "site/src/lib").mkdir(parents=True)
+        (self.kit / "site/src/lib/site.ts").write_text("// theme\n", encoding="utf-8")
         (self.kit / "docs/conventions.md").write_text("# Conventions\n", encoding="utf-8")
         (self.kit / "TOOLING_VERSION").write_text("v9.9.9\n", encoding="utf-8")
         (self.kit / "meta/templates/npc.md").write_text("# npc\n", encoding="utf-8")
@@ -64,6 +69,12 @@ class ReexecCase(unittest.TestCase):
 
     def _world(self, script: Path | None = None) -> None:
         (self.world / "tools").mkdir(parents=True, exist_ok=True)
+        # The generated site directories: a world that has built its site has them, the kit never
+        # does. A sync that deletes them breaks the next build, and one that REFUSES because of them
+        # is a false alarm -- which is worse, because it teaches a world to pass --force.
+        for rel in ("site/src/data/generated", "site/src/content/generated"):
+            (self.world / rel).mkdir(parents=True, exist_ok=True)
+            (self.world / rel / "x.json").write_text("{}\n", encoding="utf-8")
         shutil.copy2(script or SYNC, self.world / "tools/sync-tooling.sh")
         (self.world / "tools/sync-tooling.sh").chmod(0o755)   # as a world's copy is
         (self.world / "world.config.yaml").write_text("version: 1\n", encoding="utf-8")
@@ -103,6 +114,8 @@ class ReexecCase(unittest.TestCase):
 
         second = self.run_sync()
         self.assertIn("sync-tooling: v9.9.9 -> v9.9.9", second)
+        for rel in ("site/src/data/generated/x.json", "site/src/content/generated/x.json"):
+            self.assertTrue((self.world / rel).exists(), f"the sync deleted {rel}")
         self.assertNotIn("refusing to run", second,
                          "a normal sync should find nothing to delete inside tools/docs/")
         self.assertTrue((self.world / "tools/docs/conventions.md").exists())

@@ -4,6 +4,20 @@ A world pins the kit by copying its version into `TOOLING_VERSION` and updating 
 `tools/sync-tooling.sh`. **A change a world cannot absorb silently is a major bump and gets a
 migration note here.**
 
+## 1.1.2 — the rails cried wolf about the site's generated directories
+
+Patch. A world should sync.
+
+The site's `src/data/` and `src/content/` are the exporter's, and exist in any world that has built
+its site and nowhere in the kit — so the theme rsync deleted them on every sync, and 1.1.0's new
+deletion preflight therefore refused **every published world**. Excluding `data/generated` was not
+enough; the parents have to go too.
+
+This is the third release in a row where the same shape of bug appeared: a path that exists in a
+world and not in the kit (or the reverse) being mistaken for a difference. The tests now cover both
+cases — a world's rules in `tools/docs/`, and the generated directories — because a false alarm from
+a rail is worse than no rail: it teaches everybody to pass `--force`, and then the real one is missed.
+
 ## 1.1.1 — the sync was deleting the world's rules
 
 Patch. A world should sync.

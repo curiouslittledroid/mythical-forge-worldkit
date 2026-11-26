@@ -152,8 +152,13 @@ if [ -d "$TMP/kit/site" ] && [ -d "$WORLD_ROOT/site" ]; then
   # ships a neutral version of each so a new world has a working site, and then leaves them alone -
   # a world's About page is its own prose, and a sync that rewrote it would be destroying content.
   mkdir -p "$WORLD_ROOT/site/src" "$WORLD_ROOT/site/infra" "$WORLD_ROOT/site/image-prompts"
-  $RS --delete \
-        --exclude 'content/generated' --exclude 'data/generated' \
+  # The generated directories are the exporter's, not the theme's: a world that has built its site
+  # has them and the kit never does. Excluding only `data/generated` is not enough -- rsync still
+  # finds `data/` and `content/` in the world and not in the kit, deletes them, and (once the rails
+  # existed) refuses every published world. A false alarm is worse than no rail: it teaches a world
+  # to pass --force, and then the real one is missed.
+  $RS \
+        --exclude 'content' --exclude 'data' \
         --exclude 'pages/index.astro' --exclude 'pages/about.astro' --exclude 'pages/follow.astro' \
         "$TMP/kit/site/src/" "$WORLD_ROOT/site/src/"
   for f in astro.config.mjs package.json package-lock.json deploy.sh README.md; do
