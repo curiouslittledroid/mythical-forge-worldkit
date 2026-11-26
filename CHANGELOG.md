@@ -4,6 +4,20 @@ A world pins the kit by copying its version into `TOOLING_VERSION` and updating 
 `tools/sync-tooling.sh`. **A change a world cannot absorb silently is a major bump and gets a
 migration note here.**
 
+## 1.2.1 — the move left four warnings behind
+
+Patch. A world should sync.
+
+`docs/extraction.md` moved the decisions into the kit, and D40 cites the FIRST world's
+`meta/site.md` — §1, §4, §5 and §10–§12 — for the rule that a document which keeps its section
+numbers keeps its name. This repository does not hold that note, so the citation check was right to
+warn: the numbers are history here, not a reference. The row says so now and opts out with
+`citations: ignore`.
+
+The opt-out itself was documented only in the checker's own docstring, which is not where a rule
+lives. It is in `docs/conventions.md` §16.1 now, with the warning that it is for the genuinely
+uncheckable and not for the inconvenient.
+
 ## 1.2.0 — the kit has licences, and they travel (K1)
 
 Minor, and it touches every world. A world should sync.

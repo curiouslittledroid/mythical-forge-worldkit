@@ -568,8 +568,13 @@ When a note cites a rule by number, name the document in the same sentence:
 - **A number only if the document numbers its sections.** A document whose sections have names is
   cited by name: "the section on required reviewers".
 - A citation of where something *used to be* says so: "formerly `docs/site.md` §3.4".
+- **A citation this repository cannot check** ends its line with `citations: ignore`: a world's note
+  named from the kit, or an example of a bad citation in prose. In the first five lines of a file it
+  opts the whole file out. Use it for what is genuinely uncheckable, never for what is merely
+  inconvenient — the check exists because a template's stale citation stayed invisible for two
+  releases, and each of those releases fixed a hole in the check itself.
 
-`tools/check_citations.py` enforces all four and fails on a number that does not exist. **A document
+`tools/check_citations.py` enforces all five and fails on a number that does not exist. **A document
 that renumbers must sweep its citations** — in this repository and in every world that has synced it.
 The check is what makes that sweep mechanical rather than a promise, and it is the only thing in the
 toolchain that notices: a stale number reads exactly like a correct one.
