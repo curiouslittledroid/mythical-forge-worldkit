@@ -27,13 +27,31 @@ Ordered. Each task is one commit, verified before it lands (see `CONTRIBUTING.md
 | **K3** | ~~**Move the templates in.**~~ `meta/templates/` is already here; **Done.** The 15 templates are here, and the demo world is the single copy of the fixture: it used to sit beside the templates too, and two copies of a fixture drift | Coding | **Done** | — |
 | **K4** | ~~**`verify-kit.sh` and the fixture.**~~ Generalise the last of the extraction's `verify-example.sh` (now `tools/verify-world.sh`): **Done.** It builds the demo world from this repository alone and runs the whole pipeline on it | Coding | **Done** | — |
 | **K5** | **Versioning and the sync contract.** ~~Exists and exercised once.~~ **Done** — the first world vendored its `tools/`, `tools/docs/` and templates from the tag, and now differs from the kit only by `tools/local/` (its own scripts) and `tools/docs/` (the vendored rules). What it found: the script shipped non-executable, and a vendored test hardcoded the kit's layout | Coding | **Done** | — |
-| **K10** | **The sync's safety rails** (the extraction evaluation's third testing gap): refuse a dirty working tree, preview deletions before applying them, and offer `--dry-run`. `rsync --delete` on `tools/` silently removes a world's script that is not in `tools/local/` | Coding | **Not started** | a sync on a dirty tree refuses; a deletion is shown before it happens |
+| **K10** | **The sync's safety rails** (`docs/extraction.md`'s third testing gap (its section 3.4)): refuse a dirty working tree, preview deletions before applying them, and offer `--dry-run`. `rsync --delete` on `tools/` silently removes a world's script that is not in `tools/local/` | Coding | **Not started** | a sync on a dirty tree refuses; a deletion is shown before it happens |
 | **K6** | **The site theme as a kit asset.** Move `site/src/**`, `astro.config.mjs`, `package.json`, the deploy script and `image-prompts/_style.md`; strip the first world's branding into the config. **The theme stays in one directory behind the config seam**, so a world can replace it | Coding | **Not started** | a world whose only file is `world.config.yaml` plus content builds the site |
 | **K7** | ~~**The remaining doc splits.**~~ **Done**, plus `docs/atlas.md` (D38): `site.md` (keeping its section numbers, because worlds cite them), `thread-pattern.md`, `testimony.md`, `tag-vocabulary.md`. Each was extracted from the first world's note by line range and then de-branded, so the world kept only its own decisions and a pointer | Coding | **Done** | — |
 | **K8** | **The world template.** A separate repository: the folder skeleton, the quickstart, `init-world.sh`. Its `AGENTS.md` is the third of the three (D36): a world's brief, with the protocol synced in | Coding | **Not started** | a fork runs the whole pipeline and the site build with **zero code edits** |
 | **K9** | **A `new-world` CLI.** `npx`-style scaffolding, or `init-world.sh` grown up: ask the questions, write the config, set up the deploy variables, offer to remove the demo world | Decision then coding | **Blocked on K1** | — (open: does the kit ship one at all?) |
 
 ## 2. Open items
+
+- [K11] **A prose reference to a file that does not exist is checked by nothing.** `tools/check_citations.py`
+  covers section *numbers*; the audit that found seven dangling path references (an agent prompt full
+  of one world's creature rules, a tool name renamed two releases earlier, a config file that never
+  existed) was a throwaway script. Making it permanent means encoding the categories by hand:
+  generated artefacts, world-owned paths, illustrative names, forward references.
+- [K12] **The codex index's tag line is chrome that wants the world's voice.** It names the tag index
+  and used to read, in the first world, "18 themes, from the Choir to the waygates" — which a theme
+  cannot know. `site/src/pages/codex/index.astro` is synced, so a world can flavour every page but
+  this one. Either a config string or a fourth world-owned page.
+- [K13] **A fork's Open Graph image is missing.** `site/public/` ships a deliberately plain favicon;
+  `og-default.jpg` and the hero are a world's own, so a fresh fork's social card is empty until it
+  makes one. Harmless, permanent, and worth a line in the template's quickstart.
+- [K14] **The strongest proof is still the most manual one.** `verify-kit.sh` and the template fork
+  both need `MYTHICAL_FORGE_ROOT`, so the engine pipeline is proved locally before a tag and never in
+  CI. `docs/extraction.md`'s first testing gap proposes the fix: a stub `packages/authored-content`,
+  because the schemas are the contract and the engine is not.
+
 
 - [OPEN] **Licence** (K1). The rule is intended to be permissive for a world that publishes its own
   codex; tooling and documentation may want different terms from the demo world's prose.

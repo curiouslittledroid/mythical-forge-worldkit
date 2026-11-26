@@ -4,6 +4,25 @@ A world pins the kit by copying its version into `TOOLING_VERSION` and updating 
 `tools/sync-tooling.sh`. **A change a world cannot absorb silently is a major bump and gets a
 migration note here.**
 
+## 1.0.13 — the extraction's record moves here
+
+Patch: a new document, and four open items. A world should sync — `docs/extraction.md` arrives with
+the rest of `tools/docs/` — and a world with a `ROADMAP-EXTRACTION.md` of its own can now delete it.
+
+The first world carried the extraction's plan as a temporary file, to be deleted when its last phase
+landed. It has. What was worth keeping moves here:
+
+- **`docs/extraction.md`** — the decisions (D1–D42) as they were taken, and **the evaluation**, which
+  was written after the kit was built and asks which decisions survived contact, which are weaker
+  than they read, and which were simply wrong. The plan's remaining open items are in `ROADMAP.md`
+  now, where the work lives.
+- Pointers follow: the kit's `tools/README.md` and `tools/lint.py` referred to a world's temporary
+  file for their own design reasoning, which is the same defect in miniature as the citations 1.0.1
+  to 1.0.7 kept finding.
+- **K11–K14** are the four items the extraction left OPEN: the unchecked prose path reference, the
+  codex index's tag line (chrome that wants a world's voice), a fork's missing Open Graph image, and
+  the fact that the strongest proof of all — the engine pipeline — is still the most manual.
+
 ## 1.0.12 — a comment that told a small lie
 
 Patch. A world should sync: `tools/verify-world.sh` is replaced.
