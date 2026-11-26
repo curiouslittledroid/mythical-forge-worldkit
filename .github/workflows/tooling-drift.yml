@@ -91,7 +91,7 @@ jobs:
           fi
 
       - name: Do the vendored files still match that tag?
-        if: steps.kit.outputs.reachable == '1'
+        if: steps.kind.outputs.world == '1' && steps.kit.outputs.reachable == '1'
         run: |
           set -eu
           pinned="${{ steps.kit.outputs.pinned }}"

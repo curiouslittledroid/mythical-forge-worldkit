@@ -4,6 +4,18 @@ A world pins the kit by copying its version into `TOOLING_VERSION` and updating 
 `tools/sync-tooling.sh`. **A change a world cannot absorb silently is a major bump and gets a
 migration note here.**
 
+## 1.3.9 — the guard was on one step of two
+
+`tooling-drift.yml` grew an "Is this a world?" step when it started failing on the kit, and I put the
+condition on the *first* of the two checks it guards. The second — the file comparison, the one that
+matters — kept running, and on the kit it reported `tools/docs`, `tools/LICENSE` and
+`tools/LICENSE-CONTENT` "missing: the machinery has been deleted", which is a *true* statement about a
+world and a meaningless one about the kit: a kit keeps its documents as a sibling of `tools/` and its
+licences at its root, and it is the sync that puts them inside a world's `tools/`.
+
+The lesson is smaller than the others in this run but the same shape: **when a condition is about a
+place, put it on every use of that place** — or on the job, where it cannot be half-applied.
+
 ## 1.3.8 — the suite, and the rail that refused my own sync
 
 Two things 1.3.7 left.
