@@ -4,6 +4,29 @@ A world pins the kit by copying its version into `TOOLING_VERSION` and updating 
 `tools/sync-tooling.sh`. **A change a world cannot absorb silently is a major bump and gets a
 migration note here.**
 
+## 1.3.2 — four failures, and one of them was a check that could never pass
+
+The first runs of the newly published workflows found four defects. Three were real; the fourth was a
+check of mine that was broken and *always failed*, which is the worse kind.
+
+- **`tooling-drift.yml` compared two FILES with `-d`** (the licences the sync copies into `tools/`).
+  `-d` is false for a file, so it reported "the machinery has been deleted, not vendored" for files
+  sitting in the tree — on every world, every run, since the licences were added. `-e` now. It
+  survived because the workflow had never executed: the same root cause as everything in 1.3.1.
+- **`checks.yml` gated a kit and a template on a rule about worlds.** The disclosure gate fails on
+  deliberately unreviewed fixture sections, and the suites assert a real world's vocabularies where a
+  template has `REPLACE`. Both now run only when the repository IS a world: no `verify-kit.sh` at the
+  root, and no `template: true`.
+- **`ci.yml` gated itself on a private repository.** The guide check needs `MYTHICAL_FORGE_ROOT`; a
+  runner cannot have it. A missing platform now skips it with a warning that says which checks were
+  skipped, rather than failing for the rest of the repository's life.
+- **`template-fork.yml` and the version rail:** fixed in 1.3.1, and the tag push itself is now in the
+  release checklist (`git push origin main --tags`; `--follow-tags` carries only annotated tags).
+
+The lesson, one more time and more sharply: **a check that has never run is not a check, and a check
+that always fails is worse than none** — it teaches everyone to look away, and then the real alarm is
+missed. Everything in this release was found within ten minutes of the workflows getting a remote.
+
 ## 1.3.1 — CI that had never run, and what it found in four runs
 
 The kit and the template were pushed to GitHub today, which switched on four workflows that had only

@@ -36,16 +36,23 @@ jobs:
       # the platform repository is private: a runner cannot have it. Run it locally, before a commit
       # that touches the authoring guide. Everything above and below is standard-library only.
 
-      - name: Is this a kit or an uninhabited template?
+      # This workflow ships to every world, and to the kit and the template as well. Two of the checks
+      # below are statements about a WORLD and are meaningless for the other two: the disclosure gate
+      # fails on a fixture's deliberately unreviewed sections, and the suites assert a real world's
+      # vocabularies, where a template has `REPLACE`. The kit is the repository with verify-kit.sh at
+      # its root (a world has verify-world.sh); an uninhabited fork says `template: true`.
+      - name: Is this a world?
         id: kind
         run: |
-          if grep -qE '^[[:space:]]*template:[[:space:]]*true' world.config.yaml; then
-            echo "kit=true" >> "$GITHUB_OUTPUT"
+          if [ -f verify-kit.sh ] || grep -qE '^[[:space:]]*template:[[:space:]]*true' world.config.yaml; then
+            echo "world=false" >> "$GITHUB_OUTPUT"
+            echo "this repository is a kit or an uninhabited template: the world-only checks are skipped"
           else
-            echo "kit=false" >> "$GITHUB_OUTPUT"
+            echo "world=true" >> "$GITHUB_OUTPUT"
           fi
 
       - name: The suites
+        if: steps.kind.outputs.world == 'true'
         run: |
           for suite in tools/test_*.py; do
             echo "== $suite"
@@ -59,5 +66,5 @@ jobs:
         run: python3 tools/check_citations.py
 
       - name: Every lore section has a disclosure class
-        if: steps.kind.outputs.kit != 'true'
+        if: steps.kind.outputs.world == 'true'
         run: python3 tools/disclosure.py --check

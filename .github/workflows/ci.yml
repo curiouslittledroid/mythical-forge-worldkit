@@ -30,7 +30,27 @@ jobs:
       - name: Every section citation resolves
         run: python3 tools/check_citations.py
 
+      # The guide check needs MYTHICAL_FORGE_ROOT -- the platform repository, which is private. A
+      # runner cannot have it unless the job is given a token, so a missing platform SKIPS the check
+      # with a warning instead of failing: red-forever teaches nobody anything, and the warning says
+      # what was not checked. The pipeline itself (transform, validate, thread-check, the six
+      # scenarios) is proved by ./verify-kit.sh, which is local-only for the same reason; a token would
+      # let this job run it. Everything else here and the identity gate below are standard-library.
+      - name: Is the platform repository available?
+        id: platform
+        run: |
+          if [ -n "${MYTHICAL_FORGE_ROOT:-}" ] && [ -d "$MYTHICAL_FORGE_ROOT/packages/authored-content" ]; then
+            echo "have=1" >> "$GITHUB_OUTPUT"
+          else
+            echo "have=0" >> "$GITHUB_OUTPUT"
+            echo "::warning::MYTHICAL_FORGE_ROOT is unset or has no packages/authored-content: the"
+            echo "::warning::pipeline checks (guide, transform, validate, scenarios) are SKIPPED here."
+            echo "::warning::verify-kit.sh runs them locally, and that is the proof; this job covers the"
+            echo "::warning::half of the kit that does not need the platform."
+          fi
+
       - name: The guide's blocks match the demo world
+        if: steps.platform.outputs.have == '1'
         run: node tools/check-guide.mjs
 
       - name: The protocol region is in sync
