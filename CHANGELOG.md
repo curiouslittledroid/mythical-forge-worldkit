@@ -4,6 +4,31 @@ A world pins the kit by copying its version into `TOOLING_VERSION` and updating 
 `tools/sync-tooling.sh`. **A change a world cannot absorb silently is a major bump and gets a
 migration note here.**
 
+## 1.3.0 — the machinery a world had grown on its own
+
+A world does not stop moving while its machinery is extracted. Three commits landed on the source
+world's trunk while the extraction was in flight, and four of the things they added turned out to be
+kit work: the Lore corpus export, a lint check, a template line and two sections of rules. They are
+here now because the alternative — a world quietly keeping a tool the kit does not have — is drift,
+and the drift check would have reported it on every release forever.
+
+- **`tools/lore_export.py` and `tools/test_lore_export.py`** (Step 14, PR-14): one chunk per
+  paragraph, layer-split history events, a derived audience, wikilink subjects, and the calibration
+  report. Nothing in them was specific to the world they were written on — they import `disclosure`
+  and `lint` and read `world/` — which is exactly why they belong here.
+- **`tools/lint.py`:** `parent` joins `group_knowledge`, `groups`, `home` and `zone` as a frontmatter
+  key whose ids must exist, so a region's `parent:` is checked.
+- **`docs/conventions.md` §5.3 (Zones) and §7.5 (Lore chunks and prose audience):** the zone rules and
+  the corpus rules, genericised. **The section numbers are kept** because the world's own notes cite
+  them by number, and a document keeps its numbers where a world cites it by number.
+- **`meta/templates/region.md`:** `parent:`, and a `coords` comment that says whose frame it is in.
+- **`tools/README.md`:** the two new tools, in the tables. A world receives all of this by syncing.
+
+The lesson worth keeping: **extraction has a moving target.** A branch that forks from a world's trunk
+and lives for weeks will meet that trunk again, and everything the world learned in between has to be
+sorted into "this world's" and "everyone's". The drift check is what makes that sorting visible
+instead of silent — it is what found these four.
+
 ## 1.2.3 — the licence strategy, written down
 
 Patch: a new document, plus two stale places it exposed. A world should sync — `docs/licensing.md`

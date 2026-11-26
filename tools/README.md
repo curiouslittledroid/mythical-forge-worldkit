@@ -52,6 +52,8 @@ to run rather than guessing.
 | `voice_lint.py` | Checks each testimony against its teller's voice sheet: vocabulary the teller never says, and places outside their range. |
 | `voice_stale.py` | Reports accounts that claim to describe the present but whose surrounding canon has moved since. Reads the present year from the `chronology` block. |
 | `test_voice.py` | Their tests. |
+| `lore_export.py` | Step 14: builds the **Lore corpus** — one chunk per paragraph, layer-split history events, derived audience, wikilink subjects — and prints the calibration report. `--json PATH` writes every chunk record. See the kit's `docs/conventions.md` §7.5. |
+| `test_lore_export.py` | Its tests: chunking, the layer split, the audience rules, tier and race resolution, wikilink subjects. |
 | `transform.mjs` | Codex → Game Ready Repository. Deterministic. |
 | `validate-world.mjs` | Validates a generated Game Ready Repository with `@mythical-forge/authored-content`. |
 | `thread-check.mjs` | Flag registry (declared, set, read), own-stage guards, references inside Conditions and Effects, thread interface. |

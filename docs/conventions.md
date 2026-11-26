@@ -124,6 +124,37 @@ ids; **SRD references** use `srd_` ids.
 
 A region note uses a `zone_` id (it is the zone the engine nodes refer to).
 
+### 5.3 Zones
+
+A **zone** is the engine's lazy-hydration unit (Design 04.1 §3) and an authored entity kind
+(ADR-0009): the unit of "how much world arrives at once". Three homes, and they must agree:
+
+| Home | Holds |
+|---|---|
+| A **REGION note** — `world/places/regions/`, and `world/places/continents/` for the continents | **Identity and prose**: `coords` (the centre), `parent`, and the `**Magic class:**` body line |
+| `maps/atlas-features.yaml` | **Geometry**: `bounds` or a polygon, in the continent's frame; an area feature's `zone:` says which zone it sits in |
+| Every other note's frontmatter `zone:` (an NPC reaches it through `home`) | **Membership** |
+
+Rules:
+
+- **The region notes define the zones.** The atlas draws them; nothing else invents one.
+  `python3 tools/atlas_yaml.py maps/atlas-features.yaml` plus the atlas check (`docs/atlas.md`)
+  keeps the two homes in step.
+- **Two scales, and a zone is never a site.** A continent is a zone, and each of its regions is too.
+  A settlement, site or other place **is not a zone**: it carries `zone:` and its own `loc_` id. An
+  **area** on the map that is not a zone (a crater, a storm ring, a fae band) is a `loc_` feature
+  with a `zone:` pointer — never a minted `zone_` id.
+- **A zone records its parent** in frontmatter: `parent: zone_<continent>` on every region note of
+  that continent. A continent has no `parent`. Nesting is therefore in the note, not only in the
+  polygons.
+- **A zone is infrastructure, not content.** Convert all of them, even when a campaign uses only a
+  few: every other entity resolves against a zone.
+- **The zone is a widening filter for lore retrieval**, not a hard one: a scene's candidates are
+  `subjects` ∩ (its zone ∪ its parent zone) ∩ audience, then ranked (section 7.5).
+- **Every `zone_` id must resolve.** A region note's `id:` and every other note's `zone:` and
+  `parent:` are checked by the linter (section 16), and the atlas check covers the map. A note and a
+  map that disagree are a lint error, not a style question.
+
 ## 6. Frontmatter
 
 ```yaml
@@ -243,6 +274,52 @@ truth.
 
 **Out of scope for the first version:** the player *inferring* a secret without being told, and an NPC
 remembering what the player told it.
+
+### 7.5 Lore chunks and prose audience
+
+Every classified lore section becomes **Lore chunks** — the retrievable, audience-scoped form of the
+prose that NPC agents and the narrator read. `tools/lore_export.py` implements these rules and
+`tools/test_lore_export.py` tests them.
+
+- **One chunk per paragraph.** A paragraph over **300 words** splits at sentence boundaries. Nothing
+  is truncated, nothing is rejected, and no chunk is smaller than a sentence. A `**Summary:**` line is
+  a chunk: it is the first thing a retriever returns.
+- **The class is `disclosure.classify`'s**, never a second opinion: the `**Disclosure:**` line, then
+  `## Secrets`, then a history event's layer lines, then the note's `disclosure:`. `python3
+  tools/disclosure.py --check` stays the gate.
+- **A history event's layer lines split into separate chunks**, each with its own `layer`:
+  `**Official:**` → `official`, `**Myth:**` → `myth`, `**Rival:**` → `rival`, `**Truth:**` → `truth`.
+  Merging them would hand a believer of the myth the truth. Every other section's layer is `truth`.
+- **Not lore, so not chunked:** `## Hooks`, `## Author Notes`, `## Open questions`, `## Links`,
+  `## Engine`, `Run it`, a `Named members` roster, and every THREAD, CAMPAIGN, MODULE, OVERLAY and
+  INDEX note.
+- **Audience is derived, not authored.** Who in the world could know the section:
+
+| Section | Audience |
+|---|---|
+| an explicit `**Known by:** faction_x@inner, race_elf` line under the heading | that |
+| an NPC's `**Want:**` line, or its `## Secrets` / `## Keystone secrets` | **itself only** |
+| `open` | everyone (`scope: world`) |
+| a FACTION note's `earned` / `sealed` section | that faction, `select` / `inner` |
+| a REGION, SETTLEMENT or SITE's `earned` / `sealed` section | that note's zone |
+| anything else | everyone |
+
+- **`**Known by:**` is the override**, written `faction_x@inner` (a `race_` group ignores tiers), or
+  `self`. It names groups and tiers, never NPC ids — so a roster edit costs no re-embedding.
+- **`subjects` are the `[[links]]`.** A chunk is about what its prose links to: every wikilink target
+  that resolves to a note becomes a subject, plus any literal ids. **So link the things a sentence is
+  about.** Measured from prose alone, almost no chunk had a subject beyond its own topic; from the
+  links, the majority do. A paragraph with no link and no id is retrievable only by meaning.
+- **Only `sealed` needs a named reveal path.** `earned` is reached by a generic authored path (an NPC
+  in its audience, a document, a check), so it needs no per-chunk Condition; a keystone names its
+  event or Quest. Writing `**Reveal when:**` on an `earned` section is encouraged and carried into the
+  chunk, but not required.
+- **A chunk id is logical**, `lore_<topic>_<heading>_<nn>`: stable, diffable, and never
+  content-addressed. The platform's compiler owns the content hash.
+- **Audience is a permission gate, not a selector.** It does not narrow the corpus much — most
+  sections of a world are readable by everyone — so `subjects` and the scene's zone do the narrowing.
+  Write a sentence so that its links say what it is about, and expect a top-k to be reached by
+  subjects rather than by audience.
 
 ## 8. Fenced blocks and engine blocks
 

@@ -457,7 +457,7 @@ class Linter:
         """Group ids in frontmatter (group_knowledge, groups, home, zone) must exist."""
         if not n.has_fm:
             return
-        for key in ("group_knowledge", "groups", "home", "zone"):
+        for key in ("group_knowledge", "groups", "home", "zone", "parent"):
             for ref in set(ID_REF_RE.findall(n.fm.get(key, ""))):
                 if "REPLACE" in ref:
                     continue

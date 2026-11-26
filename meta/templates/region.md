@@ -9,7 +9,8 @@ engine: false
 era: present
 tags: []
 sources: []
-coords: { x: 0, y: 0 }       # centre, km
+coords: { x: 0, y: 0 }       # centre, km, in the continent's frame
+parent: zone_REPLACE         # the zone that contains it; omit on a continent (conventions 5.3)
 ---
 
 # {{title}}
