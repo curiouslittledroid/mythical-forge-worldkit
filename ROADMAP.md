@@ -40,6 +40,12 @@ Ordered. Each task is one commit, verified before it lands (see `CONTRIBUTING.md
   of one world's creature rules, a tool name renamed two releases earlier, a config file that never
   existed) was a throwaway script. Making it permanent means encoding the categories by hand:
   generated artefacts, world-owned paths, illustrative names, forward references.
+- [K15] **The sync's file list is duplicated in three places, and they drift.** The sync's `tools/`
+  rsync excludes what the kit keeps at its root (`docs/`, `LICENSE`, `LICENSE-CONTENT`), the drift
+  check repeats those exclusions, and the sync then copies those files beside them. Four bugs have
+  come from one of the three lists being out of step. A better shape: have the drift check ask the
+  sync what it would write (`--dry-run` already prints every change) and compare the world against
+  that, so there is one list.
 - [K12] **The codex index's tag line is chrome that wants the world's voice.** It names the tag index
   and used to read, in the first world, "18 themes, from the Choir to the waygates" — which a theme
   cannot know. `site/src/pages/codex/index.astro` is synced, so a world can flavour every page but

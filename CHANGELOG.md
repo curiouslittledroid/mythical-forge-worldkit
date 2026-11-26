@@ -4,6 +4,21 @@ A world pins the kit by copying its version into `TOOLING_VERSION` and updating 
 `tools/sync-tooling.sh`. **A change a world cannot absorb silently is a major bump and gets a
 migration note here.**
 
+## 1.2.2 — the drift check and the sync disagree about one list
+
+Patch. Safe to sync.
+
+1.2.0 made the sync copy the licences into a world's `tools/`, and taught the drift check to compare
+them there — but not to exclude them from the `tools/` comparison, so the check that watches for
+drift would have reported drift on every world, on every run. Same shape as `docs/` in 1.0.11 and
+1.1.1, and the fourth time in one session.
+
+The exclusions are in, and the shape itself is now a roadmap item (**K15**): the sync's file list
+exists in three places — the `tools/` rsync's exclusions, the drift check's exclusions, and the
+copies the sync makes — and every bug of this kind has been one of the three being out of step. The
+fix is to have the drift check ask the sync what it would write (`--dry-run` already prints it) so
+there is one list.
+
 ## 1.2.1 — the move left four warnings behind
 
 Patch. A world should sync.

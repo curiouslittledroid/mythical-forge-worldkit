@@ -105,7 +105,13 @@ jobs:
               status=1
             fi
           }
-          compare "tools/"        /tmp/kit/tools        tools             "--exclude=docs" 
+          # The exclusions mirror the sync's own rule: what the kit keeps at its ROOT and a world
+          # keeps INSIDE tools/ (the documents, and the licences). This is the fourth time that
+          # asymmetry has bitten -- the drift check, the sync's tools/ rsync, the sync again for the
+          # licences -- so the two lists have to be read together. A better shape would compare a
+          # world's tools/ against the kit's tools/ PLUS the files the sync copies beside them; see
+          # ROADMAP.md K15.
+          compare "tools/"        /tmp/kit/tools        tools             "--exclude=docs --exclude=LICENSE --exclude=LICENSE-CONTENT" 
           compare "tools/docs/"   /tmp/kit/docs         tools/docs
           compare "meta/templates/" /tmp/kit/meta/templates meta/templates
           # The licences are vendored like everything else, and for a licence that is the point.
