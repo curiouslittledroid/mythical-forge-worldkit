@@ -8,7 +8,14 @@
 # Usage:
 #   tools/sync-tooling.sh              # the latest tag
 #   tools/sync-tooling.sh v1.2.0       # a named tag
+#   tools/sync-tooling.sh --dry-run    # print every change, write nothing
+#   tools/sync-tooling.sh --force v1.2.0   # proceed despite a dirty tree or a deletion
 #   WORLDKIT_REPO=/path/to/checkout tools/sync-tooling.sh v1.2.0   # a local checkout, for testing
+#
+# It refuses to run when the world has uncommitted changes in files this sync is about to replace,
+# or when it would DELETE a file that lives in a directory the kit owns: the point of vendoring is
+# that the diff is reviewable, and a diff nobody can attribute is the failure mode.
+
 #
 # What it replaces (all of it the kit's):
 #   tools/            except tools/local/ — world-owned; the kit never writes it
@@ -31,7 +38,59 @@ set -euo pipefail
 
 WORLD_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 KIT_REPO="${WORLDKIT_REPO:-https://github.com/curiouslittledroid/mythical-forge-worldkit}"
-TAG="${1:-}"
+TAG=""
+DRY=0
+FORCE=0
+for arg in "$@"; do
+  case "$arg" in
+    --dry-run|-n) DRY=1 ;;
+    --force|-f)   FORCE=1 ;;
+    -h|--help)    sed -n '2,26p' "$0" | sed 's/^# \?//'; exit 0 ;;
+    -*)           echo "sync-tooling: unknown option: $arg" >&2; exit 2 ;;
+    *)            TAG="$arg" ;;
+  esac
+done
+# A dry run itemises, so a deletion is visible as `*deleting `; a real run stays quiet.
+RS="rsync -a --delete"
+[ "$DRY" = 1 ] && RS="rsync -a --delete -i -n"
+# A copy that would not happen: same shape as cp, so the call sites read the same either way.
+cpfile() {
+  if [ "$DRY" = 1 ]; then echo "would copy $1 -> $2"; else cp "$1" "$2"; fi
+}
+
+# --- the rails, before anything is fetched or written -----------------------------------------
+# Only the paths this sync actually replaces. `tools/local/`, the world's three site pages and its
+# own art are the world's, so a world is expected to have them dirty.
+if [ "$DRY" = 0 ] && [ "$FORCE" = 0 ] && [ -d "$WORLD_ROOT/.git" ]; then
+  dirty="$(git -C "$WORLD_ROOT" status --porcelain -- \
+             tools meta/templates site/src site/image-prompts/README.md .pi/prompts .github/workflows 2>/dev/null \
+           | grep -vE ' tools/local/| site/src/pages/(index|about|follow)\.astro$' || true)"
+  if [ -n "$dirty" ]; then
+    echo "sync-tooling: refusing to run: uncommitted changes in files this sync would replace." >&2
+    printf '%s\n' "$dirty" | sed 's/^/  /' >&2
+    echo >&2
+    echo "  Commit or stash them, or run again with --force. A sync onto a dirty tree produces a" >&2
+    echo "  diff nobody can attribute, which is the whole review surface of vendoring." >&2
+    exit 2
+  fi
+fi
+
+# Deletions can only be seen by asking rsync, so ask it: this reruns the whole sync in dry-run mode,
+# reads what it would remove, and throws that away. It costs a second fetch and buys the review.
+if [ "$DRY" = 0 ] && [ "$FORCE" = 0 ]; then
+  plan="$(SYNC_REEXEC=1 bash "$0" --dry-run "$TAG" 2>&1 || true)"
+  dels="$(printf '%s\n' "$plan" | grep -E '^\*deleting ' || true)"
+  if [ -n "$dels" ]; then
+    echo "sync-tooling: refusing to run: this sync would DELETE files." >&2
+    printf '%s\n' "$dels" | sed 's/^\*deleting */  /' >&2
+    echo >&2
+    echo "  They are inside a directory the kit owns and are not in the kit at ${TAG:-the latest tag}," >&2
+    echo "  so a world's file has ended up where only the kit's belong. Move it to tools/local/ (if it" >&2
+    echo "  is a script), to the world's own folder (if it is a template's example), or run again with" >&2
+    echo "  --force to let the sync remove it." >&2
+    exit 2
+  fi
+fi
 
 TMP="$(mktemp -d)"
 trap 'rm -rf "$TMP"' EXIT
@@ -60,16 +119,16 @@ OLD="$(cat "$WORLD_ROOT/TOOLING_VERSION" 2>/dev/null || echo none)"
 cp "$0" "$TMP/running.sh"
 
 # --exclude local/ is what makes D16 true: a world's own scripts survive every sync.
-rsync -a --delete --exclude 'local/' --exclude '__pycache__' "$TMP/kit/tools/" "$WORLD_ROOT/tools/"
+$RS --delete --exclude 'local/' --exclude '__pycache__' "$TMP/kit/tools/" "$WORLD_ROOT/tools/"
 # A shell tool that arrives without its execute bit is unusable, and the failure is confusing
 # ("Permission denied" on a command the docs tell you to run). Cheap insurance.
-chmod +x "$WORLD_ROOT/tools/"*.sh 2>/dev/null || true
+[ "$DRY" = 0 ] && chmod +x "$WORLD_ROOT/tools/"*.sh 2>/dev/null || true
 
 # The copy of THIS script has just been replaced, and bash is still reading the old text: a step
 # added in the new version would silently not run (which is exactly what happened the first time a
 # world took this release - the theme synced but the theme's README did not). Re-exec once, with the
 # new script, and only then continue.
-if [ -z "${SYNC_REEXEC:-}" ] && ! cmp -s "$TMP/running.sh" "$WORLD_ROOT/tools/sync-tooling.sh" >/dev/null 2>&1; then
+if [ "$DRY" = 0 ] && [ -z "${SYNC_REEXEC:-}" ] && ! cmp -s "$TMP/running.sh" "$WORLD_ROOT/tools/sync-tooling.sh" >/dev/null 2>&1; then
   echo "sync-tooling: this script itself changed; re-running with the new version"
   # Through `bash`, not directly: the copy that just arrived may not be executable (a release that
   # lost the bit is the first defect this script ever had), and a re-exec that fails on permissions
@@ -77,9 +136,9 @@ if [ -z "${SYNC_REEXEC:-}" ] && ! cmp -s "$TMP/running.sh" "$WORLD_ROOT/tools/sy
   SYNC_REEXEC=1 exec bash "$WORLD_ROOT/tools/sync-tooling.sh" ${TAG:+"$TAG"}
 fi
 mkdir -p "$WORLD_ROOT/tools/docs"
-[ -d "$TMP/kit/docs" ] && rsync -a --delete "$TMP/kit/docs/" "$WORLD_ROOT/tools/docs/"
+[ -d "$TMP/kit/docs" ] && $RS --delete "$TMP/kit/docs/" "$WORLD_ROOT/tools/docs/"
 mkdir -p "$WORLD_ROOT/meta/templates"
-[ -d "$TMP/kit/meta/templates" ] && rsync -a --delete "$TMP/kit/meta/templates/" "$WORLD_ROOT/meta/templates/"
+[ -d "$TMP/kit/meta/templates" ] && $RS --delete "$TMP/kit/meta/templates/" "$WORLD_ROOT/meta/templates/"
 
 # The theme. `--delete` everywhere the kit owns the file; the exclusions are what a world keeps:
 # the generated pages, its art, its own prompt notes, and its deploy state.
@@ -88,17 +147,17 @@ if [ -d "$TMP/kit/site" ] && [ -d "$WORLD_ROOT/site" ]; then
   # ships a neutral version of each so a new world has a working site, and then leaves them alone -
   # a world's About page is its own prose, and a sync that rewrote it would be destroying content.
   mkdir -p "$WORLD_ROOT/site/src" "$WORLD_ROOT/site/infra" "$WORLD_ROOT/site/image-prompts"
-  rsync -a --delete \
+  $RS --delete \
         --exclude 'content/generated' --exclude 'data/generated' \
         --exclude 'pages/index.astro' --exclude 'pages/about.astro' --exclude 'pages/follow.astro' \
         "$TMP/kit/site/src/" "$WORLD_ROOT/site/src/"
   for f in astro.config.mjs package.json package-lock.json deploy.sh README.md; do
-    [ -f "$TMP/kit/site/$f" ] && cp "$TMP/kit/site/$f" "$WORLD_ROOT/site/$f"
+    [ -f "$TMP/kit/site/$f" ] && cpfile "$TMP/kit/site/$f" "$WORLD_ROOT/site/$f"
   done
-  [ -d "$TMP/kit/site/infra" ] && rsync -a --exclude 'state.json' \
+  [ -d "$TMP/kit/site/infra" ] && $RS --exclude 'state.json' \
         "$TMP/kit/site/infra/" "$WORLD_ROOT/site/infra/"
   [ -f "$TMP/kit/site/image-prompts/README.md" ] && \
-    cp "$TMP/kit/site/image-prompts/README.md" "$WORLD_ROOT/site/image-prompts/README.md"
+    cpfile "$TMP/kit/site/image-prompts/README.md" "$WORLD_ROOT/site/image-prompts/README.md"
 fi
 # The template mirrors the kit's EXAMPLE WORLD: one copy of the fixture, so the example an author
 # reads can never drift from the one the kit's own tests run against. `template: true` in
@@ -109,26 +168,26 @@ if grep -qE '^template:[[:space:]]*true' "$WORLD_ROOT/world.config.yaml" 2>/dev/
   echo "-> example-world/ (the kit's demo world, mirrored)"
   mkdir -p "$WORLD_ROOT/example-world/world" "$WORLD_ROOT/example-world/campaigns" \
            "$WORLD_ROOT/example-world/meta"
-  rsync -a --delete "$TMP/kit/world/" "$WORLD_ROOT/example-world/world/"
-  [ -d "$TMP/kit/campaigns" ] && rsync -a --delete "$TMP/kit/campaigns/" \
+  $RS --delete "$TMP/kit/world/" "$WORLD_ROOT/example-world/world/"
+  [ -d "$TMP/kit/campaigns" ] && $RS --delete "$TMP/kit/campaigns/" \
         "$WORLD_ROOT/example-world/campaigns/"
   # The kit's meta/ mixes the demo world's notes with the kit's own documents; only the former are
   # part of the example.
-  [ -d "$TMP/kit/meta" ] && rsync -a --delete \
+  [ -d "$TMP/kit/meta" ] && $RS --delete \
         --exclude 'templates/' --exclude 'platform-requests/' \
         --exclude 'campaign-authoring-guide.md' --exclude 'world-conventions.md' \
         "$TMP/kit/meta/" "$WORLD_ROOT/example-world/meta/"
-  cp "$TMP/kit/world.config.yaml" "$WORLD_ROOT/example-world/world.config.yaml"
+  cpfile "$TMP/kit/world.config.yaml" "$WORLD_ROOT/example-world/world.config.yaml"
 fi
 
 mkdir -p "$WORLD_ROOT/.pi/prompts"
-[ -d "$TMP/kit/.pi/prompts" ] && rsync -a --delete "$TMP/kit/.pi/prompts/" "$WORLD_ROOT/.pi/prompts/"
+[ -d "$TMP/kit/.pi/prompts" ] && $RS --delete "$TMP/kit/.pi/prompts/" "$WORLD_ROOT/.pi/prompts/"
 mkdir -p "$WORLD_ROOT/.github/workflows"
 # The workflows a world runs: the site deploy, the fast checks, and the drift check. The kit's own
 # `ci.yml` and `template-fork.yml` are the kit's: a world has no use for either.
 for wf in site.yml checks.yml tooling-drift.yml; do
   [ -f "$TMP/kit/.github/workflows/$wf" ] && \
-    cp "$TMP/kit/.github/workflows/$wf" "$WORLD_ROOT/.github/workflows/$wf"
+    cpfile "$TMP/kit/.github/workflows/$wf" "$WORLD_ROOT/.github/workflows/$wf"
 done
 # A workflow that is no longer the kit's is no longer shipped: a world that keeps one is running
 # something nobody maintains.
@@ -140,13 +199,18 @@ for wf in "$WORLD_ROOT/.github/workflows"/*.yml; do
   esac
 done
 
-printf '%s\n' "$TAG" > "$WORLD_ROOT/TOOLING_VERSION"
+if [ "$DRY" = 1 ]; then echo "would write TOOLING_VERSION: $TAG"
+else printf '%s\n' "$TAG" > "$WORLD_ROOT/TOOLING_VERSION"; fi
 
 echo "sync-tooling: $OLD -> $TAG"
-echo "sync-tooling: the protocol region, if it changed:"
-python3 "$WORLD_ROOT/tools/sync-agent-protocol.py" || true
+if [ "$DRY" = 1 ]; then echo "would re-sync the AGENTS.md protocol region"
+else
+  echo "sync-tooling: the protocol region, if it changed:"
+  python3 "$WORLD_ROOT/tools/sync-agent-protocol.py" || true
+fi
 
 echo
+[ "$DRY" = 1 ] && echo "DRY RUN: nothing above was written." && echo
 echo "Review the diff, then run the proof:"
 if [ -d "$WORLD_ROOT/.git" ]; then git -C "$WORLD_ROOT" diff --stat; else echo "  (not a git repository: review and commit by hand)"; fi
 echo "  cd $WORLD_ROOT && python3 tools/lint.py && tools/verify-world.sh"

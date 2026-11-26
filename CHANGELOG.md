@@ -4,6 +4,28 @@ A world pins the kit by copying its version into `TOOLING_VERSION` and updating 
 `tools/sync-tooling.sh`. **A change a world cannot absorb silently is a major bump and gets a
 migration note here.**
 
+## 1.1.0 — the sync has safety rails (K10)
+
+Minor, and it can refuse. A world should sync: `tools/sync-tooling.sh` is replaced. Read the two
+refusals before your next sync, because they can stop one.
+
+Vendoring's whole safety argument is *the diff is reviewable*. Three ways it was not:
+
+- **A dirty tree.** Syncing onto uncommitted work mixes the tooling upgrade with whatever the world
+  was in the middle of, in one diff nobody can attribute. The sync now refuses when the world has
+  uncommitted changes **in the paths it replaces** — `tools/`, `meta/templates/`, `site/src/`,
+  `.pi/prompts/`, the workflows — and passes cleanly over the paths that are the world's own:
+  `tools/local/`, its three site pages, its art, its deploy state. (`--force` overrides.)
+- **A deletion nobody was shown.** `rsync --delete` on `tools/` silently removes a file a world put
+  there, which is how a world's own script disappears. The sync now re-runs itself in dry-run mode
+  first, lists what it *would* delete, and refuses — with the remedies: move it to `tools/local/`, or
+  `--force` and let it go.
+- **No rehearsal.** `--dry-run` prints every change and writes nothing: no rsync, no `cp`, no
+  `TOOLING_VERSION`, no protocol re-sync.
+
+The two refusals cost one extra fetch and one extra rsync pass, and they are the rails the
+extraction's own evaluation asked for after a rehearsal found the failure mode by hand.
+
 ## 1.0.13 — the extraction's record moves here
 
 Patch: a new document, and four open items. A world should sync — `docs/extraction.md` arrives with
