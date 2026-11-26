@@ -56,7 +56,9 @@ can find its own work without re-reading the catalogue.
 3. Add a `CHANGELOG.md` entry. **A change a world cannot absorb silently is a major bump and needs a
    migration note** — state the change, why it is not silent, and what a world must do.
 4. Tag it `v<TOOLING_VERSION>`. A world's `sync-tooling.sh` fetches a tag, so an untagged change is a
-   change no world can take.
+   change no world can take. **Push the tag itself**: `git push origin main --tags`.
+   A plain `git push` does not carry tags, and `--follow-tags` carries only *annotated* ones — so a
+   lightweight tag pushed with `--follow-tags` arrives nowhere, and `sync-tooling.sh` fetches tags.
 5. `python3 tools/sync-agent-protocol.py` — if the protocol changed, every world's `AGENTS.md` region
    must be re-synced, and its `--check` is what notices.
 6. `python3 tools/check_citations.py` — if a document's sections moved, every citation of it moved

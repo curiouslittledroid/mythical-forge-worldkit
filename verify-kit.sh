@@ -21,15 +21,30 @@ fi
 echo "== version";  ROOT="$ROOT" python3 - <<'EOF'
 import os, pathlib, subprocess
 root = os.environ["ROOT"]
-tag = subprocess.run(["git", "-C", root, "describe", "--tags", "--abbrev=0"],
-                     capture_output=True, text=True).stdout.strip()
+
+def git(*args):
+    return subprocess.run(["git", "-C", root, *args], capture_output=True, text=True).stdout.strip()
+
 v = pathlib.Path(root, "TOOLING_VERSION").read_text().strip()
-if not tag:
+newest = git("describe", "--tags", "--abbrev=0")
+if not newest:
     print("no tags yet: nothing to compare the version to")
-elif tag != v:
-    raise SystemExit(f"FAIL: TOOLING_VERSION says {v} but the most recent tag is {tag} -- bump it before tagging (CONTRIBUTING.md, Release step 2)")
 else:
-    print(f"TOOLING_VERSION matches the most recent tag ({v})")
+    at_head = git("describe", "--tags", "--exact-match", "HEAD")
+    if at_head:
+        # Released: HEAD is tagged, so the marker must name that release exactly.
+        if v != at_head:
+            raise SystemExit(f"FAIL: HEAD is tagged {at_head} but TOOLING_VERSION says {v} -- they must agree at a release")
+        print(f"TOOLING_VERSION matches the release at HEAD ({v})")
+    else:
+        # Between releases the marker names the newest release, or the one being prepared. It must
+        # never be BEHIND: that was the real bug (v1.2.3 released as v1.3.0). Being ahead is a normal
+        # release in flight, which is why an equality check here would false-alarm on every release.
+        behind = subprocess.run(["sort", "-V", "-C"], input=f"{newest}\n{v}\n", text=True,
+                                capture_output=True).returncode != 0
+        if behind:
+            raise SystemExit(f"FAIL: TOOLING_VERSION says {v} but the newest tag is {newest} -- it is stale (CONTRIBUTING.md, Release step 2)")
+        print(f"TOOLING_VERSION ({v}) is not behind the newest tag ({newest})")
 EOF
 
 rsync -a --exclude .git --exclude node_modules --exclude __pycache__ --exclude site/dist \
