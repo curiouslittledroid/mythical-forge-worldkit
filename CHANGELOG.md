@@ -4,6 +4,30 @@ A world pins the kit by copying its version into `TOOLING_VERSION` and updating 
 `tools/sync-tooling.sh`. **A change a world cannot absorb silently is a major bump and gets a
 migration note here.**
 
+## 1.3.1 — CI that had never run, and what it found in four runs
+
+The kit and the template were pushed to GitHub today, which switched on four workflows that had only
+ever been reasoned about. All four failed, and two of the failures were bugs that would have hit every
+world the moment it added the workflows.
+
+- **`checks.yml` ran a check no runner can pass.** `tools/check-guide.mjs` parses the authoring guide's
+  blocks with the platform's own schema (`@mythical-forge/authored-content`, from `MYTHICAL_FORGE_ROOT`
+  ), and the platform repository is private, so no runner can have it. It is **not** in the workflow
+  now, and the workflow says why: run it locally, before a commit that touches the guide.
+- **`checks.yml` gated a kit on a rule that is about worlds.** The disclosure check fails on any
+  unreviewed lore section, and the kit's demo world has plenty — it is a fixture, not a world. The
+  step now runs only when the repository is not a kit or an uninhabited template (read from
+  `world.config.yaml`'s `template: true`). Every world keeps the gate.
+- **`template-fork.yml` synced the empty string.** `actions/checkout` does not fetch tags unless told
+  to, so `git tag --list 'v*'` was empty, and the workflow passed the empty tag to `sync-tooling.sh`
+  (which refused — the rails held). It now fetches tags, and an empty tag is a loud failure naming the
+  checkout option that fixes it.
+- **`tooling-drift.yml` failed on the kit itself** for the same missing-tags reason, and now passes.
+
+The lesson is the one this repository keeps learning: **a check that has never run is not a check.**
+`verify-kit.sh` was green throughout, because everything it runs is local. The workflows were written,
+reviewed and shipped to worlds without a single execution.
+
 ## 1.3.0 — the machinery a world had grown on its own
 
 A world does not stop moving while its machinery is extracted. Three commits landed on the source

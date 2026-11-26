@@ -31,6 +31,20 @@ jobs:
         with:
           node-version: '20'
 
+      # NOTE: `tools/check-guide.mjs` is deliberately NOT run here. It parses the guide's blocks with
+      # the platform's own schema (`@mythical-forge/authored-content`, from MYTHICAL_FORGE_ROOT), and
+      # the platform repository is private: a runner cannot have it. Run it locally, before a commit
+      # that touches the authoring guide. Everything above and below is standard-library only.
+
+      - name: Is this a kit or an uninhabited template?
+        id: kind
+        run: |
+          if grep -qE '^[[:space:]]*template:[[:space:]]*true' world.config.yaml; then
+            echo "kit=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "kit=false" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: The suites
         run: |
           for suite in tools/test_*.py; do
@@ -45,7 +59,5 @@ jobs:
         run: python3 tools/check_citations.py
 
       - name: Every lore section has a disclosure class
+        if: steps.kind.outputs.kit != 'true'
         run: python3 tools/disclosure.py --check
-
-      - name: The guide's blocks still match the schema
-        run: node tools/check-guide.mjs

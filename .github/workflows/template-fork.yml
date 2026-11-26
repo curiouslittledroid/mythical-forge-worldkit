@@ -39,6 +39,8 @@ jobs:
       - uses: actions/checkout@v4
         with:
           path: kit
+          fetch-depth: 0        # the whole history, so the tag list is complete
+          fetch-tags: true      # `git tag --list` is empty without this, and a sync of "" is a no-op
 
       - name: Fetch the template
         id: template
@@ -71,7 +73,12 @@ jobs:
           set -eu
           cd template
           latest="$(git -C "$GITHUB_WORKSPACE/kit" tag --list 'v*' | sort -V | tail -1)"
-          echo "newest kit tag: $latest"
+          echo "newest kit tag: ${latest:-none}"
+          if [ -z "$latest" ]; then
+            echo "::error::no v* tag is present in the checkout, so there is nothing to sync. The"
+            echo "::error::checkout must fetch tags: pass fetch-depth: 0 and fetch-tags: true."
+            exit 1
+          fi
           WORLDKIT_REPO="$GITHUB_WORKSPACE/kit" tools/sync-tooling.sh "$latest"
           cat TOOLING_VERSION
 
