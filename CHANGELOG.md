@@ -4,6 +4,23 @@ A world pins the kit by copying its version into `TOOLING_VERSION` and updating 
 `tools/sync-tooling.sh`. **A change a world cannot absorb silently is a major bump and gets a
 migration note here.**
 
+## 1.3.5 — a check for the check that GitHub refused to load
+
+Fixing the drift check for the kit, I put **two `if:` keys on one step**. GitHub refuses such a file
+outright: the workflow showed up in Actions named by its *path* instead of "Tooling drift", and every
+run failed with nothing a reader could act on. My own validation — `ruby -ryaml` — parsed it happily,
+keeping the last key, which is exactly the trap.
+
+`tools/check-workflows.py` finds duplicate keys without a YAML library, and it is careful about the one
+thing that makes a naive version useless: a list of steps repeats `run:` and `with:` at the same
+indentation by design, so sequence items reset the chain. It runs in `verify-kit.sh`, in `checks.yml`
+(standard library only, so it works on a runner), and it has tests — including the case that a naive
+detector gets wrong.
+
+That is three rails in this session written to catch a mistake of mine, and two of them then failed in
+a way the third would have caught. The pattern worth naming: **validate with something that rejects
+what the real consumer rejects.** A lenient parser is not a validator.
+
 ## 1.3.4 — the version rail, third time lucky, and what the three attempts cost
 
 The rail that compares `TOOLING_VERSION` with the newest tag has been wrong twice, and both times it

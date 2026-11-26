@@ -51,6 +51,7 @@ mkdir -p "$TMP/gameready"
 cd "$TMP/world"
 
 echo "== suites";     for suite in tools/test_*.py; do printf '%s ' "$suite"; python3 "$suite" | tail -1; done
+echo "== workflows";  python3 tools/check-workflows.py | tail -1
 echo "== citations";  python3 tools/check_citations.py | tail -2
 echo "== lint";       python3 tools/lint.py | tail -6
 echo "== transform";  GAME_READY_REPO="$TMP/gameready" node tools/transform.mjs | grep -E "Wrote|thread ferry" || true

@@ -72,8 +72,7 @@ jobs:
           fi
 
       - name: Is the pin behind the kit?
-        if: steps.kind.outputs.world == '1'
-        if: steps.kit.outputs.reachable == '1'
+        if: steps.kind.outputs.world == '1' && steps.kit.outputs.reachable == '1'
         run: |
           set -eu
           pinned="${{ steps.kit.outputs.pinned }}"
