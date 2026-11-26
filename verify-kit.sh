@@ -18,6 +18,20 @@ if [ -z "${MYTHICAL_FORGE_ROOT:-}" ]; then
   exit 2
 fi
 
+echo "== version";  ROOT="$ROOT" python3 - <<'EOF'
+import os, pathlib, subprocess
+root = os.environ["ROOT"]
+tag = subprocess.run(["git", "-C", root, "describe", "--tags", "--abbrev=0"],
+                     capture_output=True, text=True).stdout.strip()
+v = pathlib.Path(root, "TOOLING_VERSION").read_text().strip()
+if not tag:
+    print("no tags yet: nothing to compare the version to")
+elif tag != v:
+    raise SystemExit(f"FAIL: TOOLING_VERSION says {v} but the most recent tag is {tag} -- bump it before tagging (CONTRIBUTING.md, Release step 2)")
+else:
+    print(f"TOOLING_VERSION matches the most recent tag ({v})")
+EOF
+
 rsync -a --exclude .git --exclude node_modules --exclude __pycache__ --exclude site/dist \
       "$ROOT/" "$TMP/world/"
 mkdir -p "$TMP/gameready"
