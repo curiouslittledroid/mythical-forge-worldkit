@@ -70,8 +70,10 @@ class DuplicateKeysCase(unittest.TestCase):
         self.assertIn("duplicate key 'if'", got[0])
 
     def test_the_line_number_points_at_the_second_key(self):
-        # The first `if:` is on line 11 of DUPLICATE; the duplicate is on line 12.
-        self.assertIn("12:", duplicates(DUPLICATE)[0])
+        # Find the line rather than asserting a number I would have to keep in step by hand.
+        lines = DUPLICATE.splitlines()
+        second = lines.index("        if: steps.kit.outputs.reachable == '1'") + 1
+        self.assertIn(f"{second}:", duplicates(DUPLICATE)[0])
 
     def test_comments_and_blank_lines_are_ignored(self):
         self.assertEqual(duplicates("a:\n  # b: c\n\n  b: 1\n"), [])

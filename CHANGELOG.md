@@ -4,6 +4,18 @@ A world pins the kit by copying its version into `TOOLING_VERSION` and updating 
 `tools/sync-tooling.sh`. **A change a world cannot absorb silently is a major bump and gets a
 migration note here.**
 
+## 1.3.8 — the suite, and the rail that refused my own sync
+
+Two things 1.3.7 left.
+
+- The suite's line-number assertion named `12:` by hand; the duplicate is on line 10. It finds the line
+  in the fixture now, so the number cannot drift.
+- The sync **refused** to move this world to v1.3.7, and was right to: the rename left
+  `tools/check-workflows.py` inside `tools/`, which the kit no longer has at that tag, and the rail's
+  message says exactly that — a file inside a directory the kit owns that is not in the kit. That is
+  the rail from v1.1.0 doing the job it was built for, on the person who built it. `--force` is the
+  right answer here and only here: the file is a renamed kit file, not a world's work.
+
 ## 1.3.7 — the tool's own name made it unimportable
 
 The reason 1.3.6 did not fix anything: the file was `check-workflows.py`, and a **hyphen is not
