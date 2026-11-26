@@ -43,7 +43,7 @@ to run rather than guessing.
 | `kit_config.mjs` | The same, for Node. `loadConfig()`, `mfRoot()`, `block()`, `notePath()`. |
 | `yaml_subset.py` | The strict YAML reader behind both config readers and the atlas. |
 | `lint.py` | The vault linter (only standard-library Python). See the kit's `docs/conventions.md` §16. |
-| `check-workflows.py` | Loads every `.github/workflows/*.yml` far enough to find a **duplicate key**. A lenient parser keeps the last one; GitHub refuses the file, and the workflow then appears in Actions named by its path, failing every run. Writes nothing. |
+| `check_workflows.py` | Loads every `.github/workflows/*.yml` far enough to find a **duplicate key**. A lenient parser keeps the last one; GitHub refuses the file, and the workflow then appears in Actions named by its path, failing every run. Writes nothing. |
 | `test_check_workflows.py` | Its tests. |
 | `check_citations.py` | Resolves every `§N` citation against the document it names and fails on one that does not exist. See the kit's `docs/conventions.md` §16.1. |
 | `test_lint.py` | Its tests. |

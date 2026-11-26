@@ -4,6 +4,17 @@ A world pins the kit by copying its version into `TOOLING_VERSION` and updating 
 `tools/sync-tooling.sh`. **A change a world cannot absorb silently is a major bump and gets a
 migration note here.**
 
+## 1.3.7 — the tool's own name made it unimportable
+
+The reason 1.3.6 did not fix anything: the file was `check-workflows.py`, and a **hyphen is not
+importable in Python**. `sys.path` was never the problem, and adding the insert changed nothing. It is
+`check_workflows.py` now, which is what every other Python tool here does — `check_citations.py`,
+`lore_export.py` — and what a hyphenated filename quietly forbids. (`.mjs` tools may hyphenate; nothing
+imports them.)
+
+Two releases, the same thread: a suite that could not run, then the reason it could not run. Both found
+by running the suites by hand, neither by the workflow that would have failed on it minutes later.
+
 ## 1.3.6 — the new test could not import the new tool
 
 `test_check_workflows.py` did `from check_workflows import duplicates`, and every other suite in this

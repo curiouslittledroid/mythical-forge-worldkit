@@ -63,7 +63,7 @@ jobs:
         run: python3 tools/lint.py
 
       - name: The workflows will load
-        run: python3 tools/check-workflows.py
+        run: python3 tools/check_workflows.py
 
       - name: Every section citation resolves
         run: python3 tools/check_citations.py
