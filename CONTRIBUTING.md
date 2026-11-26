@@ -62,3 +62,12 @@ can find its own work without re-reading the catalogue.
 6. `python3 tools/check_citations.py` — if a document's sections moved, every citation of it moved
    too, here and in every world that synced the old numbers. The check is the sweep; do not rely on
    reading the diff.
+
+## What a contribution is licensed under
+
+By contributing, you agree that your contribution is licensed under the kit's own two licences:
+**MIT** for code (`LICENSE`) and **CC BY 4.0** for prose (`LICENSE-CONTENT`). That is the whole
+agreement — there is no CLA — which means you must have the right to contribute what you send: your
+own work, or work whose licence permits this use.
+
+`docs/licensing.md` explains the split, and why it is a split.

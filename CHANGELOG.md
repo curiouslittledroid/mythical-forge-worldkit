@@ -4,6 +4,25 @@ A world pins the kit by copying its version into `TOOLING_VERSION` and updating 
 `tools/sync-tooling.sh`. **A change a world cannot absorb silently is a major bump and gets a
 migration note here.**
 
+## 1.2.3 — the licence strategy, written down
+
+Patch: a new document, plus two stale places it exposed. A world should sync — `docs/licensing.md`
+arrives with the rest of `tools/docs/`, and it is worth a world author's ten minutes.
+
+- **`docs/licensing.md`** is the strategy and the reasoning: why the machinery is MIT and not
+  Apache-2.0 or the GPL, why the prose is CC BY 4.0 and not BY-SA, why a world is all rights reserved
+  and why it should start that way, what a world decides and what it may not touch, the one place a
+  third-party notice is needed (the fonts the built site serves), the alternatives considered and
+  rejected, and how the notices are **enforced** — the sync copies them, the drift check compares them
+  with the pin, the sync's test asserts they arrive — rather than declared in a file nobody reads.
+- **`CONTRIBUTING.md`** says what a contribution is licensed under, which it never did.
+- **The README's licence section still said "to be decided (K1)"** and its status line still said
+  version 1.0.0. Both were written before K1 was decided and neither had been read since — by me,
+  twice: the edit that was supposed to fix the first had a guard that skipped it silently.
+- **The CI gate now excludes `docs/extraction.md`**, which is provenance: the record of an extraction
+  names the world it extracted from, throughout. The gate caught this itself, on the push that would
+  have failed for it.
+
 ## 1.2.2 — the drift check and the sync disagree about one list
 
 Patch. Safe to sync.

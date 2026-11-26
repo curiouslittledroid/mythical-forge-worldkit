@@ -102,11 +102,19 @@ proof is a local, pre-commit step. Run it before you tag a release.
 
 ## Status
 
-Extracted from the first world (`hollowfall-codex`) in 2026. **Version `1.0.0`**; the version a world
-pins lives in its `TOOLING_VERSION`. The extraction's remaining business is in `ROADMAP.md`.
+Extracted from the first world in 2026 (`CHANGELOG.md` is the record, `docs/extraction.md` the
+reasoning). The version a world pins lives in its `TOOLING_VERSION`; this repository's own version
+is the newest tag. The kit's open work is in `ROADMAP.md`.
 
 ## Licence
 
-Tooling and documentation: to be decided (see `ROADMAP.md`, K1). The rule is intended to be
-permissive for a world that wants to publish its own codex; the demo world and every template
-example are *not canon* and carry no rights of their own.
+**MIT** for the tools, the theme and the scripts (`LICENSE`); **CC BY 4.0** for the prose — the
+documents, the note templates, the agent prompts and the example world (`LICENSE-CONTENT`). The
+prose is the part that exists to be copied into other worlds, which is what that licence is for.
+
+A world that vendors the kit receives both at `tools/LICENSE` and `tools/LICENSE-CONTENT`, because
+MIT requires its notice to travel with every copy — and a world's `tools/` is a copy. A world's own
+lore stays the world's, under the world's own `LICENSE`.
+
+**`docs/licensing.md` is the reasoning:** why MIT and not Apache-2.0 or the GPL, why CC BY and not
+BY-SA, why a world starts restrictive, and how the notices are enforced rather than declared.
