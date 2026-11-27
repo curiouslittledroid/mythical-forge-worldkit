@@ -92,11 +92,27 @@ class TestDocExamples(DocCase):
         code, out = self.run_check("A testable lineage, and a lineage predicate.\n")
         self.assertEqual(code, 0, out)
 
-    def test_a_source_world_name_in_the_machinery_is_not_scanned_here(self):
-        # The whole-machinery grep is CI's; this tool checks the documents.
+    def test_a_source_world_phrase_in_the_machinery_is_not_scanned_by_default(self):
         (self.root / "tools" / "a_test.py").write_text('"Choir water"\n', encoding="utf-8")
         code, out = self.run_check("An NPC, `npc_tomas_reed`.\n")
         self.assertEqual(code, 0, out)
+
+    def test_all_also_sweeps_the_machinery_for_phrases(self):
+        (self.root / "tools" / "a_test.py").write_text('"Choir water"\n', encoding="utf-8")
+        self.doc.write_text("An NPC, `npc_tomas_reed`.\n", encoding="utf-8")
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out):
+            code = check_doc_examples.main(["--all"])
+        self.assertEqual(code, 1)
+        self.assertIn("a_test.py", out.getvalue())
+
+    def test_all_does_not_apply_the_id_rule_to_code(self):
+        (self.root / "tools" / "a_test.py").write_text('x = "evt_made_up_here"\n', encoding="utf-8")
+        self.doc.write_text("An NPC, `npc_tomas_reed`.\n", encoding="utf-8")
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out):
+            code = check_doc_examples.main(["--all"])
+        self.assertEqual(code, 0, out.getvalue())
 
     def test_no_demo_world_passes_and_says_so(self):
         (self.root / "template" / "example-world" / "world.config.yaml").unlink()

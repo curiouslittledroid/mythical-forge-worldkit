@@ -4,10 +4,16 @@
 The YAML reader itself is `yaml_subset.py`, shared with `kit_config.py`; this module owns the
 atlas **schema** and the command-line check. Standard library only.
 
+**The schema is the kit's; the atlas is the world's.** Nothing here knows a world's frames, its
+feature kinds or its type vocabulary: the file declares its frames, and every list-valued top-level
+key is a section. What this validates is structure — a frame an entry names must be declared, an id
+must be unique, geometry must be well formed — not a world's taxonomy. See
+`meta/conventions/atlas.md`.
+
     python3 tools/atlas_yaml.py maps/atlas-features.yaml
 
-Exits 1 with `INVALID path: file:line: reason` on the first schema error. `load`, `SchemaError`
-and `points` are what the other atlas tools import from here.
+Exits 1 with `INVALID path: file:line: reason` on the first schema error. `load`, `SchemaError`,
+`points`, `frames`, `default_frame` and `sections` are what the other atlas tools import from here.
 """
 import os
 import sys
@@ -19,114 +25,106 @@ from yaml_subset import SchemaError, load  # noqa: F401  re-exported for make_at
 # ---------------------------------------------------------------------------
 # schema
 # ---------------------------------------------------------------------------
-FRAMES = {"heartland", "far_reach", "severed_west", "frostbound_north", "bloom", "world"}
+# Top-level keys that are not sections. A world may use others for its own renderer; only these
+# have a meaning here, and a list-valued key is a section whatever else it is called.
+SCALAR_KEYS = {"schema", "default_frame", "title", "summary", "disclosure", "era",
+               "labels", "links", "notes", "gm_sections"}
 
-SECTIONS = [
-    # (section, required keys, geometry: point|bounds|points|none)
-    ("landmasses", ["id", "name", "area_million_km2", "latitude"], "none"),
-    ("regions", ["id", "name", "type", "frame"], "bounds"),
-    ("seas_and_lakes", ["id", "name", "type"], "any"),
-    ("rivers", ["id", "name"], "points"),
-    ("relief", ["id", "name", "type"], "any"),
-    ("deserts_and_plains", ["id", "name", "type"], "bounds"),
-    ("cities", ["id", "name", "type", "x", "y"], "point"),
-    ("towns", ["id", "name", "type", "x", "y"], "point"),
-    ("holds", ["id", "name", "x", "y"], "point"),
-    ("ruins", ["id", "name", "type", "x", "y"], "point"),
-    ("sentinels", ["id", "name", "x", "y"], "point"),
-    ("leylines", ["id", "name", "type"], "points_or_point"),
-    ("routes", ["id", "name", "type"], "points"),
-    ("route_legs", ["from", "to", "km"], "none"),
-    ("holy_sites", ["id", "name", "god", "x", "y"], "point"),
-    ("territories", ["id", "name", "holder"], "bounds"),
-    ("gm_overlay", ["id", "name", "type", "x", "y"], "point"),
-]
-
+# The status scale is the kit's: it is what the diff and the audit understand.
 STATUSES = {"canon", "proposed", "retired"}
-TYPES = {
-    "regions": {"forest", "fae", "storm", "scrub", "coast", "warm", "lee", "plateau", "highland",
-                "steppe", "crater", "eddy", "tundra", "ice_sheet", "jungle", "canopy", "basin"},
-    "seas_and_lakes": {"dry_sea", "dry_gulf", "brine_pool", "lake", "old_shore"},
-    "relief": {"range", "pass", "glacier", "badlands", "plateau", "breach", "seam"},
-    "deserts_and_plains": {"salt_desert", "ash_plain", "scrub"},
-    "cities": {"city", "sealed_city"},
-    "towns": {"town", "village", "port", "camp"},
-    "routes": {"road", "track", "aqueduct", "deeproad", "sealane", "coast"},
-    "ruins": {"ruin", "ruin_port", "dungeon", "battlefield", "fortress", "wreck_field",
-              "monument", "capital"},
-    "leylines": {"line", "knot", "well", "remnant"},
-    "routes": {"road", "track", "aqueduct", "deeproad", "sealane", "coast"},
-    "gm_overlay": {"seed_site", "hearth", "hushed", "stronghold", "trade", "well",
-                   "wyrm", "cantor", "silent_city", "sentinel"},
-}
+
+# Frame fields. `x` and `y` are required; the rest change the generated view.
+FRAME_REQUIRED = ("x", "y")
+
+
+def frames(data) -> dict:
+    """The declared frames, name -> {x, y, name?, prefix?, grid_km?}."""
+    return data.get("frames") or {}
+
+
+def default_frame(data):
+    """The frame an entry without one belongs to: `default_frame:`, else `world`, else the first."""
+    declared = frames(data)
+    name = data.get("default_frame")
+    if name:
+        return name
+    if "world" in declared:
+        return "world"
+    return next(iter(declared), None)
+
+
+def sections(data) -> dict:
+    """Every list-valued top-level key that is not a reserved scalar, in file order.
+
+    That is what a section is: a world names its own kinds, so the file declares them.
+    """
+    return {key: value for key, value in data.items()
+            if isinstance(value, list) and key not in SCALAR_KEYS}
+
+
+def _is_number(value) -> bool:
+    return isinstance(value, (int, float)) and not isinstance(value, bool)
 
 
 def validate(data, path="<data>"):
-    """Check the schema, ids, references and geometry. Raises SchemaError."""
+    """Check the schema, ids, frames and geometry. Raises SchemaError."""
     if data.get("schema") != 1:
         raise SchemaError("schema must be 1")
-    frames = data.get("frames") or {}
-    for name in FRAMES:
-        f = frames.get(name)
-        if not f:
-            raise SchemaError(f"missing frame '{name}'")
-        for k in ("x", "y"):
-            if k not in f or len(f[k]) != 2:
-                raise SchemaError(f"frame '{name}' needs x and y as [min, max]")
+
+    declared = frames(data)
+    if not declared:
+        raise SchemaError("missing 'frames': declare each frame's x and y extent")
+    for name, frame in declared.items():
+        if not isinstance(frame, dict):
+            raise SchemaError(f"frames.{name} is not a mapping")
+        for key in FRAME_REQUIRED:
+            extent = frame.get(key)
+            if not isinstance(extent, list) or len(extent) != 2:
+                raise SchemaError(f"frames.{name}.{key} must be [min, max]")
+            if not all(_is_number(v) for v in extent):
+                raise SchemaError(f"frames.{name}.{key} must be two numbers")
+    fallback = default_frame(data)
+    if fallback not in declared:
+        raise SchemaError(f"default_frame '{fallback}' is not a declared frame "
+                          f"({', '.join(sorted(declared))})")
 
     ids = {}
-    for section, required, geom in SECTIONS:
-        entries = data.get(section)
-        if entries is None:
-            raise SchemaError(f"missing section '{section}'")
-        if not isinstance(entries, list):
-            raise SchemaError(f"section '{section}' must be a list")
+    for section, entries in sections(data).items():
         for i, e in enumerate(entries):
             where = f"{section}[{i}]"
             if not isinstance(e, dict):
                 raise SchemaError(f"{where} is not a mapping")
-            for k in required:
-                if k not in e:
-                    raise SchemaError(f"{where} missing '{k}'")
             if "id" in e:
                 if e["id"] in ids:
                     raise SchemaError(f"duplicate id '{e['id']}' ({where} and {ids[e['id']]})")
                 ids[e["id"]] = where
-            st = e.get("status", "canon")
-            if st not in STATUSES:
-                raise SchemaError(f"{where}: status '{st}' not in {sorted(STATUSES)}")
-            if section in TYPES and e.get("type") and e["type"] not in TYPES[section]:
-                raise SchemaError(
-                    f"{where}: type '{e['type']}' not in {sorted(TYPES[section])}")
-            if "source" not in e and section not in ("route_legs",):
-                raise SchemaError(f"{where} missing 'source'")
-            # geometry
-            if geom == "point":
-                if "x" not in e or "y" not in e:
-                    raise SchemaError(f"{where} needs x and y")
-            elif geom == "bounds":
-                b = e.get("bounds")
-                if not b or len(b) != 4:
-                    raise SchemaError(f"{where} needs bounds [x0, y0, x1, y1]")
-            elif geom == "points":
-                if not e.get("points"):
-                    raise SchemaError(f"{where} needs points")
-            elif geom == "points_or_point":
-                if not (e.get("points") or ("x" in e and "y" in e)):
-                    raise SchemaError(f"{where} needs points or x/y")
-            elif geom == "bounds_or_point":
-                if not (e.get("bounds") or ("x" in e and "y" in e)):
-                    raise SchemaError(f"{where} needs bounds or x/y")
-            elif geom == "any":
-                if not (e.get("points") or e.get("bounds") or ("x" in e and "y" in e)):
-                    raise SchemaError(f"{where} needs points, bounds or x/y")
-            if e.get("frame") and e["frame"] not in FRAMES:
-                raise SchemaError(f"{where}: frame '{e['frame']}' not in {sorted(FRAMES)}")
-
-    for i, leg in enumerate(data.get("route_legs", [])):
-        for end in ("from", "to"):
-            if leg.get(end) not in ids:
-                raise SchemaError(f"route_legs[{i}]: '{end}' is not a known id ({leg.get(end)})")
+            # A route leg is the one entry that is a pair, not a feature; a plate carries a
+            # `title` rather than a `name`.
+            if "name" not in e and "title" not in e and not ("from" in e and "to" in e):
+                raise SchemaError(f"{where} needs 'name' (or title, or from/to for a route leg)")
+            status = e.get("status", "canon")
+            if status not in STATUSES:
+                raise SchemaError(f"{where}: status '{status}' not in {sorted(STATUSES)}")
+            # Geometry: whatever is present must be well formed. Which sections need which is the
+            # world's rule, not the kit's.
+            for key in ("x", "y"):
+                if key in e and not _is_number(e[key]):
+                    raise SchemaError(f"{where}.{key} must be a number")
+            if ("x" in e) != ("y" in e):
+                raise SchemaError(f"{where} needs both x and y, or neither")
+            if "bounds" in e:
+                b = e["bounds"]
+                if not isinstance(b, list) or len(b) != 4 or not all(_is_number(v) for v in b):
+                    raise SchemaError(f"{where}.bounds must be [x0, y0, x1, y1]")
+            if "points" in e:
+                if not isinstance(e["points"], str) or not e["points"].strip():
+                    raise SchemaError(f"{where}.points must be a string of x,y pairs")
+                try:
+                    points(e["points"])
+                except ValueError:
+                    raise SchemaError(f"{where}.points: '{e['points']}' is not 'x,y x,y ...'")
+            if e.get("frame") and e["frame"] not in declared:
+                raise SchemaError(f"{where}: frame '{e['frame']}' not in {sorted(declared)}")
     return True
 
 
@@ -154,5 +152,5 @@ if __name__ == "__main__":
     except FileNotFoundError:
         print(f"NOT FOUND {path}: run this from the repository root")
         sys.exit(1)
-    total = sum(len(v) for k, v in d.items() if isinstance(v, list))
-    print(f"ok: {len([k for k in d if isinstance(d[k], list)])} sections, {total} entries")
+    total = sum(len(v) for v in sections(d).values())
+    print(f"ok: {len(sections(d))} sections, {total} entries")

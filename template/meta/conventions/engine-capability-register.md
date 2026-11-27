@@ -198,7 +198,7 @@ Patterns are defined once in **conventions §9.7**; this table is the register's
 | # | Pattern | Applies to | Replaces |
 |---|---|---|---|
 | CP-1 | Non-combatants are **class-built** (`levels: { EXPERT: n }`). `monster: srd_…` is for real monsters; there is no civilian base in the library. | every NPC note (Steps 2, 15) | BL-5 (which was documented wrong — see the audit) |
-| CP-2 | The Hushed and the Sung: one NPC per bound person + a `SECRET` edge + a Fact. | Steps 8, 12 | BL-6/older BL-7 |
+| CP-2 | A bound person: one NPC per body + a `SECRET` edge + a Fact. | Steps 8, 12 | BL-6/older BL-7 |
 | CP-3 | Body-hopping: one NPC per body, all `SECRETLY_SERVES` the same faction, tied by a Fact; **every body is pre-authored**. | Steps 8, 12 | older BL-6 |
 | CP-4 | A testable lineage or taint: Fact + an NPC-scoped effect-only flag (`toward: npc_x`). | Steps 7, 12 | older BL-7 |
 | CP-5 | Probabilistic content: a deterministic Condition + a GM random table. | Steps 12, 13 | older BL-2 |

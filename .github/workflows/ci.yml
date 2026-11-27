@@ -35,8 +35,8 @@ jobs:
       - name: Every section citation resolves
         run: python3 tools/check_citations.py
 
-      - name: The documents teach with the demo world's examples
-        run: python3 tools/check_doc_examples.py
+      - name: The documents and the machinery teach with the demo world's examples
+        run: python3 tools/check_doc_examples.py --all
 
       # The engine's schemas are the one thing this job cannot get for free: they are published on
       # GitHub Packages (Phase 5 B4) and the registry needs a token. Without one, the checks that need

@@ -101,7 +101,7 @@ class Site:
     deferred_kinds: frozenset[str] = field(default_factory=frozenset)
     # --- what the theme needs and must not hardcode ---
     content_descriptors: tuple[str, ...] = ()
-    # The year-zero prefix and its name in prose ("T0", "the Severing"). The theme formats a page's
+    # The year-zero prefix and its name in prose ("T0", the world's year-zero name). A page's
     # offset; what the zero *means* is the world's.
     t0_prefix: str = "T0"
     t0_epoch: str = ""

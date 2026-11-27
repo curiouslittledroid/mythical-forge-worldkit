@@ -62,9 +62,44 @@ site.md's "current list". It runs in `ci.yml`, in the shipped `checks.yml`, and 
 `verify-kit.sh` — no schemas needed — and it skips with a clear message when a repository has no
 demo world.
 
-Still outside the list, and left visible rather than fixed here: the atlas tool's hardcoded frame
-names (`heartland`, `far_reach`, …) are a config seam, not a doc; the agent prompts and the demo
-world still carry some of the source's vocabulary. The next sync of any of them is where they go.
+Still outside the list at that point: the atlas tools and the agent prompts. They are fixed in the
+entry below.
+
+**The atlas is data-driven, and the prompts are generic.** The atlas schema had one world's frames,
+sections and type vocabulary baked into `atlas_yaml.py`, and `atlas_tables.py` wrote that world's
+geography into the note it generated. The agent prompt `atlas-refresh.md` was that world's map
+brief, down to its feature lists and note ids.
+
+- **`atlas_yaml.py`** validates structure, not a world's taxonomy: the YAML declares `frames:`
+  (each with `x`/`y`, and optionally `name`, `prefix`, `grid_km`) and a `default_frame:`; every
+  list-valued top-level key is a section; an entry needs an `id`, a `name` (or a plate's `title`,
+  or a route leg's `from`/`to`), a `status`, and well-formed geometry if it has any. `source` is
+  no longer required by the tool — the world's register decides that.
+- **`atlas_tables.py`** writes the generated note from the data: `title`, `summary`, `notes`,
+  `labels`, `gm_sections`, `links` and `travel` are the world's, with generic fallbacks. Grid
+  references come from each frame's `prefix` and `grid_km`; a frames table replaces the world
+  prose. `atlas.md` documents the contract.
+- **`atlas-refresh.md`** is rewritten as a procedure: read the YAML, the register and the
+  feature-owning notes; extend the sections the file declares; never a list of one world's places.
+- **The template ships `maps/atlas-register.md`** (a brief with the questions to answer), which is
+  the note the prompt cites — so a fresh fork's citation check is now clean.
+- **Fixtures and comments**: `test_lint.py`'s tag vocabulary, `voice_lint.py`'s example and a
+  `kit_config.py` comment are neutral. The remaining names in `test_voice.py` and
+  `test_site_export.py` are test prose (a fixture teller and her town), not guidance; they are left
+  for a dedicated sweep rather than mixed into this one.
+
+**`tools/check_doc_examples.py --all`** now also sweeps `tools/` and `template/` for the source
+world's phrases (the list lives once, in that tool). `ci.yml` and `verify-kit.sh` run `--all`; the
+shipped `checks.yml` keeps the document check. New `tools/test_atlas.py` (26 tests) covers the
+schema, the view and `--check`.
+
+**What a world must do, on syncing this (major bump, per the sync contract):**
+regenerate `maps/atlas-features.md` and read the diff. To keep the old grid references, add
+`prefix` and `grid_km` to the frames that had a local grid (`far_reach` was `FR` at 100 km, and so
+on); the default frame keeps its 250 km master grid. The generated note's headings and preamble now
+come from the data: set `title`, `summary`, `notes`, `labels`, `gm_sections` and `links` in the YAML
+to keep the prose you had. The YAML's own `frames:` and sections are unchanged, so it still
+validates; nothing in a place note moves.
 
 ## 3.0.0 — the kit owns the template; the template repo is generated
 

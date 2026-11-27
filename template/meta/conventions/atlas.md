@@ -39,7 +39,7 @@ tools/atlas_previews.sh                                # optional: PNG previews 
 
 | Tool | What it does | Flags / exit codes |
 |---|---|---|
-| `tools/atlas_yaml.py` | Reads and validates the YAML. Prints `ok: 18 sections, 166 entries`, or `INVALID …` with the first problem. | exit 1 on any schema error |
+| `tools/atlas_yaml.py` | Reads and validates the YAML. Prints `ok: <n> sections, <n> entries`, or `INVALID …` with the first problem. | exit 1 on any schema error |
 | `tools/atlas_tables.py` | Writes `maps/atlas-features.md` from the YAML. | `--check` writes nothing and exits 1 if the file is stale |
 | **`tools/local/make_atlas.py`** | Writes `maps/svg/*.svg`. **The world's, never the kit's** (D16): label placement, the frame layout and the map title are world choices. The sync never touches `tools/local/`. | — |
 | `tools/atlas_diff.py` | Compares the YAML with a baseline and prints added, removed, moved and changed features. | `--check` exits 1 if anything changed; `--section cities` narrows; a path argument sets the baseline |
@@ -50,7 +50,7 @@ A healthy run:
 
 ```text
 $ python3 tools/atlas_yaml.py maps/atlas-features.yaml
-ok: 18 sections, 166 entries
+ok: <n> sections, <n> entries
 $ python3 tools/atlas_tables.py --check
 …/maps/atlas-features.md is up to date
 $ python3 tools/atlas_diff.py
@@ -77,11 +77,46 @@ python3 tools/atlas_diff.py /tmp/old.yaml
 
 ## The data
 
-`maps/atlas-features.yaml` is the authored layer: sections, entries, coordinates, the feature's
-`id` (which must match a note's), and its class. `tools/atlas_yaml.py` owns the schema and validates
-it; the atlas it describes is the world's. Keep ids stable across a move — a moved feature keeps its
-id and changes its coordinates, so `atlas_diff.py` reports a **move** rather than a removal and an
-addition, and the note keeps pointing at one feature.
+`maps/atlas-features.yaml` is the authored layer. `tools/atlas_yaml.py` owns the schema and validates
+it; the atlas it describes is the world's, so **the file declares its own shape**:
+
+```yaml
+schema: 1
+default_frame: <frame-name>
+title: <the generated note's title>          # optional; the presentation keys are a world's
+summary: <one line for the generated note>   # optional
+labels: { <section>: <heading> }             # optional: a better heading per section
+gm_sections: [<section>]                     # optional: the sections the GM sheets carry
+travel: { <terrain>: [days-fast, days-slow] }  # optional: overrides for the route-leg table
+frames:
+  <frame-name>:
+    x: [min, max]                            # km, required
+    y: [min, max]                            # km, required
+    name: <how it reads>                     # optional
+    prefix: FR                               # optional: a local grid prefix
+    grid_km: 100                             # optional: the grid step
+plates: [...]                                # optional: the world's sheets
+towns: [...]                                 # any list-valued key is a section
+```
+
+**The kit fixes the structure, not the vocabulary:**
+
+| Key | The rule |
+|---|---|
+| `schema` | `1` |
+| `frames` | required. Every entry's `frame` must be declared here; an entry without one belongs to `default_frame` (or `world`, or the first declared) |
+| a section | any list-valued top-level key. Its name, its heading (`labels`) and its feature kinds are the world's |
+| an entry | a mapping with an `id` (unique across the file), a `name` (or a `title` for a plate, or `from`/`to` for a route leg), a `status` of `canon`, `proposed` or `retired`, and well-formed geometry if it has any |
+| geometry | `x` and `y` together, `bounds: [x0, y0, x1, y1]`, or `points: "x,y x,y …"` — km, in the entry's frame |
+| `source` | the vault path that owns the fact. The kit does not require it; a world's register does |
+
+Keep ids stable across a move — a moved feature keeps its id and changes its coordinates, so
+`atlas_diff.py` reports a **move** rather than a removal and an addition, and the note keeps
+pointing at one feature.
+
+**The presentation is data too.** `tools/atlas_tables.py` writes the generated note from the data:
+`title`, `summary`, `notes` (the "how to read" lines), `labels`, `gm_sections`, `links` and `travel`.
+A world that sets none of them still gets a readable register with a generic preamble.
 
 ## What a world supplies
 

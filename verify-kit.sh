@@ -16,7 +16,7 @@ trap '[ "${1:-}" = "--keep" ] || rm -rf "$TMP"' EXIT
 
 # The documents first: they need no schemas, and a doc that teaches another world's ids is a defect
 # in the machinery rather than in the pipeline. Cheap, so it runs before anything can be skipped.
-echo "== docs"; python3 "$ROOT/tools/check_doc_examples.py" --verbose
+echo "== docs"; python3 "$ROOT/tools/check_doc_examples.py" --all --verbose
 
 # The schemas, from whichever source, probed once here: a missing install is one clear message naming
 # both fixes rather than a stack trace out of the first tool that needs them.

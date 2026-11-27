@@ -13,10 +13,11 @@ document every world receives. site.md shipped its whole keystone list as "the c
 no id check could see it.
 
     python3 tools/check_doc_examples.py                  # the world-facing documents
+    python3 tools/check_doc_examples.py --all            # the documents and the whole machinery
     python3 tools/check_doc_examples.py --verbose        # say what was read
     python3 tools/check_doc_examples.py meta/conventions/site.md
 
-Checked: `meta/conventions/*.md`, `meta/templates/*.md` and `tools/README.md` — the documents a world
+Checked: `meta/conventions/*.md`, `meta/templates/*.md`, `.pi/prompts/*.md` and `tools/README.md` — the documents a world
 receives as the kit's rules and note shapes. In the kit those live under `template/`; in a world they
 are at the root. A world's own `README.md`, `AGENTS.md` and `ROADMAP.md` are the world's, so they are
 not checked: their ids are genuinely that world's.
@@ -24,6 +25,11 @@ not checked: their ids are genuinely that world's.
 **Not paths.** `world/plot-web/` is a shape, not an example; a path check would report every folder
 reference and teach the reader to ignore it. `campaigns/<campaign>/scenarios/<name>.yaml` is a
 placeholder, not a path to resolve.
+
+**`--all`** also scans the machinery — `tools/` and `template/` — for the phrases. The id rule does
+not apply there (a test fixture may invent an id), but another world's names must not appear in a
+script, a prompt or a default either. The list lives here, once, so the document check and the
+machinery check cannot drift apart.
 
 When there is no demo world (a world that deleted it by hand), the check says so and passes rather
 than inventing a verdict.
@@ -47,7 +53,8 @@ ID_RE = re.compile(
 
 # Where the documents live, in the kit first, then in a world.
 DOC_DIRS = ("template/meta/conventions", "meta/conventions",
-            "template/meta/templates", "meta/templates")
+            "template/meta/templates", "meta/templates",
+            "template/.pi/prompts", ".pi/prompts")
 DOC_FILES = ("tools/README.md",)
 # The demo world, in the kit's layout or beside a world's tools/.
 DEMO_DIRS = ("template/example-world", "example-world")
@@ -106,8 +113,27 @@ def demo_ids(demo: Path) -> set[str]:
     return known
 
 
-def find_leaks(paths: list[Path], known: set[str]) -> list[tuple[str, int, str]]:
-    """(file, line, token) for every id or source-world phrase a document should not name."""
+def machinery(root: Path = None) -> list[Path]:
+    """Every source file the kit ships, for the `--all` phrase sweep.
+
+    The checker and its test are the list's home, so they are the one place the phrases belong.
+    """
+    root = root or ROOT
+    out: list[Path] = []
+    for base in ("tools", "template"):
+        for path in (root / base).rglob("*"):
+            if not path.is_file() or path.suffix not in {".py", ".sh", ".mjs", ".md", ".yaml", ".yml"}:
+                continue
+            if "__pycache__" in path.parts or "node_modules" in path.parts:
+                continue
+            if path.name in {"check_doc_examples.py", "test_check_doc_examples.py"}:
+                continue
+            out.append(path)
+    return sorted(out)
+
+
+def find_leaks(paths: list[Path], known: set[str], check_ids: bool = True) -> list[tuple[str, int, str]]:
+    """(file, line, token) for every id or source-world phrase that should not appear."""
     leaks: list[tuple[str, int, str]] = []
     for path in paths:
         try:
@@ -116,10 +142,11 @@ def find_leaks(paths: list[Path], known: set[str]) -> list[tuple[str, int, str]]
             rel = str(path)
         for number, line in enumerate(path.read_text(encoding="utf-8").splitlines(), 1):
             seen: set[str] = set()
-            for token in ID_RE.findall(line):
-                if token in known or token in NOT_IDS or is_placeholder(token):
-                    continue
-                seen.add(token)
+            if check_ids:
+                for token in ID_RE.findall(line):
+                    if token in known or token in NOT_IDS or is_placeholder(token):
+                        continue
+                    seen.add(token)
             for phrase in SOURCE_WORLD_PHRASES:
                 if phrase in line:
                     seen.add(phrase)
@@ -131,6 +158,8 @@ def main(argv: list[str]) -> int:
     ap = argparse.ArgumentParser(description="Every id in the world-facing docs is the demo world's.")
     ap.add_argument("paths", nargs="*", type=Path,
                     help="check only these documents (default: all of them)")
+    ap.add_argument("--all", action="store_true",
+                    help="also scan tools/ and template/ for the source world's phrases")
     ap.add_argument("--verbose", action="store_true", help="say what was read")
     args = ap.parse_args(argv)
 
@@ -144,6 +173,12 @@ def main(argv: list[str]) -> int:
         return 0
     known = demo_ids(demo)
     leaks = find_leaks(paths, known)
+    if args.all:
+        already = {path.resolve() for path in paths}
+        extra = [path for path in machinery() if path.resolve() not in already]
+        leaks += find_leaks(extra, known, check_ids=False)
+        if args.verbose:
+            print(f"check_doc_examples: also swept {len(extra)} machinery file(s) for phrases")
     if args.verbose:
         print(f"check_doc_examples: {len(paths)} document(s) against {len(known)} id(s) "
               f"in {demo.relative_to(ROOT).as_posix()}")
