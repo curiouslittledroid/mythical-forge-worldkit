@@ -39,7 +39,7 @@ tools, the rules and the note templates are `mythical-forge-worldkit`'s, vendore
 `meta/conventions/` and `meta/templates/` at the pinned tag. **A world is proved by running its own
 pipeline**: `tools/verify-world.sh` builds the vault into a throwaway Game Ready Repository and runs
 lint → disclosure → transform → validate → thread-check → voice → every scenario. The kit proves the
-toolchain separately, with `verify-kit.sh` against its demo world.
+toolchain separately, with its own `verify-kit.sh` against its demo world.
 
 **The engine's Game Ready Repository is a separate, generated repository.** Never hand-edit it. The
 engine's content model is Design 23 in the platform repository (`$MYTHICAL_FORGE_ROOT/docs/specs/`),

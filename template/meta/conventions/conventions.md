@@ -1,7 +1,7 @@
 # Vault Conventions (v2.0)
 
 **Status:** the rules every world codex follows. World-specific choices are **not** here: they live in
-that world's own `meta/conventions.md`, in `world.config.yaml`, and in its fenced vault blocks.
+that world's own `meta/world-conventions.md`, in `world.config.yaml`, and in its fenced vault blocks.
 **Authority:** where this file lists an engine vocabulary, the platform package
 (`@curiouslittledroid/authored-content`, or a checkout named by `MYTHICAL_FORGE_ROOT`) is the authority, not this file.
 

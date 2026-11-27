@@ -69,7 +69,7 @@ first minute, when it has no idea what it will become.
 
 **The natural upgrade**, when a world wants others to reuse it, is **CC BY-NC-SA 4.0 for the `open`
 material only** — the material a world has already decided to publish. The codex already sorts every
-section along exactly that axis: `open`, `earned`, `sealed` (see the kit's `conventions.md`
+section along exactly that axis: `open`, `earned`, `sealed` (see the kit's `meta/conventions/conventions.md`
 §7). A world that takes this route is not inventing a boundary; it is drawing the licence along one
 it already maintains.
 

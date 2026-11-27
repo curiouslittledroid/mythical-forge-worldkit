@@ -588,8 +588,9 @@ its scenarios, its engine blocks) and it passes the same checks yours will.
   1. Fill the `site:` section and write `meta/site.md`; set the world's own copy on the three pages.
   2. **Export:** `python3 tools/site_export.py` (stdlib only) — it applies every redaction rule in the
      kit's `meta/conventions/site.md` §2.2. It writes the pages to `site/src/content/generated/`, and
-     `site/src/data/generated/site.json`, `navigation.json`, `changelog.json` and `redirects.json`,
-     plus the audit at `site/audit/latest.json`. All of them are generated: never hand-edit one.
+     `site/src/data/generated/site.json`, `site/src/data/generated/navigation.json`,
+     `site/src/data/generated/changelog.json` and `site/src/data/generated/redirects.json`, plus the
+     audit at `site/audit/latest.json`. All of them are generated: never hand-edit one.
   3. **Build:** `npm --prefix site run build`, then `python3 tools/site_link_check.py` — the build fails
      on any internal link to a file that does not exist.
   4. **Read the audit** (`site/audit/latest.json`) before deploying: keyword hits and dangling
