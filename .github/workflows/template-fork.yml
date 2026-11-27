@@ -19,7 +19,7 @@ on:
     paths:
       - tools/**
       - docs/**
-      - meta/templates/**
+      - template/**
       - site-theme/**
       - .pi/prompts/**
       - .github/workflows/template-fork.yml

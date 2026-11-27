@@ -67,13 +67,12 @@ docs/                  the rules and the registers - the kit's own documents
   testimony.md                 the first-person device, the voice sheets and the two checks
   tag-vocabulary.md            the five rules, the block the linter reads, how themes are chosen
   atlas.md                     the map pipeline, the data layer, and what stays the world's
-meta/templates/        one template per note type (mirrored into a world)
 meta/platform-requests/  draft specs written for the platform repository - not the kit's backlog
 tools/                 the scripts and their tests
 site-theme/            the Astro theme, vendored into a world as site/
 template/              the generated world-template's source: the skeleton a new author forks
                        (world.config.yaml, init-world.sh, the brief, the roadmap, principles/,
-                       the empty vault) plus the embedded example-world/ demo world
+                       the empty vault, the note templates) plus the embedded example-world/ demo
 example-world/         (inside template/) the DEMO WORLD: the smallest complete vault the tools
                        run against
 export-template.sh     assembles mythical-forge-world-template from template/ + the vendored kit

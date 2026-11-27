@@ -156,7 +156,7 @@ fi
 mkdir -p "$WORLD_ROOT/tools/docs"
 [ -d "$TMP/kit/docs" ] && $RS --delete "$TMP/kit/docs/" "$WORLD_ROOT/tools/docs/"
 mkdir -p "$WORLD_ROOT/meta/templates"
-[ -d "$TMP/kit/meta/templates" ] && $RS --delete "$TMP/kit/meta/templates/" "$WORLD_ROOT/meta/templates/"
+[ -d "$TMP/kit/template/meta/templates" ] && $RS --delete "$TMP/kit/template/meta/templates/" "$WORLD_ROOT/meta/templates/"
 
 # The theme. `--delete` everywhere the kit owns the file; the exclusions are what a world keeps:
 # the generated pages, its art, its own prompt notes, and its deploy state.

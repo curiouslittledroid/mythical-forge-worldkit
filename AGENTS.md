@@ -21,10 +21,9 @@ only serious mistake available in this repository.
 | `docs/campaign-authoring-guide.md` | The how-to for authoring threads, Campaigns, Modules and Quests. |
 | `docs/thread-pattern.md` | The reference behind the guide — **why** a thread is a state graph. (Arrives with extraction T3d.) |
 | `docs/site.md` | How a public site is generated from a vault. A world's page choices are its own. |
-| `meta/templates/` | One template per note type; The demo world (`template/example-world/`) is the end-to-end fixture. |
 | `tools/` | The scripts, and the tests beside them. |
 | `site-theme/` | The Astro theme a world installs (vendored into a world as `site/`). |
-| `template/` | The generated world-template's source: the skeleton a new author forks, plus the embedded `example-world/` demo. `export-template.sh` assembles the template repo from it. |
+| `template/` | The generated world-template's source: the skeleton a new author forks, the note templates (`template/meta/templates/`), and the embedded `example-world/` demo. `export-template.sh` assembles the template repo from it. |
 | `meta/platform-requests/` | Draft specs written for the platform repository. Not the kit's own backlog. |
 
 ## How to work here

@@ -48,7 +48,7 @@ class ReexecCase(unittest.TestCase):
         """A stand-in worldkit: a version, a tools/ sync script that prints a marker, one template."""
         (self.kit / "tools").mkdir(parents=True)
         (self.kit / "docs").mkdir(parents=True)
-        (self.kit / "meta/templates").mkdir(parents=True)
+        (self.kit / "template/meta/templates").mkdir(parents=True)
         # A theme, or the site step does not run at all -- and then the test cannot see what the
         # site step does to a world's generated directories. (It could not: the first version of
         # this fixture had no site/, so the assertion passed with the bug present.)
@@ -58,7 +58,7 @@ class ReexecCase(unittest.TestCase):
         (self.kit / "LICENSE").write_text("MIT\n", encoding="utf-8")
         (self.kit / "LICENSE-CONTENT").write_text("CC BY 4.0\n", encoding="utf-8")
         (self.kit / "TOOLING_VERSION").write_text("v9.9.9\n", encoding="utf-8")
-        (self.kit / "meta/templates/npc.md").write_text("# npc\n", encoding="utf-8")
+        (self.kit / "template/meta/templates/npc.md").write_text("# npc\n", encoding="utf-8")
         script = SYNC.read_text(encoding="utf-8").replace(
             'echo "sync-tooling: $OLD -> $TAG"',
             'echo "sync-tooling: $OLD -> $TAG"\necho "MARKER: ' + marker + '"')

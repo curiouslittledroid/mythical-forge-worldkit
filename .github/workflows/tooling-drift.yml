@@ -130,7 +130,7 @@ jobs:
           # ROADMAP.md K15.
           compare "tools/"        /tmp/kit/tools        tools             "--exclude=docs --exclude=LICENSE --exclude=LICENSE-CONTENT" 
           compare "tools/docs/"   /tmp/kit/docs         tools/docs
-          compare "meta/templates/" /tmp/kit/meta/templates meta/templates
+          compare "meta/templates/" /tmp/kit/template/meta/templates meta/templates
           # The licences are vendored like everything else, and for a licence that is the point.
           compare "tools/LICENSE"  /tmp/kit/LICENSE  tools/LICENSE
           compare "tools/LICENSE-CONTENT" /tmp/kit/LICENSE-CONTENT tools/LICENSE-CONTENT

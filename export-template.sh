@@ -3,10 +3,10 @@
 #
 # The template repo is GENERATED: it is never edited by hand. This script builds it from
 #   - template/          the skeleton a new author forks (world.config.yaml, init-world.sh,
-#                        the brief, the roadmap, principles/, the empty vault, and the embedded
-#                        example-world/ demo);
-#   - tools/, docs/, meta/templates/, site-theme/, .pi/prompts/, .github/workflows/  vendored
-#                        into the template exactly as sync-tooling.sh vendors them into a world;
+#                        the brief, the roadmap, principles/, the empty vault, the note
+#                        templates, and the embedded example-world/ demo);
+#   - tools/, docs/, site-theme/, .pi/prompts/, .github/workflows/  vendored into the template
+#                        exactly as sync-tooling.sh vendors them into a world;
 #   - TOOLING_VERSION    the pin.
 #
 # Usage:
@@ -86,9 +86,7 @@ chmod +x "$DEST/tools/"*.sh 2>/dev/null || true
 mkdir -p "$DEST/tools/docs"
 rsync -a --delete "$TMP/kit/docs/" "$DEST/tools/docs/"
 
-# The note templates.
-mkdir -p "$DEST/meta/templates"
-rsync -a --delete "$TMP/kit/meta/templates/" "$DEST/meta/templates/"
+# The note templates arrive with template/ above (template/meta/templates/), so nothing to do here.
 
 # The theme. Same exclusions as sync-tooling.sh: the three world-owned pages, and the exporter's
 # generated directories. The kit keeps the theme at site-theme/; a world holds it at site/.
