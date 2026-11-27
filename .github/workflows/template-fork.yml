@@ -103,11 +103,17 @@ jobs:
           mkdir -p /tmp/fork && cp -r template/. /tmp/fork/
           cd /tmp/fork
           ./init-world.sh --title "Fork Test" --yes
-          # `init-world.sh` itself is excluded: it contains the placeholder by definition, being the
-          # thing that replaces it. Without that exclusion this check failed on every run -- found by
-          # running it on a real fork, which is the only way it was ever going to be found.
-          test -z "$(grep -rIl REPLACE_ME --exclude-dir=tools --exclude-dir=dist --exclude=init-world.sh . || true)" \
-            || { echo "::error::init-world.sh left REPLACE_ME behind:"; grep -rIl REPLACE_ME --exclude-dir=tools --exclude-dir=dist --exclude=init-world.sh . ; exit 1; }
+          # What `init-world.sh` must have done is replace the IDENTITY values. Demanding that no
+          # `REPLACE_ME` survive anywhere was wrong from the day it was written: the template ships
+          # placeholders in its pages, its calendar and its agent brief, and those are the author's
+          # own to-do list -- lint reports them as warnings for exactly that reason. Two runs of this
+          # job were needed to find that, because the first failure was the check itself.
+          if grep -q 'REPLACE_ME' world.config.yaml; then
+            echo "::error::init-world.sh left a REPLACE_ME in the config:"; grep -n 'REPLACE_ME' world.config.yaml; exit 1
+          fi
+          grep -q 'Fork Test' AGENTS.md || { echo "::error::the fork's title did not reach AGENTS.md"; exit 1; }
+          echo "the identity was replaced; what remains is the new author's, and lint lists it:"
+          grep -rIl REPLACE_ME --exclude-dir=tools --exclude-dir=dist --exclude-dir=node_modules --exclude=init-world.sh . | sed 's/^/  /' || true
 
       - name: The checks a new world can run
         if: steps.template.outcome == 'success'
