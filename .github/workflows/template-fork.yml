@@ -120,12 +120,19 @@ jobs:
         working-directory: /tmp/fork
         run: |
           set -eu
-          for suite in tools/test_*.py; do echo "== $suite"; python3 "$suite"; done
+          # NOT the whole suite set, and not the disclosure gate. Both assert a REAL world's
+          # vocabularies -- its tags, its sections, its tellers -- and a fresh fork still has the
+          # template's placeholders in them, which are the new author's to-do list rather than a
+          # defect. lint counts what remains. This is the same line checks.yml draws between a world
+          # and a template, and it was the second thing this job got wrong about a fresh fork.
           python3 tools/lint.py
           python3 tools/check_citations.py
-          python3 tools/disclosure.py --check
-          # The strongest proof a fork owns: its vault compiles and its (empty) scenario set passes.
-          # It needs the engine's schemas, which come from GitHub Packages, so it needs the token.
+          python3 tools/check_workflows.py
+          echo "== what this fork still has to fill in:"
+          python3 tools/lint.py 2>&1 | tail -1
+          # The strongest proof a fork owns, and the reason this job exists: its vault compiles into a
+          # Game Ready Repository the engine's own schemas accept. They come from a private registry,
+          # so without a token this is skipped and the checks above are all there is.
           if [ "${{ steps.schemas.outputs.have }}" = "1" ]; then
             npm install --no-audit --no-fund
             tools/verify-world.sh
