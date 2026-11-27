@@ -23,7 +23,7 @@ class VaultCase(unittest.TestCase):
         self.tmp = tempfile.TemporaryDirectory()
         self.root = Path(self.tmp.name)
         check_citations.ROOT = self.root
-        self.docs = {"docs/conventions.md": "# Conventions\n## 7. Audience\n### 7.4 Secrets\n## 9. Ids\n"}
+        self.docs = {"meta/conventions/conventions.md": "# Conventions\n## 7. Audience\n### 7.4 Secrets\n## 9. Ids\n"}
         for rel, text in self.docs.items():
             (self.root / rel).parent.mkdir(parents=True, exist_ok=True)
             (self.root / rel).write_text(text, encoding="utf-8")
@@ -43,7 +43,7 @@ class VaultCase(unittest.TestCase):
 
 class TestResolves(VaultCase):
     def test_the_number_it_names(self):
-        self.write("note.md", "See the kit's `docs/conventions.md` §7.4 for the rule.\n")
+        self.write("note.md", "See the kit's `meta/conventions/conventions.md` §7.4 for the rule.\n")
         self.assertEqual([], self.issues())
 
     def test_a_prose_name_for_a_kit_document(self):
@@ -51,7 +51,7 @@ class TestResolves(VaultCase):
         self.assertEqual([], self.issues())
 
     def test_a_parent_number_satisfied_by_its_children(self):
-        self.write("note.md", "The whole of `docs/conventions.md` §7 applies.\n")
+        self.write("note.md", "The whole of `meta/conventions/conventions.md` §7 applies.\n")
         self.assertEqual([], self.issues())
 
     def test_a_numbered_table_row(self):
@@ -65,27 +65,27 @@ class TestResolves(VaultCase):
         self.assertEqual([], self.issues("ROADMAP.md"))
 
     def test_a_document_named_in_the_sentence_introducing_a_list(self):
-        self.write("note.md", "`docs/conventions.md` numbers these:\n\n- §7.4 secrets\n- §9 ids\n")
+        self.write("note.md", "`meta/conventions/conventions.md` numbers these:\n\n- §7.4 secrets\n- §9 ids\n")
         self.assertEqual([], self.issues())
 
 
 class TestFails(VaultCase):
     def test_a_number_the_document_does_not_have(self):
-        self.write("note.md", "See `docs/conventions.md` §7.9.\n")
+        self.write("note.md", "See `meta/conventions/conventions.md` §7.9.\n")
         (line, level, message), = self.issues()
         self.assertEqual("error", level)
         self.assertIn("§7.9", message)
-        self.assertIn("docs/conventions.md", message)
+        self.assertIn("meta/conventions/conventions.md", message)
 
     def test_a_document_that_numbers_nothing(self):
-        self.write("docs/atlas.md", "# Atlas\n## What it is\n")
-        self.write("note.md", "See `docs/atlas.md` §4.\n")
+        self.write("meta/conventions/atlas.md", "# Atlas\n## What it is\n")
+        self.write("note.md", "See `meta/conventions/atlas.md` §4.\n")
         (_, level, message), = self.issues()
         self.assertEqual("error", level)
         self.assertIn("numbers nothing", message)
 
     def test_a_path_that_does_not_exist(self):
-        self.write("note.md", "See `docs/site.md` §4.\n")
+        self.write("note.md", "See `meta/conventions/site.md` §4.\n")
         (_, level, message), = self.issues()
         self.assertEqual("error", level)
         self.assertIn("no document matches", message)
@@ -99,7 +99,7 @@ class TestFails(VaultCase):
 
 class TestDeliberatelySkipped(VaultCase):
     def test_historical_citations(self):
-        self.write("note.md", "The spec (formerly `docs/conventions.md` §3.4) moved out.\n")
+        self.write("note.md", "The spec (formerly `meta/conventions/conventions.md` §3.4) moved out.\n")
         self.assertEqual([], self.issues())
 
     def test_the_platforms_specs(self):
@@ -122,7 +122,7 @@ class TestDeliberatelySkipped(VaultCase):
 
     def test_a_vault_note_that_numbers_nothing_does_not_shadow(self):
         self.write("world/places/a.md", "---\nid: loc_a\n---\n\nNo headings here.\n")
-        self.write("note.md", "`world/places/a.md` and `docs/conventions.md` §9 ids.\n")
+        self.write("note.md", "`world/places/a.md` and `meta/conventions/conventions.md` §9 ids.\n")
         self.assertEqual([], self.issues())
 
 

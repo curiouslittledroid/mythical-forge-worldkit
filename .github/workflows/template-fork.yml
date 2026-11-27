@@ -1,14 +1,19 @@
 name: Template fork
 
-# The question the kit exists to answer: can somebody start a NEW world from the template today, with
-# the released kit, and have it work? T12 answered it by hand once; this runs it whenever the kit
-# changes.
+# The question the kit exists to answer: can somebody start a NEW world from the kit today, and have
+# it work?
 #
-# It forks the published template, syncs the newest kit tag into it (which is what a new author's
-# first minute looks like), initialises the world with `init-world.sh`, and runs everything that does
-# not need the platform repository. `tools/verify-world.sh` -- the engine pipeline -- needs
-# MYTHICAL_FORGE_ROOT and stays a local step, so this job prints what it could not prove rather than
-# pretending it did.
+# The template repository is GENERATED (`export-template.sh`), so this job does not sync into it.
+# It EXPORTS a template from this commit, initialises it with `init-world.sh` exactly as a new author
+# would, and runs everything that does not need the platform repository.
+#
+# The export step runs unconditionally: an export that produces a broken tree is the kit's defect,
+# and it must be caught even when the published template repository is unreachable. Fetching the
+# published template afterwards is only to say how far behind this commit it is -- the template moves
+# at milestones, not on every commit, so a difference is expected and is reported, never failed.
+#
+# `tools/verify-world.sh` -- the engine pipeline -- needs MYTHICAL_FORGE_ROOT and stays a local step,
+# so this job prints what it could not prove rather than pretending it did.
 #
 # Not shipped to worlds: this is the kit's own job.
 
@@ -19,9 +24,9 @@ on:
     paths:
       - tools/**
       - docs/**
-      - meta/templates/**
-      - site/**
-      - .pi/prompts/**
+      - template/**
+      - site-theme/**
+      - export-template.sh
       - .github/workflows/template-fork.yml
 
 permissions:
@@ -40,67 +45,66 @@ jobs:
         with:
           path: kit
           fetch-depth: 0        # the whole history, so the tag list is complete
-          fetch-tags: true      # `git tag --list` is empty without this, and a sync of "" is a no-op
-
-      - name: Fetch the template
-        id: template
-        uses: actions/checkout@v4
-        continue-on-error: true
-        with:
-          repository: ${{ env.TEMPLATE_REPO }}
-          path: template
-          token: ${{ secrets.TEMPLATE_TOKEN || github.token }}
-
-      - name: Say so, if the template is not reachable
-        if: steps.template.outcome != 'success'
-        run: |
-          echo "::warning::cannot fetch $TEMPLATE_REPO (private, or not published yet): the fork proof did not run."
-          echo "          A private template needs a TEMPLATE_TOKEN secret with read access to it."
+          fetch-tags: true      # without this `git describe --tags` finds nothing and the pin is bogus
 
       - uses: actions/setup-python@v5
-        if: steps.template.outcome == 'success'
         with:
           python-version: '3.12'
 
       - uses: actions/setup-node@v4
-        if: steps.template.outcome == 'success'
         with:
           node-version: '22'
 
-      - name: Sync the newest kit tag into the template
-        if: steps.template.outcome == 'success'
+      # --- The export, proven on its own ------------------------------------------------------
+      - name: Export a template from this commit
+        id: export
         run: |
           set -eu
-          cd template
           latest="$(git -C "$GITHUB_WORKSPACE/kit" tag --list 'v*' | sort -V | tail -1)"
           echo "newest kit tag: ${latest:-none}"
-          if [ -z "$latest" ]; then
-            echo "::error::no v* tag is present in the checkout, so there is nothing to sync. The"
-            echo "::error::checkout must fetch tags: pass fetch-depth: 0 and fetch-tags: true."
-            exit 1
-          fi
-          WORLDKIT_REPO="$GITHUB_WORKSPACE/kit" tools/sync-tooling.sh "$latest"
-          cat TOOLING_VERSION
+          # `--worktree` exports the commit this job checked out. Passing a tag would export the
+          # last release instead, which is exactly the thing this job is meant to catch -- a change
+          # on this commit that breaks the export would pass unnoticed.
+          cd kit
+          ./export-template.sh --worktree --force /tmp/template
+          echo "pin=$(cat /tmp/template/TOOLING_VERSION)" >> "$GITHUB_OUTPUT"
 
-      - name: Are the engine's schemas available?
-        id: schemas
-        if: steps.template.outcome == 'success'
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.WORLDKIT_PACKAGES_TOKEN }}
-        run: |
-          if [ -n "${NODE_AUTH_TOKEN:-}" ]; then
-            echo "have=1" >> "$GITHUB_OUTPUT"
-          else
-            echo "have=0" >> "$GITHUB_OUTPUT"
-            echo "::warning::no WORLDKIT_PACKAGES_TOKEN: the fork's own pipeline (verify-world.sh) is SKIPPED."
-            echo "::warning::The schemas are on GitHub Packages and need read:packages on @curiouslittledroid."
-          fi
-
-      - name: Fork it, and give it an identity
-        if: steps.template.outcome == 'success'
+      - name: The export has everything a world needs
         run: |
           set -eu
-          mkdir -p /tmp/fork && cp -r template/. /tmp/fork/
+          missing=0
+          for rel in \
+              world.config.yaml init-world.sh AGENTS.md README.md ROADMAP.md LICENSE \
+              principles/_index.md world/_index.md maps/_index.md campaigns/_index.md \
+              meta/_index.md meta/templates/npc.md meta/conventions/conventions.md \
+              meta/conventions/licensing.md meta/conventions/agent-protocol.md \
+              .pi/prompts/new-creature.md \
+              tools/lint.py tools/verify-world.sh tools/sync-tooling.sh \
+              tools/docs/conventions.md tools/LICENSE tools/LICENSE-CONTENT \
+              site/astro.config.mjs site/src/lib/site.ts \
+              site/src/pages/index.astro site/src/pages/about.astro site/src/pages/follow.astro \
+              .github/workflows/checks.yml .github/workflows/site.yml \
+              .github/workflows/tooling-drift.yml \
+              example-world/world.config.yaml example-world/world/flags.md \
+              TOOLING_VERSION
+          do
+            if [ ! -e "/tmp/template/$rel" ]; then
+              echo "::error::the exported template is missing $rel"; missing=1
+            fi
+          done
+          # The retired path must NOT come back: the documents live at meta/conventions/ now.
+          if [ -d /tmp/template/tools/docs ]; then
+            echo "::error::the export still carries tools/docs/ (retired: the kit's documents are meta/conventions/)"
+            missing=1
+          fi
+          [ "$missing" -eq 0 ] && echo "the export is complete, and carries nothing it should not"
+          exit "$missing"
+
+      # --- The fork, given an identity -------------------------------------------------------
+      - name: Fork it, and give it an identity
+        run: |
+          set -eu
+          mkdir -p /tmp/fork && cp -r /tmp/template/. /tmp/fork/
           cd /tmp/fork
           ./init-world.sh --title "Fork Test" --yes
           # What `init-world.sh` must have done is replace the IDENTITY values. Demanding that no
@@ -112,11 +116,24 @@ jobs:
             echo "::error::init-world.sh left a REPLACE_ME in the config:"; grep -n 'REPLACE_ME' world.config.yaml; exit 1
           fi
           grep -q 'Fork Test' AGENTS.md || { echo "::error::the fork's title did not reach AGENTS.md"; exit 1; }
+          [ -d example-world ] && { echo "::error::init-world.sh left the demo world behind"; exit 1; }
           echo "the identity was replaced; what remains is the new author's, and lint lists it:"
           grep -rIl REPLACE_ME --exclude-dir=tools --exclude-dir=dist --exclude-dir=node_modules --exclude=init-world.sh . | sed 's/^/  /' || true
 
+      - name: Are the engine's schemas available?
+        id: schemas
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.WORLDKIT_PACKAGES_TOKEN }}
+        run: |
+          if [ -n "${NODE_AUTH_TOKEN:-}" ]; then
+            echo "have=1" >> "$GITHUB_OUTPUT"
+          else
+            echo "have=0" >> "$GITHUB_OUTPUT"
+            echo "::warning::no WORLDKIT_PACKAGES_TOKEN: the fork's own pipeline (verify-world.sh) is SKIPPED."
+            echo "::warning::The schemas are on GitHub Packages and need read:packages on @curiouslittledroid."
+          fi
+
       - name: The checks a new world can run
-        if: steps.template.outcome == 'success'
         working-directory: /tmp/fork
         run: |
           set -eu
@@ -141,7 +158,6 @@ jobs:
           NODE_AUTH_TOKEN: ${{ secrets.WORLDKIT_PACKAGES_TOKEN }}
 
       - name: The site a new world gets
-        if: steps.template.outcome == 'success'
         working-directory: /tmp/fork
         run: |
           set -eu
@@ -161,8 +177,37 @@ jobs:
               raise SystemExit("a fresh fork's audit has unresolved references")
           PY
 
+      # --- How far behind is the published template? -----------------------------------------
+      # Informational only. The template moves at milestones, so a difference here is normal; what
+      # would be a defect -- a broken export -- was already caught above, on its own.
+      - name: How far behind is the published template?
+        uses: actions/checkout@v4
+        continue-on-error: true
+        with:
+          repository: ${{ env.TEMPLATE_REPO }}
+          path: published
+          token: ${{ secrets.TEMPLATE_TOKEN || github.token }}
+
+      - name: Report the difference
+        run: |
+          set -eu
+          if [ ! -d published ]; then
+            echo "::warning::cannot fetch $TEMPLATE_REPO (private, or not published yet):"
+            echo "          the comparison did not run. A private template needs a TEMPLATE_TOKEN."
+            exit 0
+          fi
+          if diff -rq --exclude=.git --exclude=node_modules --exclude=dist \
+               /tmp/template published > /tmp/diff.txt 2>&1; then
+            echo "the published template matches a fresh export of this commit exactly"
+          else
+            echo "::notice::$TEMPLATE_REPO differs from a fresh export of this commit by" \
+                 "$(wc -l < /tmp/diff.txt | tr -d ' ') path(s). Expected between milestones."
+            sed 's/^/  /' /tmp/diff.txt | head -40
+            echo "  Publish the difference at the next milestone:  ./export-template.sh <tag>"
+          fi
+
       - name: What this job did not prove
-        if: steps.template.outcome == 'success' && steps.schemas.outputs.have != '1'
+        if: steps.schemas.outputs.have != '1'
         run: |
           echo "Not run: tools/verify-world.sh (the fork's own pipeline), because no"
           echo "WORLDKIT_PACKAGES_TOKEN secret is set and the engine's schemas are on a private"

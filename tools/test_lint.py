@@ -11,6 +11,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import lint  # noqa: E402
+import testkit  # noqa: E402
 
 REAL_ROOT = lint.ROOT
 
@@ -332,7 +333,7 @@ class TestCli(VaultCase):
 
 class TestRealVault(unittest.TestCase):
     def test_the_real_vault_has_no_errors(self):
-        lint.ROOT = REAL_ROOT
+        lint.ROOT = testkit.REAL_CONFIG.parent
         issues = lint.Linter(lint.load_notes()).run()
         errors = [f"{i.path}:{i.line} {i.code} {i.msg}" for i in issues if i.level == "ERROR"]
         self.assertEqual(errors, [])

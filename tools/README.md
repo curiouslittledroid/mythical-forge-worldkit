@@ -44,10 +44,10 @@ to run rather than guessing.
 | `kit_config.py` | Reads the world config and its blocks. Import it; also runnable to print a summary. |
 | `kit_config.mjs` | The same, for Node. `loadConfig()`, `mfRoot()`, `block()`, `notePath()`. |
 | `yaml_subset.py` | The strict YAML reader behind both config readers and the atlas. |
-| `lint.py` | The vault linter (only standard-library Python). See the kit's `docs/conventions.md` §16. |
+| `lint.py` | The vault linter (only standard-library Python). See the kit's `meta/conventions/conventions.md` §16. |
 | `check_workflows.py` | Loads every `.github/workflows/*.yml` far enough to find a **duplicate key**. A lenient parser keeps the last one; GitHub refuses the file, and the workflow then appears in Actions named by its path, failing every run. Writes nothing. |
 | `test_check_workflows.py` | Its tests. |
-| `check_citations.py` | Resolves every `§N` citation against the document it names and fails on one that does not exist. See the kit's `docs/conventions.md` §16.1. |
+| `check_citations.py` | Resolves every `§N` citation against the document it names and fails on one that does not exist. See the kit's `meta/conventions/conventions.md` §16.1. |
 | `test_lint.py` | Its tests. |
 | `testkit.py` | Fixture helper for the suites (config + vocabulary note). |
 | `test_kit_config.py` | Tests for the two config readers and the subset parser, including a **parity test** that the Python and Node readers agree on the live config. |
@@ -56,7 +56,7 @@ to run rather than guessing.
 | `voice_lint.py` | Checks each testimony against its teller's voice sheet: vocabulary the teller never says, and places outside their range. |
 | `voice_stale.py` | Reports accounts that claim to describe the present but whose surrounding canon has moved since. Reads the present year from the `chronology` block. |
 | `test_voice.py` | Their tests. |
-| `lore_export.py` | Step 14: builds the **Lore corpus** — one chunk per paragraph, layer-split history events, derived audience, wikilink subjects — and prints the calibration report. `--json PATH` writes every chunk record. See the kit's `docs/conventions.md` §7.5. |
+| `lore_export.py` | Step 14: builds the **Lore corpus** — one chunk per paragraph, layer-split history events, derived audience, wikilink subjects — and prints the calibration report. `--json PATH` writes every chunk record. See the kit's `meta/conventions/conventions.md` §7.5. |
 | `test_lore_export.py` | Its tests: chunking, the layer split, the audience rules, tier and race resolution, wikilink subjects. |
 | `transform.mjs` | Codex → Game Ready Repository. Deterministic. |
 | `validate-world.mjs` | Validates a generated Game Ready Repository with `@mythical-forge/authored-content`. |
@@ -64,13 +64,13 @@ to run rather than guessing.
 | `codex-threads.yaml` (generated) | Written by `transform.mjs`: each thread's members and interface. Tooling only; not an entity. |
 | `simulate-world.mjs` | The idle-world and scenario simulator; generates fast-forward start states; reports coverage. |
 | `verify-world.sh` | **A world's pipeline proof.** Copies the vault to a throwaway directory and runs the whole pipeline on the world's **own** content: lint → disclosure → transform → validate → thread-check → voice → every scenario in `vault.scenarios`. **It overlays nothing.** It used to overlay a copy of the kit's teaching example, which meant every world carried a duplicate of a fixture it did not own — and a broken toolchain looked exactly like broken lore. The division now: `verify-kit.sh` (in the kit) proves the **toolchain** against the demo world; this proves the **world**. |
-| `site_export.py` | Exports the **player-facing site content** from the `open` part of every section (see the kit's `docs/site.md`). Imports `disclosure.classify`; never re-derives it. Emits `site.json` so the Astro build gets the world's branding. |
+| `site_export.py` | Exports the **player-facing site content** from the `open` part of every section (see the kit's `meta/conventions/site.md`). Imports `disclosure.classify`; never re-derives it. Emits `site.json` so the Astro build gets the world's branding. |
 | `test_site_export.py` | Its tests: one per redaction rule. |
 | `site_link_check.py` | Fails the build on any internal link to a file that does not exist. |
 | `site_audit_report.py` | Prints the publish audit into a CI run summary; `--strict` gates the build. |
-| `sync-tooling.sh` | **A world's updater.** Fetches a release tag of the worldkit and replaces this repo's `tools/` (except `tools/local/`), the kit's `docs/` into `tools/docs/`, the templates and the theme. It is the one command that moves a world's `TOOLING_VERSION` pin, and its diff is the whole review surface. |
-| `check-guide.mjs` | Checks every `yaml` block in the campaign authoring guide against the engine's schema. The guide is a kit document, so its path is **resolved**, not hardcoded: `<kit>/docs/` in the kit, a world's vendored `tools/docs/`, or an argument. |
-| `sync-agent-protocol.py` | Writes the kit's `docs/agent-protocol.md` into `AGENTS.md`, between the marked region. `--check` fails on drift and is what CI runs. A world's `AGENTS.md` is its own brief plus this region; the protocol is duplicated on purpose, because an agent may never follow a link out of the repository, and the duplication is kept honest by this tool. |
+| `sync-tooling.sh` | **A world's updater.** Fetches a release tag of the worldkit and replaces this repo's `tools/` (except `tools/local/`), the kit's documents into `meta/conventions/`, the templates and the theme. It is the one command that moves a world's `TOOLING_VERSION` pin, and its diff is the whole review surface. |
+| `check-guide.mjs` | Checks every `yaml` block in the campaign authoring guide against the engine's schema. The guide is a kit document, so its path is **resolved**, not hardcoded: `template/meta/conventions/` in the kit, a world's `meta/conventions/`, or an argument. |
+| `sync-agent-protocol.py` | Writes the kit's `meta/conventions/agent-protocol.md` into `AGENTS.md`, between the marked region. `--check` fails on drift and is what CI runs. A world's `AGENTS.md` is its own brief plus this region; the protocol is duplicated on purpose, because an agent may never follow a link out of the repository, and the duplication is kept honest by this tool. |
 | `atlas_yaml.py` | Reads and validates `maps/atlas-features.yaml` (the reader is `yaml_subset.py`; this owns the atlas schema). |
 | `atlas_tables.py` | Renders `maps/atlas-features.md` from the YAML; `--check` fails if it is stale. |
 | `atlas_diff.py` | Compares the YAML with `HEAD` or a file; reports added, removed, moved and changed features. |
@@ -79,7 +79,7 @@ to run rather than guessing.
 
 ## Atlas tools
 
-The mechanism, the data schema and the recipes are the kit's `docs/atlas.md`; a world's own frame,
+The mechanism, the data schema and the recipes are the kit's `meta/conventions/atlas.md`; a world's own frame,
 sheets and drawing rules are that world's business. Short version:
 
 ```

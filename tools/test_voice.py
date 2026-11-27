@@ -149,7 +149,7 @@ class TestVoiceLint(VoiceCase):
 
 
 class TestDating(unittest.TestCase):
-    """An account may be old on purpose; an undated one claims to be current (site.md 3.5)."""
+    """An account may be old on purpose; an undated one claims to be current (the kit's `meta/conventions/site.md` 3.5)."""
 
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory()

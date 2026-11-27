@@ -1,0 +1,18 @@
+This repository is a TEMPLATE. It has no single licence, because it is two things at once, and the
+one you care about is the one you are about to replace.
+
+**Replace this file.** `./init-world.sh` writes a plain "all rights reserved" one for the world you
+are starting, which is the right default for a world bible — you can loosen it later, and a licence
+you grant cannot be taken back, so a world should start restrictive. If you already know what you
+want, write it over this file; the four paragraphs below only tell you what is here now.
+
+**The machinery is not yours to license.** `tools/`, `meta/conventions/`, `meta/templates/`, the site
+theme under `site/` and the agent prompts in `.pi/prompts/` are the worldkit's, vendored at the tag
+in `TOOLING_VERSION` and covered by its licences, which travel with the code:
+MIT (`tools/LICENSE`) and CC BY 4.0 for the prose (`tools/LICENSE-CONTENT`).
+
+**The skeleton's own prose** — `README.md`, `AGENTS.md`, `ROADMAP.md`, the notes in `principles/`
+and the `_index.md` files — is part of the worldkit's material too: CC BY 4.0.
+
+**The example world** in `example-world/` is the worldkit's demo, the Ferryman's Debt, also CC BY
+4.0. Read it, then delete it: it is nobody's setting, and it is not yours to build on.

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Vault linter for a world codex.
 
-Checks the rules in the kit's docs/conventions.md that can be checked mechanically, so any
+Checks the rules in the kit's meta/conventions/conventions.md that can be checked mechanically, so any
 model or human can verify a session's output. Standard library only.
 
 World-specific values come from `world.config.yaml` and the world's fenced blocks (T1); this
@@ -58,7 +58,7 @@ def era_vocabulary() -> set[str]:
     block = cfg.block("eras") if cfg else None
     return set(block.get("order", [])) if isinstance(block, dict) else set()
 
-# --- Vocabulary (the kit's docs/conventions.md) -------------------------------------------------
+# --- Vocabulary (the kit's meta/conventions/conventions.md) -------------------------------------------------
 
 STATUS = {"working", "agreed", "engine-ready", "deprecated"}
 NAME_STATUS = {"working", "agreed"}
@@ -80,7 +80,16 @@ FORBIDDEN_ENGINE_KEYS = {"hp", "ac", "bab", "cr", "author_id"}
 # Condition predicate names that look like ids (npc_, fact_, quest_ prefixes) but are not references.
 PREDICATE_NAMES = {"npc_alive", "fact_revealed", "quest_state"}
 EXCLUDE_DIRS = {".git", ".obsidian", "node_modules", ".trash", "tools", "meta/templates",
-                "site", ".pi",
+                # The kit's world-facing documents. They are PROSE, not vault notes: no frontmatter,
+                # no id, and cited by name and section (never by wikilink -- the kit is not a
+                # vault). Excluded here so that a world holding them beside its own meta/ notes
+                # neither trips FN002 on a shared basename nor demands frontmatter of a rule book.
+                "meta/conventions",
+                "site", "site-theme", ".pi",
+                # The kit's own source of the world template. It is a world (the skeleton an author
+                # forks), but it is not THIS vault: it is verified where it is exported, and its
+                # embedded example world is a separate world again.
+                "template",
                 # The template's mirrored example world is a world, but it is not THIS vault: it must
                 # neither be linted as one nor be published by the exporter (which reuses load_notes).
                 # The id resolver never sees it either: it walks SCOPE_DIRS, not the vault root.

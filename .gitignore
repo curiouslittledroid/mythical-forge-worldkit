@@ -11,8 +11,8 @@
 __pycache__/
 _site/
 node_modules/
-site/.astro/
-site/audit/
-site/dist/
-site/src/content/generated/
-site/src/data/generated/
+site-theme/.astro/
+site-theme/audit/
+site-theme/dist/
+site-theme/src/content/generated/
+site-theme/src/data/generated/

@@ -1,0 +1,101 @@
+# world.config.yaml — the world's identity, in one place.
+#
+# EVERYTHING HERE IS THE WORLD'S, and this file is where a world starts. `init-world.sh` asks for
+# the four values below and rewrites them; the rest you fill in as the world answers them.
+#
+# Read by tools/kit_config.py (Python) and tools/kit_config.mjs (Node). Both parse the strict YAML
+# subset in tools/yaml_subset.py, so: no flow mappings, no anchors, and any value containing ": "
+# must be quoted. The schema, key by key, is the kit's `conventions.md` section 3
+
+version: 1
+
+world:
+  id: world_REPLACE
+  title: REPLACE_ME
+  slug: REPLACE_ME
+  tagline: REPLACE_ME
+  description: "REPLACE_ME — what this world is, in two sentences."
+  author: REPLACE_ME
+  license: REPLACE_ME
+  game_ready_repo: ../REPLACE_ME-gameready
+
+vault:
+  # Every note the tools need to find, BY ID (never by path: ids do not change, paths do).
+  notes:
+    flags: topic_world_flags
+    calendar: topic_calendar
+    eras: topic_timeline
+    testimony_book: item_readers_book
+    site_vocabulary: topic_site_decisions
+  # Scenarios belong with their campaign. Omit this and the simulator wants explicit files.
+  scenarios: campaigns/REPLACE_ME/scenarios
+  # Spelling the linter accepts (SP001): british (the default) | american | off. Units are not a
+  # choice: the codex is metric, because the transformer does one km -> miles conversion.
+  spelling: british
+  # Notes that are process documents, not entities: no frontmatter, no id.
+  process_docs:
+    - README.md
+    - AGENTS.md
+    - CONTRIBUTING.md
+    - CHANGELOG.md
+    - ROADMAP.md
+
+# Turn off what this world does not need. `site` needs site.url and a site section; `testimony`
+# needs the book note; `voice` needs the voice checks.
+features: [site, testimony, voice]
+
+# The public, player-facing site. Delete this whole block (and `site` above) if the world is not
+# published: nothing else in the toolchain reads it.
+site:
+  url: https://REPLACE_ME.invalid
+  buttondown_user: REPLACE_ME
+  hero_alt: "REPLACE_ME — describe the hero image in a sentence, for readers who cannot see it."
+  hero_credit: ""
+  hero_file: hero
+  search_placeholder: "REPLACE_ME — three or four words from this world's own vocabulary"
+  # The engine's content descriptors this world's content carries. The vocabulary is closed (the
+  # engine's); which of them apply is the world's to decide, and the landing page shows them.
+  content_descriptors: [VIOLENCE]
+  # How the theme writes a year. The codex counts from one epoch; this says what to call it.
+  t0_prefix: T0
+  t0_epoch: REPLACE_ME
+  # The landing page's "Ways in" cards. Point them at pages that will exist: a doorway to an empty
+  # section is a dead link, and `tools/site_link_check.py` fails the build on one.
+  doorways:
+    - href: /codex/
+      label: The Codex
+      blurb: "REPLACE_ME — one line, pointing at the first thing a reader should read."
+    - href: /changelog/
+      label: The Changelog
+      blurb: "REPLACE_ME — one line. Replace this card once the world has a second real section."
+  # Navigation order, and which note kind each section owns. The first section whose `kinds`
+  # contains a note's kind owns it. Every kind a world uses must appear in exactly one section.
+  sections:
+    - slug: world
+      label: The World
+      kinds: [TOPIC]
+      blurb: "REPLACE_ME — one line, shown on the section index."
+    - slug: history
+      label: History
+      kinds: [HISTORY_EVENT, FIGURE]
+    - slug: peoples
+      label: Peoples
+      kinds: [RACE]
+    - slug: gods
+      label: Gods
+      kinds: [GOD]
+    - slug: places
+      label: Places
+      kinds: [SETTLEMENT, PLACE, REGION]
+    - slug: powers
+      label: Powers
+      kinds: [FACTION]
+    - slug: relics
+      label: Relics
+      kinds: [ITEM]
+    - slug: creatures
+      label: Creatures
+      kinds: [CREATURE]
+    - slug: people
+      label: People
+      kinds: [NPC]

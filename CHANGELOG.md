@@ -4,6 +4,67 @@ A world pins the kit by copying its version into `TOOLING_VERSION` and updating 
 `tools/sync-tooling.sh`. **A change a world cannot absorb silently is a major bump and gets a
 migration note here.**
 
+## 3.0.0 — the kit owns the template; the template repo is generated
+
+The refactor that makes `mythical-forge-worldkit` the single source of truth for both the demo world
+and the world template, so the template repo is never edited by hand.
+
+**The kit's layout changed.** The demo world (`world/`, `campaigns/`, and the demo's `meta/` notes)
+now lives, complete with its own `world.config.yaml`, at `template/example-world/`. The kit root is no
+longer a world; its `meta/` holds only `templates/` and `platform-requests/`. The theme directory is
+renamed `site/` → `site-theme/` (it is still vendored into a world as `site/`).
+
+**The template is generated.** `template/` is the source (the skeleton an author forks, plus the
+embedded `example-world/` demo), and `export-template.sh` assembles the published
+`mythical-forge-world-template` repo from it. `sync-tooling.sh` no longer mirrors `example-world/`
+into a template — that is the export's job now.
+
+**The documents split by reader, and they moved.** `docs/` now holds **only what it takes to
+maintain the kit**: `extraction.md`. Every document a world author must read — `conventions.md`,
+`campaign-authoring-guide.md`, `thread-pattern.md`, `site.md`, `testimony.md`, `tag-vocabulary.md`,
+`atlas.md`, `engine-capability-register.md`, `agent-protocol.md`, and **`licensing.md`** (a world
+has to know what it may not relicence) — moved to `template/meta/conventions/`, and a world now
+holds them at **`meta/conventions/`**. `tools/docs/` is gone.
+
+`extraction.md` deliberately does **not** travel: it is the record of extracting the kit from the
+first world and names that world throughout. A world used to receive it; it no longer does. Two rules are unchanged and now easier to state: they are **prose, not notes** (no
+frontmatter, no id; the linter does not read them as part of the vault), and they are **cited by name
+and section, never by wikilink**. The move puts a rule one file away instead of one directory away,
+and it keeps the folder wholly the kit's, so the sync replaces it wholesale.
+
+**What a world does — two steps, once.** The sync re-execs itself onto the new script, so the renamed
+theme source (`site-theme/`) needs nothing. The documents need one action:
+
+1. `git rm -r tools/docs` — the folder is retired, and a sync that would delete it will refuse until
+   you commit the removal (the rails are working as designed).
+2. `tools/sync-tooling.sh v3.0.0` — this writes `meta/conventions/` and the pin.
+
+A world's `meta/conventions/` is the kit's: never edit it, the sync replaces it. A world's own
+decisions still live beside it in its own `meta/` notes, which the sync never touches.
+
+**A change a world cannot absorb silently is a major bump.** The pin moves on its own, but
+`tools/docs/` disappearing is not something a sync can do without a decision from the world — hence
+the migration note.
+
+**`template: true` is gone.** It existed so the sync could mirror the demo world into a template. The
+template is an export now, so nothing reads the switch and it is no longer a config key — a
+`world.config.yaml` that still carries it is an unknown-key error rather than a silent no-op. The
+template no longer has it, and `init-world.sh` no longer removes it.
+
+**What the export and the fork proof fixed.** `template-fork.yml` no longer syncs into the published
+template; it **exports a template from the commit it is running on** and forks that, so a change that
+breaks the export fails its own CI. Making that real found four defects, all fixed here:
+
+- the export reused the *sync's* exclusions and dropped the theme's three neutral pages
+  (`index.astro`, `about.astro`, `follow.astro`), so a generated template had no landing page and its
+  site could not build;
+- `site/image-prompts/_style.md` — the house style the image process calls authoritative — was never
+  shipped, by the sync or by the export;
+- a fresh fork carried a stray two-line `meta/flags.md`, which collided with `world/flags.md`: six
+  lint errors, so a fork could never pass `tools/lint.py`;
+- the engine-capability register's Links section pointed at the **first world's** notes. It names the
+  kit's documents now.
+
 ## 2.0.1 — the fork workflow's check that could never pass, and a test for the new seam
 
 Two things 2.0.0 left, both found by running the work rather than reading it.

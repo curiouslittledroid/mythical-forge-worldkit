@@ -39,7 +39,7 @@ not. Simultaneous edits read as fine, because they were written together.
 what commoners believe often survives a refinement to the Details untouched. `--strict` exists for
 CI experiments; the session workflow runs it plain.
 
-**Known limits** (all documented in the kit's `docs/testimony.md` section 3.5):
+**Known limits** (all documented in the kit's `meta/conventions/testimony.md` section 3.5):
 - an uncommitted edit is invisible to blame, so a dirty note is reported as `unknown`, never `ok`;
 - a squash-merge or a whole-file rewrite makes everything simultaneous: that causes **misses**,
   never false alarms;

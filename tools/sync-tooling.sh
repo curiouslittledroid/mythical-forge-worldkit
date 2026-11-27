@@ -19,10 +19,12 @@
 #
 # What it replaces (all of it the kit's):
 #   tools/            except tools/local/ — world-owned; the kit never writes it
-#   docs/ of the kit  into tools/docs/ — the RULES ARE PART OF THE TOOLING: a tool enforces a rule
-#                     the world's agent must be able to read. A pointer in prose therefore names the
-#                     kit document AND its vendored path ("the kit's conventions.md §7, vendored at
-#                     tools/docs/conventions.md"), so the rule is always one file away.
+#   meta/conventions/ the kit's world-facing documents (conventions, the authoring guide, the
+#                     thread pattern, site, testimony, tag vocabulary, atlas, the capability
+#                     register, the agent protocol). They live IN the vault, so the rule a world
+#                     follows is one file away: "the kit's conventions.md §7" is
+#                     meta/conventions/conventions.md. Wholly the kit's, so a document deleted
+#                     upstream goes away.
 #   meta/templates/   the canonical note templates (mirrored: this directory is wholly the kit's,
 #                     so a template deleted upstream goes away. A world's own examples live in its
 #                     own folder, never here.)
@@ -30,7 +32,8 @@
 #                     the Astro config, package.json,
 #                     deploy.sh, the infra process, the image-prompt process, the workflow. A
 #                     world's own art, prompt notes, audit, deploy state and hero stay.
-#   .pi/prompts/      the agent prompts (atlas-refresh, new-creature, the image pipeline)
+#   .pi/prompts/      the agent prompts (atlas-refresh, new-creature, the image pipeline),
+#                     from the kit's template/.pi/prompts/
 #   tools/LICENSE     the kit's licences, MIT and CC BY 4.0 (tools/LICENSE-CONTENT). MIT requires
 #                     its notice to travel with every copy, and a world's tools/ is a copy.
 #
@@ -65,7 +68,9 @@ cpfile() {
 # own art are the world's, so a world is expected to have them dirty.
 if [ "$DRY" = 0 ] && [ "$FORCE" = 0 ] && [ -z "${SYNC_REEXEC:-}" ] && [ -d "$WORLD_ROOT/.git" ]; then
   dirty="$(git -C "$WORLD_ROOT" status --porcelain -- \
-             tools meta/templates site/src site/image-prompts/README.md .pi/prompts .github/workflows 2>/dev/null \
+             tools meta/templates meta/conventions site/src \
+             site/image-prompts/README.md site/image-prompts/_style.md \
+             .pi/prompts .github/workflows 2>/dev/null \
            | grep -vE ' tools/local/| site/src/pages/(index|about|follow)\.astro$' || true)"
   if [ -n "$dirty" ]; then
     echo "sync-tooling: refusing to run: uncommitted changes in files this sync would replace." >&2
@@ -153,14 +158,15 @@ if [ "$DRY" = 0 ] && [ -z "${SYNC_REEXEC:-}" ] && ! cmp -s "$TMP/running.sh" "$W
   # would be worse than no re-exec at all.
   SYNC_REEXEC=1 exec bash "$WORLD_ROOT/tools/sync-tooling.sh" ${TAG:+"$TAG"}
 fi
-mkdir -p "$WORLD_ROOT/tools/docs"
-[ -d "$TMP/kit/docs" ] && $RS --delete "$TMP/kit/docs/" "$WORLD_ROOT/tools/docs/"
+mkdir -p "$WORLD_ROOT/meta/conventions"
+[ -d "$TMP/kit/template/meta/conventions" ] && $RS --delete \
+      "$TMP/kit/template/meta/conventions/" "$WORLD_ROOT/meta/conventions/"
 mkdir -p "$WORLD_ROOT/meta/templates"
-[ -d "$TMP/kit/meta/templates" ] && $RS --delete "$TMP/kit/meta/templates/" "$WORLD_ROOT/meta/templates/"
+[ -d "$TMP/kit/template/meta/templates" ] && $RS --delete "$TMP/kit/template/meta/templates/" "$WORLD_ROOT/meta/templates/"
 
 # The theme. `--delete` everywhere the kit owns the file; the exclusions are what a world keeps:
 # the generated pages, its art, its own prompt notes, and its deploy state.
-if [ -d "$TMP/kit/site" ] && [ -d "$WORLD_ROOT/site" ]; then
+if [ -d "$TMP/kit/site-theme" ] && [ -d "$WORLD_ROOT/site" ]; then
   # Three pages are the WORLD'S copy, not theme chrome: the landing page, About and Follow. The kit
   # ships a neutral version of each so a new world has a working site, and then leaves them alone -
   # a world's About page is its own prose, and a sync that rewrote it would be destroying content.
@@ -173,38 +179,24 @@ if [ -d "$TMP/kit/site" ] && [ -d "$WORLD_ROOT/site" ]; then
   $RS \
         --exclude 'content' --exclude 'data' \
         --exclude 'pages/index.astro' --exclude 'pages/about.astro' --exclude 'pages/follow.astro' \
-        "$TMP/kit/site/src/" "$WORLD_ROOT/site/src/"
+        "$TMP/kit/site-theme/src/" "$WORLD_ROOT/site/src/"
   for f in astro.config.mjs package.json package-lock.json deploy.sh README.md LICENSES.md; do
-    [ -f "$TMP/kit/site/$f" ] && cpfile "$TMP/kit/site/$f" "$WORLD_ROOT/site/$f"
+    [ -f "$TMP/kit/site-theme/$f" ] && cpfile "$TMP/kit/site-theme/$f" "$WORLD_ROOT/site/$f"
   done
-  [ -d "$TMP/kit/site/infra" ] && $RS --exclude 'state.json' \
-        "$TMP/kit/site/infra/" "$WORLD_ROOT/site/infra/"
-  [ -f "$TMP/kit/site/image-prompts/README.md" ] && \
-    cpfile "$TMP/kit/site/image-prompts/README.md" "$WORLD_ROOT/site/image-prompts/README.md"
-fi
-# The template mirrors the kit's EXAMPLE WORLD: one copy of the fixture, so the example an author
-# reads can never drift from the one the kit's own tests run against. `template: true` in
-# world.config.yaml is the switch; a world forked from the template keeps whatever it already has,
-# and `init-world.sh` removes it. lint.py and the exporter ignore the directory by name (it is a
-# world, but it is not THIS vault).
-if grep -qE '^template:[[:space:]]*true' "$WORLD_ROOT/world.config.yaml" 2>/dev/null; then
-  echo "-> example-world/ (the kit's demo world, mirrored)"
-  mkdir -p "$WORLD_ROOT/example-world/world" "$WORLD_ROOT/example-world/campaigns" \
-           "$WORLD_ROOT/example-world/meta"
-  $RS --delete "$TMP/kit/world/" "$WORLD_ROOT/example-world/world/"
-  [ -d "$TMP/kit/campaigns" ] && $RS --delete "$TMP/kit/campaigns/" \
-        "$WORLD_ROOT/example-world/campaigns/"
-  # The kit's meta/ mixes the demo world's notes with the kit's own documents; only the former are
-  # part of the example.
-  [ -d "$TMP/kit/meta" ] && $RS --delete \
-        --exclude 'templates/' --exclude 'platform-requests/' \
-        --exclude 'campaign-authoring-guide.md' --exclude 'world-conventions.md' \
-        "$TMP/kit/meta/" "$WORLD_ROOT/example-world/meta/"
-  cpfile "$TMP/kit/world.config.yaml" "$WORLD_ROOT/example-world/world.config.yaml"
+  [ -d "$TMP/kit/site-theme/infra" ] && $RS --exclude 'state.json' \
+        "$TMP/kit/site-theme/infra/" "$WORLD_ROOT/site/infra/"
+  # The kit's TWO image-prompt files, by name. The rest of a world's site/image-prompts/ is the
+  # world's: its own prompt notes and its candidates. `_style.md` is the house style the process
+  # calls authoritative, so a world without it has an image pipeline and no look.
+  for f in README.md _style.md; do
+    [ -f "$TMP/kit/site-theme/image-prompts/$f" ] && \
+      cpfile "$TMP/kit/site-theme/image-prompts/$f" "$WORLD_ROOT/site/image-prompts/$f"
+  done
 fi
 
 mkdir -p "$WORLD_ROOT/.pi/prompts"
-[ -d "$TMP/kit/.pi/prompts" ] && $RS --delete "$TMP/kit/.pi/prompts/" "$WORLD_ROOT/.pi/prompts/"
+[ -d "$TMP/kit/template/.pi/prompts" ] && $RS --delete \
+      "$TMP/kit/template/.pi/prompts/" "$WORLD_ROOT/.pi/prompts/"
 mkdir -p "$WORLD_ROOT/.github/workflows"
 # The workflows a world runs: the site deploy, the fast checks, and the drift check. The kit's own
 # `ci.yml` and `template-fork.yml` are the kit's: a world has no use for either.
