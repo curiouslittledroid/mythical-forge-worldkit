@@ -53,6 +53,8 @@ to run rather than guessing.
 | `check_workflows.py` | Loads every `.github/workflows/*.yml` far enough to find a **duplicate key**. A lenient parser keeps the last one; GitHub refuses the file, and the workflow then appears in Actions named by its path, failing every run. Writes nothing. |
 | `test_check_workflows.py` | Its tests. |
 | `check_citations.py` | Resolves every `§N` citation against the document it names and fails on one that does not exist. See the kit's `meta/conventions/conventions.md` §16.1. |
+| `check_doc_examples.py` | Checks the world-facing documents themselves: every engine id they name must exist in the demo world (`example-world/`) or be an obvious placeholder, and none of the extracted world's phrases may appear. The demo world is the one sanctioned fixture; a doc that teaches another world's ids teaches a reader to copy a vault where nothing resolves. |
+| `test_check_doc_examples.py` | Its tests: a demo id, a placeholder, a predicate, a source-world phrase, and the no-demo-world skip. |
 | `test_lint.py` | Its tests. |
 | `testkit.py` | Fixture helper for the suites (config + vocabulary note). |
 | `test_kit_config.py` | Tests for the two config readers and the subset parser, including a **parity test** that the Python and Node readers agree on the live config. |
@@ -105,7 +107,7 @@ node tools/transform.mjs [--out <game-ready-repo>]
 node tools/validate-world.mjs [--repo <game-ready-repo>]
 node tools/thread-check.mjs   [--repo <game-ready-repo>]
 node tools/simulate-world.mjs --coverage   # every scenario; --quiet for results only; --md for a table
-node tools/simulate-world.mjs campaigns/dustport-pilot/scenarios/05-rescue-then-idle.yaml   # one scenario, full timeline
+node tools/simulate-world.mjs campaigns/<campaign>/scenarios/<name>.yaml   # one scenario, full timeline
 ```
 
 The Game Ready Repository defaults to `world.game_ready_repo` in the config; the flags note is

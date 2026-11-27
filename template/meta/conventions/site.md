@@ -145,7 +145,7 @@ do. Both answers are the world's and live in the `site-vocabulary` block, in the
 |---|---|
 | `published_tags` | the tags that earn an index page |
 | `tag_labels` | how a published tag reads on a page (the key is the tag, the value the label) |
-| `keystones` | the world's sealed truths; §2.3 scans for them |
+| `keystones` | the world's sealed truths; the audit's `keyword_hits` scans for them |
 | `plot_web_surfaces` | thread names that are also ordinary in-world vocabulary |
 
 - **The set is the world's.** The demo world ships three (`ferry`, `debt`, `town`). Twelve to twenty

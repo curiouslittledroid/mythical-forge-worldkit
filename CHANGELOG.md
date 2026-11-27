@@ -41,6 +41,31 @@ That workflow's completeness list also stopped demanding `tools/docs/conventions
 in 3.0.0 — the export correctly does not contain it, so the check could never pass. Found while
 adding the new document to the same list.
 
+**More of the extracted world's residue, removed.** The same sweep that fixed site.md's keystones
+found the rest of its shape:
+
+- `thread-pattern.md` taught the pattern with the extraction source's pilot — its thread, its NPCs,
+  its flags, its settlements. The examples are now the demo world's Ferryman's Debt where it can
+  carry the pattern, and placeholders where the demo is too small (a Managed ladder, a long Ratchet).
+- The same residue in smaller pieces: the campaign authoring guide's Managed-cycle blocks and its
+  links, two note templates that named another world's epoch as `t0`'s reference, the capability
+  register's overland id and a pilot count, the demo world's thread naming a thread it does not
+  contain, and the simulate example in `tools/README.md`.
+- The demo world's site note labelled eighteen tags belonging to another world and published three
+  that were not among them; it now labels its own.
+
+**A check, so this cannot come back quietly.** `tools/check_doc_examples.py` reads the world-facing
+documents and fails on two things: an engine id the demo world does not have (unless it is an obvious
+placeholder), and a phrase from the world the kit was extracted from. It is the id half of the rule
+the kit's CI already greps for by name (`Hollowfall`), and the phrase half that would have caught
+site.md's "current list". It runs in `ci.yml`, in the shipped `checks.yml`, and at the top of
+`verify-kit.sh` — no schemas needed — and it skips with a clear message when a repository has no
+demo world.
+
+Still outside the list, and left visible rather than fixed here: the atlas tool's hardcoded frame
+names (`heartland`, `far_reach`, …) are a config seam, not a doc; the agent prompts and the demo
+world still carry some of the source's vocabulary. The next sync of any of them is where they go.
+
 ## 3.0.0 — the kit owns the template; the template repo is generated
 
 The refactor that makes `mythical-forge-worldkit` the single source of truth for both the demo world

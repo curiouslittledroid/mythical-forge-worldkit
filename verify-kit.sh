@@ -14,6 +14,10 @@ ROOT="$(cd "$(dirname "$0")" && pwd)"
 TMP="$(mktemp -d)"
 trap '[ "${1:-}" = "--keep" ] || rm -rf "$TMP"' EXIT
 
+# The documents first: they need no schemas, and a doc that teaches another world's ids is a defect
+# in the machinery rather than in the pipeline. Cheap, so it runs before anything can be skipped.
+echo "== docs"; python3 "$ROOT/tools/check_doc_examples.py" --verbose
+
 # The schemas, from whichever source, probed once here: a missing install is one clear message naming
 # both fixes rather than a stack trace out of the first tool that needs them.
 if ! schemas_err="$(node --input-type=module -e "import('$ROOT/tools/kit_config.mjs').then((m) => { m.authoredContent(); }).catch((e) => { console.error(e.message); process.exit(1); })" 2>&1)"; then

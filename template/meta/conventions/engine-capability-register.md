@@ -213,12 +213,12 @@ Patterns are defined once in **conventions §9.7**; this table is the register's
 
 | # | Item | Worked around by | Note |
 |---|---|---|---|
-| PF-1 | Overland fragments and `distance_km` (pilot 2) | the Step 2a transformer assembles `overland_hollowfall` and converts km → whole miles (conventions §9.2–9.3) | may be closed "by design": the codex owns conversion |
+| PF-1 | Overland fragments and `distance_km` (pilot 2) | the Step 2a transformer assembles the world's overland graph (`world.overland`) and converts km → whole miles (conventions §9.2–9.3) | may be closed "by design": the codex owns conversion |
 | PF-2 | `Fact.truth` rename (pilot 4) | the transformer writes the explicit string `TRUE` | cosmetic |
 | PF-3 | Reveal-path and `permanent_secret` rules (pilot 6) | `permanent_secret: true` where no reveal path will exist | documentation only |
 | PF-4 | A platform flag-declaration home (pilot 3) | declared in [[flags\|World Flags]] and copied into `manifest.yaml` | cosmetic |
 | PF-5 | `author-cli validate` should run the codex's thread checks (Step 12a) | the codex's `tools/thread-check.mjs`: flag registry (set and read), own-stage guards, references inside Conditions and Effects | the validator's producer analysis (Design 23.3 §8) covers part of it |
-| PF-6 | An optional `thread: <slug>` label on any authored entity (Step 12a, [[world-events-design]] section 7.2) | the codex records membership with a `_thread` directive and the thread note's `thread:` frontmatter; `tools/transform.mjs` strips it today and emits it as `thread:` when `EMIT_THREAD_LABEL=1` and the platform accepts the field (checked: the package rejects `thread` today as an unrecognized field; 49 pilot entities carry the label) | metadata only, no rule meaning: for tooling, observability, `author-cli diff` grouping and the narrator's context retrieval |
+| PF-6 | An optional `thread: <slug>` label on any authored entity (Step 12a, [[world-events-design]] section 7.2) | the codex records membership with a `_thread` directive and the thread note's `thread:` frontmatter; `tools/transform.mjs` strips it today and emits it as `thread:` when `EMIT_THREAD_LABEL=1` and the platform accepts the field (checked: the package rejects `thread` today as an unrecognized field) | metadata only, no rule meaning: for tooling, observability, `author-cli diff` grouping and the narrator's context retrieval |
 | PF-7 | An optional `resolved_when` Condition on `WANT` (found in a design review of the guide): a Want that is resolved by state, not only by an Effect | CP-11: a guarded World Event per Want (`evt_ferry_missing` and `evt_ferry_settled` in [[campaign-authoring-guide]] section 4.7 are the pattern) | ergonomic; the watcher event does the same job at the cost of boilerplate on every Want |
 
 ### BD- closed as by design
@@ -266,7 +266,7 @@ Audited after Step 2b: the standard body line for deferred engine fields is now 
 - The seeded entry "content descriptors need extending for trafficking, bondage and body horror" was **wrong**: `VIOLENCE`, `HORROR` and `MATURE_THEMES` are all in the closed enum. Conventions §13 and this note are corrected.
 - The seeded entry "a relationship kind for being bound to or feeding something" is **downgraded** to BL-7: the `CONTROLS`/`SECRETLY_SERVES` + Fact pattern works today.
 - The seeded entry "gate crossings that go wrong" is **downgraded**: the lore reshapes to a deterministic trigger (M15), and only the cadence needs the platform (PR-2).
-- The seeded entry "body-hopping" is **downgraded to A** for the archmage and the Peacemaker, with BL-7 for the nicer kind.
+- The seeded entry "body-hopping" is **downgraded to A** for a creature whose power is to take another's body, with BL-7 for the nicer kind.
 
 ## Open questions
 
