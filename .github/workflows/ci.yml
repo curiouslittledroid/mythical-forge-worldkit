@@ -77,16 +77,17 @@ jobs:
       # is the longest piece of provenance in the repository: it is the record of the extraction,
       # so it names the world it extracted from, throughout. A world's identity in a
       # tool, a template, an agent prompt, a doc's mechanism or the demo world's config is the defect.
-      # `.pi/prompts/` is included because it was not, and a prompt arrived full of one world's
-      # monster rules. `site-theme/` is excluded until K6 settles the theme's default look (the first
-      # world's art style and prompts are in there, deliberately, as the worked example).
+      # `template/.pi/prompts/` is included by `template/` below; it is called out because it was not
+      # covered once, and a prompt arrived full of one world's monster rules. `site-theme/` is
+      # excluded until K6 settles the theme's default look (the first world's art style and prompts
+      # are in there, deliberately, as the worked example).
       - name: No world identity in the machinery
         run: |
           if grep -rIn --exclude-dir=.git --exclude-dir=node_modules \
                --exclude=CHANGELOG.md --exclude=README.md --exclude=ROADMAP.md \
                --exclude=CONTRIBUTING.md --exclude=extraction.md \
                -e 'world_hollowfall' -e 'hollowfall-' -e 'Hollowfall' \
-               docs/ tools/ template/ .pi/prompts/ 2>/dev/null; then
+               docs/ tools/ template/ 2>/dev/null; then
             echo "::error::a world's identity is inside the kit's machinery."
             echo "  A template names no world; a doc's mechanism names none; the demo world is not the first world."
             exit 1

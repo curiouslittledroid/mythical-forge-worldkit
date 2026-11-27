@@ -32,7 +32,8 @@
 #                     the Astro config, package.json,
 #                     deploy.sh, the infra process, the image-prompt process, the workflow. A
 #                     world's own art, prompt notes, audit, deploy state and hero stay.
-#   .pi/prompts/      the agent prompts (atlas-refresh, new-creature, the image pipeline)
+#   .pi/prompts/      the agent prompts (atlas-refresh, new-creature, the image pipeline),
+#                     from the kit's template/.pi/prompts/
 #   tools/LICENSE     the kit's licences, MIT and CC BY 4.0 (tools/LICENSE-CONTENT). MIT requires
 #                     its notice to travel with every copy, and a world's tools/ is a copy.
 #
@@ -188,7 +189,8 @@ if [ -d "$TMP/kit/site-theme" ] && [ -d "$WORLD_ROOT/site" ]; then
 fi
 
 mkdir -p "$WORLD_ROOT/.pi/prompts"
-[ -d "$TMP/kit/.pi/prompts" ] && $RS --delete "$TMP/kit/.pi/prompts/" "$WORLD_ROOT/.pi/prompts/"
+[ -d "$TMP/kit/template/.pi/prompts" ] && $RS --delete \
+      "$TMP/kit/template/.pi/prompts/" "$WORLD_ROOT/.pi/prompts/"
 mkdir -p "$WORLD_ROOT/.github/workflows"
 # The workflows a world runs: the site deploy, the fast checks, and the drift check. The kit's own
 # `ci.yml` and `template-fork.yml` are the kit's: a world has no use for either.

@@ -101,7 +101,7 @@ the world's decisions, and holds a **pinned copy** of the machinery:
 | `meta/conventions/` | the kit's `template/meta/conventions/` | the same |
 | `meta/templates/` | the kit's `meta/templates/` (mirrored) | the same |
 | most of `site/` | the kit's `site/` (theme, infra, workflow) | the same |
-| `.pi/prompts/` | the kit's `.pi/prompts/` | the same |
+| `.pi/prompts/` | the kit's `template/.pi/prompts/` | the same |
 | `TOOLING_VERSION` | the kit's tag | the same |
 
 **Rules that follow from this:**

@@ -21,7 +21,6 @@ on:
       - docs/**
       - template/**
       - site-theme/**
-      - .pi/prompts/**
       - .github/workflows/template-fork.yml
 
 permissions:

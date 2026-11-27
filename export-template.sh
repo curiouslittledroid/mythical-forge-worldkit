@@ -5,8 +5,8 @@
 #   - template/          the skeleton a new author forks (world.config.yaml, init-world.sh,
 #                        the brief, the roadmap, principles/, the empty vault, the note
 #                        templates, and the embedded example-world/ demo);
-#   - tools/, site-theme/, .pi/prompts/, .github/workflows/  vendored into the template exactly
-#                        as sync-tooling.sh vendors them into a world;
+#   - tools/, site-theme/, .github/workflows/  vendored into the template exactly as
+#                        sync-tooling.sh vendors them into a world;
 #   - TOOLING_VERSION    the pin.
 #
 # Usage:
@@ -99,9 +99,7 @@ done
 rsync -a --exclude 'state.json' "$TMP/kit/site-theme/infra/" "$DEST/site/infra/"
 cp "$TMP/kit/site-theme/image-prompts/README.md" "$DEST/site/image-prompts/README.md"
 
-# The agent prompts, and the workflows a world runs.
-mkdir -p "$DEST/.pi/prompts"
-rsync -a --delete "$TMP/kit/.pi/prompts/" "$DEST/.pi/prompts/"
+# The workflows a world runs. (The agent prompts arrive with template/ above.)
 mkdir -p "$DEST/.github/workflows"
 for wf in site.yml checks.yml tooling-drift.yml; do
   cp "$TMP/kit/.github/workflows/$wf" "$DEST/.github/workflows/$wf"

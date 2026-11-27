@@ -72,6 +72,8 @@ template/meta/conventions/  EVERY WORLD-FACING DOCUMENT: conventions.md (the rul
                        A world holds these at meta/conventions/ at the pinned tag. They are prose,
                        not notes: no frontmatter, no id, cited by name and section, never wikilinked
 template/meta/templates/    one template per note type, vendored into a world as meta/templates/
+template/.pi/prompts/  the agent prompts (atlas refresh, new creature, the image pipeline),
+                       vendored into a world as .pi/prompts/
 example-world/         (inside template/) the DEMO WORLD: the smallest complete vault the tools
                        run against
 export-template.sh     assembles mythical-forge-world-template from template/ + the vendored kit

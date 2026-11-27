@@ -1,7 +1,7 @@
-The prose in this repository — the documents in `docs/`, the note templates in
-`template/meta/templates/`, the agent prompts in `.pi/prompts/`, and the example world in
-`template/example-world/` — is licensed under the Creative Commons Attribution 4.0 International
-Licence (CC BY 4.0).
+The prose in this repository — the kit-maintenance documents in `docs/`, the world-facing documents
+in `template/meta/conventions/`, the note templates in `template/meta/templates/`, the agent
+prompts in `template/.pi/prompts/`, and the example world in `template/example-world/` — is
+licensed under the Creative Commons Attribution 4.0 International Licence (CC BY 4.0).
 
 You are free to share it and to adapt it, for any purpose, including commercially, as long as you
 give appropriate credit. The documents exist to be copied into other worlds; that is what this
