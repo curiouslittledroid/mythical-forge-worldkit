@@ -78,9 +78,10 @@ jobs:
               principles/_index.md world/_index.md maps/_index.md campaigns/_index.md \
               meta/_index.md meta/templates/npc.md meta/conventions/conventions.md \
               meta/conventions/licensing.md meta/conventions/agent-protocol.md \
+              meta/conventions/tooling.md \
               .pi/prompts/new-creature.md \
               tools/lint.py tools/verify-world.sh tools/sync-tooling.sh \
-              tools/docs/conventions.md tools/LICENSE tools/LICENSE-CONTENT \
+              tools/LICENSE tools/LICENSE-CONTENT \
               site/astro.config.mjs site/src/lib/site.ts \
               site/src/pages/index.astro site/src/pages/about.astro site/src/pages/follow.astro \
               .github/workflows/checks.yml .github/workflows/site.yml \
@@ -116,9 +117,27 @@ jobs:
             echo "::error::init-world.sh left a REPLACE_ME in the config:"; grep -n 'REPLACE_ME' world.config.yaml; exit 1
           fi
           grep -q 'Fork Test' AGENTS.md || { echo "::error::the fork's title did not reach AGENTS.md"; exit 1; }
-          [ -d example-world ] && { echo "::error::init-world.sh left the demo world behind"; exit 1; }
           echo "the identity was replaced; what remains is the new author's, and lint lists it:"
           grep -rIl REPLACE_ME --exclude-dir=tools --exclude-dir=dist --exclude-dir=node_modules --exclude=init-world.sh . | sed 's/^/  /' || true
+
+      # The demo world is the author's worked example, so it STAYS. It is also the one thing an
+      # author can delete by hand and want back, so the repair is proved here rather than shipped
+      # on trust. WORLDKIT_REPO points at the checkout this job ran on, so the fetch is offline.
+      - name: The demo world stays, and can be fetched again
+        working-directory: /tmp/fork
+        run: |
+          set -eu
+          [ -f example-world/world.config.yaml ] \
+            || { echo "::error::init-world.sh removed the demo world"; exit 1; }
+          [ -f example-world/world/flags.md ] \
+            || { echo "::error::the demo world is incomplete"; exit 1; }
+          rm -rf example-world
+          WORLDKIT_REPO="$GITHUB_WORKSPACE/kit" ./init-world.sh --fetch-example
+          [ -f example-world/world.config.yaml ] \
+            || { echo "::error::--fetch-example did not restore the demo world"; exit 1; }
+          if WORLDKIT_REPO="$GITHUB_WORKSPACE/kit" ./init-world.sh --fetch-example 2>/dev/null; then
+            echo "::error::--fetch-example overwrote an example-world/ that was still there"; exit 1
+          fi
 
       - name: Are the engine's schemas available?
         id: schemas

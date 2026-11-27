@@ -17,8 +17,8 @@ copy of what another field already says, and it is not a note-type marker.
 | Rule | Statement |
 |---|---|
 | **R1 — A facet carries mass** | A facet tag appears on **≥3 notes**. One- and two-note tags are noise: the note's own links do the job. |
-| **R2 — Classes are closed** | A tag drawn from a list the lore already defines is kept at any count: the **8 relic categories**, the **5 magic traditions**, the **leyline magic classes**, the **Choir vocabulary** and the **Choir root stages**. |
-| **R3 — A name tag names its home** | A place or power tag is the slug of a note of that kind (minus a leading `the-`): `seam` → `the-seam`, `bloom` → `the-bloom`. A people tag is a `race_`/peoples note slug. |
+| **R2 — Classes are closed** | A tag drawn from a list the lore already defines is kept at any count: the world's classes, traditions and other closed vocabularies. |
+| **R3 — A name tag names its home** | A place or power tag is the slug of a note of that kind (minus a leading `the-`): `<place>` → `the-<place>`. A people tag is a `race_`/peoples note slug. |
 | **R4 — One spelling per concept** | Variants merge to the canonical form: plural peoples, singular classes. |
 | **R5 — No duplicate statements** | A tag goes when `kind`, the folder, `era:` or another tag on the same note already says it, and an NPC's people tag goes once `race:` records it. (Duplicates of `groups:` and `home:` are *not* removed yet — see open question 4.) |
 

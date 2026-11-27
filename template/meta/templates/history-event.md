@@ -9,7 +9,7 @@ engine: false
 era: present
 tags: []
 sources: []
-t0: 0                          # years relative to the Severing (T0)
+t0: 0                          # years relative to the world's year zero (T0)
 official: REPLACE
 myth: REPLACE
 rival: REPLACE

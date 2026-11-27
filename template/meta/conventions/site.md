@@ -19,16 +19,18 @@ split out of, because a world's notes cite them by number.
 
 ### 2.1 The publish axis is `disclosure`, not `visibility`
 
-`visibility` was built for a printed player primer and is used by exactly one note. The site needs section granularity, which only `disclosure` has: an `open` section is *"public knowledge, what anyone of the player's culture knows"* (the kit's conventions §7). So:
+`visibility` was built for a printed player primer, and the site needs section granularity, which only `disclosure` has: an `open` section is *"public knowledge, what anyone of the player's culture knows"* (the kit's conventions §7). So:
 
 - **Publish** every section whose effective class is `open`.
 - **`mixed`** sections (a `HISTORY_EVENT` with Official/Myth/Rival layers) publish as split chunks; the `**Truth:**` line is dropped.
 - **Drop** everything `earned` and `sealed`, including whole notes.
-- **`visibility` is retired** (Step 2e, done): gone from every note, from lint and from the templates. The exporter has no special case for it.
+- **`visibility` is retired** (Step 2e, done): lint and the templates no longer carry it, and a world older than the model removes it once (Step 2e). The exporter has no special case for it.
 
 The exporter **ports `disclosure.classify`** from `tools/disclosure.py`, never re-derives it: one classifier, two consumers.
 
-Publishable at the time of writing: **464 open sections, ~32,400 words, 229 notes with an open section** (71 of them NPCs, which are deferred to Phase 4). Launch scope is roughly **160 pages plus ~18 layered history events**.
+**How much publishes is the world's, not the kit's.** Every build writes the counts — pages, sections,
+words — into `site/audit/latest.json`. There is no expected number to match; a launch scope is the
+world's own decision, recorded in its site note.
 
 ### 2.2 Redaction rules (inside an open section)
 
@@ -42,15 +44,17 @@ Publishable at the time of writing: **464 open sections, ~32,400 words, 229 note
 | `## Hooks`, `## Author Notes`, `## Open questions`, `## Links`, `## Engine`, fenced `engine`/`engine-example` blocks | drop |
 | `## Named members` rosters | drop (group-tier input, not lore) |
 | `\|` inside wikilinks (table escape) | unescape before resolution |
-| Links to `campaigns/`, `world/plot-web/`, `meta/`, `maps/`, `principles/`, `world/flags.md` | **delete the link, keep the sentence**, log as `infrastructure`. With no label the target's title stands in and the entry is flagged `unlabelled` for review. |
+| Links to `campaigns/`, `world/plot-web/`, `meta/`, `maps/`, `principles/`, and the flags note (`vault.notes.flags` names it) | **delete the link, keep the sentence**, log as `infrastructure`. With no label the target's title stands in and the entry is flagged `unlabelled` for review. |
 | A plot-web thread's **name written as plain text** in published prose | log as `plot_web_text_mentions`. No link is involved, so the sentence survives and the reader gets an orphaned proper noun with no page. **Fix at source: a thread reference belongs under `## Hooks`** (conventions section 7.3), which never publishes. Thread titles that are also ordinary in-world vocabulary are listed in `REVIEWED_PLOT_WEB_SURFACES` and not reported. |
 | Links to an `_index` map-of-content note | link to the **section landing page** (`[[gods/_index|the pantheon]]` → `/gods/`), log as `section-index` |
 | Links to a note with no open content | **delete the link, keep the label**, log as `no-open-content` |
 | Links that resolve to nothing | keep the label, log as `unresolved` (and fix the note later) |
 
-Reference figure (first full build): of **1,155 wikilinks in published text, 1,077 point at a published page**. Of the 78 that do not, **31 are design infrastructure**, **26 are section-index jumps** and **21 are the world's seven open-face gaps.** **0 unresolved, 0 ambiguous.**
-
-Reference figure (the session that closed the plot-web and design-citation leaks): **235 pages, 157 flattened links** — down from 196 — broken down as **deferred 97**, **no-open-content 26**, **section-index 34** and **infrastructure 0**. It was 43. Every plot-web thread reference moved under `## Hooks` and every design-doc citation under `## Author Notes`, which together took `internal_references` and `plot_web_text_mentions` to **0** as well. All three counts are now regression signals: any non-zero value is a new leak, not a known backlog.
+**The audit's counts are regression signals, not targets.** A build that publishes new lore should
+show `flattened_links` and `internal_references` moving; a count that suddenly rises is a new leak,
+not a known backlog. Read the `reason` on each entry — `infrastructure`, `section-index`,
+`no-open-content` — and fix it at the source the table above names. The rates are the world's: there
+is no reference figure to hold a new world to.
 
 ### 2.3 The audit is part of publishing
 
@@ -81,9 +85,17 @@ withheld_tags:    { tag: [note] }                                 # authored tag
 empty_tags:       [tag]                                           # published but on no note: a config bug
 ```
 
-`--check` fails on **ambiguous links only** — a genuine authoring bug. Everything else is for a human to read: the seven-gap links and the internal references are expected to shrink as the prose is fixed, and a build that publishes new lore should show them moving.
+`--check` fails on **ambiguous links only** — a genuine authoring bug. Everything else is for a human
+to read: the flattened links and the internal references are expected to shrink as the prose is
+fixed, and a build that publishes new lore should show them moving.
 
-`keyword_hits` scans published text for the six sealed keystones (the kit's conventions §7.4). Current list: `compromised`, `Choir water`, `Convenor`, `body-hop`, `archmage`, `Gate-born`, `reopen the Gate`, `Halls`, `Lineage`, `Quiet Counsellor`. A hit is not automatically a leak — it is a line a human reads before deploying. **A build may be deployed only after the audit has been read.**
+`keyword_hits` scans published text for the world's **sealed keystones**: the `keystones:` list in
+the `site-vocabulary` block (conventions §7.4 says what a keystone is; the block is in the note
+`vault.notes.site_vocabulary` names, which the template ships as `meta/site-decisions.md`). **The
+list is the world's, not the kit's, and a new world starts with `keystones: []` — an empty list
+switches the scan off, so `keyword_hits: 0` proves nothing until you fill it in.** A hit is not
+automatically a leak: it is a line a human reads before deploying. **A build may be deployed only
+after the audit has been read.**
 
 ## 3. Information architecture
 
@@ -97,7 +109,7 @@ kind owns it, so the list is read in order.
 The directory, not a lore section. Four blocks on one page:
 
 1. **Search** — Pagefind, built at compile time, no backend.
-2. **Browse** — the seven sections with live counts.
+2. **Browse** — the sections in `site.sections`, with live counts.
 3. **A–Z** — every published page with its open Summary as a one-line gloss.
 4. **Recently added** — from `changelog.json`, dated.
 
@@ -107,8 +119,9 @@ The directory, not a lore section. Four blocks on one page:
 
 - Title, section, and an in-world **standfirst** from the open Summary.
 - A **date stamp** — `T0 −22`, `T0 +400`, `T0` — read from the note's `t0` frontmatter, where
-  **T0 is the Severing**. The sign hugs the number, so a negative offset reads as a negative
-  number. The site formats it; it never authors a date. Undated pages show none.
+  **T0 is the world's year zero** (`site.t0_epoch` in `world.config.yaml`). The sign hugs the
+  number, so a negative offset reads as a negative number. The site formats it; it never authors a
+  date. Undated pages show none.
 - Body sections in note order, with a sticky table of contents.
 - A **marginalia gutter** for cross-references and glosses.
 - History events open with **"What people say"** (Official / Myth / Rival as attributed views). This is the layered model doing player-facing work for free.
@@ -122,22 +135,28 @@ title, so the grid reads as a timeline. A section without dates stays alphabetic
 
 ### 3.3 Themes (the public tag vocabulary)
 
-A note's `tags:` are a hand-written index trail, not a taxonomy: 154 distinct tags across the vault, 66
-of them used once, plus spelling variants (`gate`/`gates`, `wardstone`/`wardstones`). Published raw
-they would make a tag meaningless. So **the exporter decides which tags publish**, the same
-deny-by-default way it decides which sections do: `PUBLISHED_TAGS` in `tools/site_export.py`.
+A note's `tags:` are a hand-written index trail, not a taxonomy: a working vault accumulates dozens
+of them, many used once, plus spelling variants. Published raw they would make a tag meaningless. So
+**the exporter decides which tags publish**, the same deny-by-default way it decides which sections
+do. Both answers are the world's and live in the `site-vocabulary` block, in the note
+`vault.notes.site_vocabulary` names (the template ships it as `meta/site-decisions.md`):
 
-- **The public set is 18 cross-cutting themes**, drawn from the 68-tag vocabulary in
-  [[tag-vocabulary]] — peoples (`elves`, `dwarves`, `gnomes`, `humans`,
-  `fae`, `ketheri`), powers and places (`choir`, `gods`, `league`, `wardens`, `church`, `far-reach`,
-  `heartland`, `saltmarch`), and broken machinery (`waygates`, `leylines`, `wardstones`, `ruins`).
+| Key | What it is |
+|---|---|
+| `published_tags` | the tags that earn an index page |
+| `tag_labels` | how a published tag reads on a page (the key is the tag, the value the label) |
+| `keystones` | the world's sealed truths; the audit's `keyword_hits` scans for them |
+| `plot_web_surfaces` | thread names that are also ordinary in-world vocabulary |
+
+- **The set is the world's.** The demo world ships three (`ferry`, `debt`, `town`). Twelve to twenty
+  is a browsable set; sixty is a maze.
 - **Add one only when it earns a page:** it must cross sections (a theme that lives in one section is
-  a worse copy of that section), be player-facing (never `truth-ledger`, `figures`, `plot`, `proof` —
-  those are authoring labels), and never be a sealed keystone (`lineage`, `gate-born`). A published
-  tag that no note carries fails `site_export.py --check` (`empty_tags`).
+  a worse copy of that section), be player-facing (never an authoring label such as `plot` or
+  `proof`), and never be a sealed keystone. A published tag that no note carries fails
+  `site_export.py --check` (`empty_tags`).
 - **Everything else is withheld** and listed in the audit as `withheld_tags` (tag → notes). The vault
   stays the source of truth for the tags themselves; the site may change how a tag **reads**
-  (`TAG_LABELS` in `site/src/lib/site.ts`: `league` → "The Crimson League") but never invents one.
+  (`tag_labels` in the same block) but never invents one.
 - **Chips are links:** every published tag on a page links to `/tags/<tag>/`, which lists every entry
   carrying it, across sections. Chronological where dates exist, then A–Z (`byTimeThenTitle`), and
   each tile names its section. `/tags/` is the index of themes, linked from `/codex/`.

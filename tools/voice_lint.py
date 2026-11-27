@@ -60,7 +60,7 @@ NO_SHEET_NOTE = "(no sheet)"
 
 
 def slug_of(target: str) -> str:
-    """`the-heartland` from `[[the-heartland|the Heartland]]`; a path segment if one is given."""
+    """`the-example` from `[[the-example|The Example]]`; a path segment if one is given."""
     return Path(target.strip().replace("\\", "")).name.removesuffix(".md")
 
 

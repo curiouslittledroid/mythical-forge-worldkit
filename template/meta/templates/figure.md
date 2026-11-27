@@ -9,7 +9,7 @@ engine: false
 era: present
 tags: []
 sources: []
-t0: 0                          # years relative to the Severing (a figure's main date)
+t0: 0                          # years relative to the world's year zero
 ---
 
 # {{title}}

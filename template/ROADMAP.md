@@ -35,9 +35,9 @@ kit's `meta/conventions/conventions.md` §3); how `world/` is organised inside i
 | `world/`, `campaigns/` | The lore. **The transformer scans these two only.** |
 | `maps/` | Coordinate data and the atlas. |
 | `site/` | The public, player-facing site, if the world publishes one. |
-| `tools/` | The worldkit's tools, vendored and pinned. **`tools/local/` is the world's own** and the sync never touches it. |
+| `tools/` | The worldkit's tools, vendored and pinned. **`tools/local/` is the world's own** and the sync never touches it. Which script to run, and when: the kit's `meta/conventions/tooling.md`; each script in detail: `tools/README.md`. |
 | `meta/templates/` | One template per note type, **mirrored from the kit**: never add a file here, it will be deleted. |
-| `example-world/` | The demo world the kit ships, mirrored here so you have something to read. **Delete it once your own notes exist.** |
+| `example-world/` | The demo world the kit ships, mirrored here so you have something to read. **Keep it**: it is the kit's worked example, and the tools skip it. `./init-world.sh --fetch-example` restores it if it was deleted. |
 
 ### 0.2 How to work
 
@@ -69,8 +69,8 @@ The session protocol is the same for every step; only the class of work changes.
 ### 0.4 The first moves in this repository
 
 1. **Run the initialiser** (or do its four edits by hand): `./init-world.sh`. It asks for the world's
-   name, title, id and site slug, rewrites `world.config.yaml`, drops `template: true`, removes
-   `example-world/`, and re-initialises git.
+   name, title, id and site slug, rewrites `world.config.yaml`, drops `template: true`, and leaves
+   `example-world/` where it is. `--init-git` re-initialises git as well.
 2. **Read `AGENTS.md`**, then the four notes in `principles/`.
 3. **Start at Step 0b.** Do not write lore before it: Step 0b is what makes the lore answerable.
 4. **Keep the tooling current:** `tools/sync-tooling.sh v1.0.x` fetches a kit tag, replaces `tools/`,

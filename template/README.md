@@ -2,10 +2,15 @@
 
 This repository is a **starting point for a new built world**: a vault-shaped repository with the
 rules, the tools and the note templates already in place, and every question still unanswered.
+**Which command to run, and when** is the kit's `meta/conventions/tooling.md`: the runbook for the
+everyday loop, the pre-commit gate and publishing.
 
 It is **not a world**. It carries one small worked example — `example-world/`, the worldkit's demo
-world — so that "what does a finished note look like?" has an answer on disk. Delete that directory
-once you have notes of your own.
+world — so that "what does a finished note look like?" has an answer on disk. **Keep it.** It is the
+smallest complete vault the tools can read, and the only worked example of every note type, a full
+thread and a running campaign. The tools skip it — your lint, your site and your engine export all
+leave it alone — so it costs a folder and answers a question you will ask again. If you delete it and
+change your mind, `./init-world.sh --fetch-example` puts it back at your pinned `TOOLING_VERSION`.
 
 The vault's shape is fixed by the toolchain (the kit's `meta/conventions/conventions.md` §3). What goes in
 it is yours: a world bible for tabletop play, written to be run by a game master, with the lore
@@ -23,9 +28,9 @@ generated from its open content.
 ```
 
 It asks four things — the world's name, its title, its id and its site slug — then rewrites
-`world.config.yaml`, drops the `template: true` switch, removes `example-world/`, and re-initialises
-git with a first commit. (Do it by hand if you prefer: edit the `world:` block, delete that switch
-and the directory, then `rm -rf .git && git init -b main`.)
+`world.config.yaml`, drops the `template: true` switch, and (with `--init-git`) re-initialises git
+with a first commit. `example-world/` stays. (Do it by hand if you prefer: edit the `world:` block,
+delete that switch, then `rm -rf .git && git init -b main`.)
 
 ### 2. Read the brief (5 minutes)
 
@@ -85,7 +90,7 @@ three site pages you own. One command, one commit, and the diff *is* the upgrade
 | `meta/conventions/` | The kit's world-facing documents, at the pinned version. The kit's, not yours. |
 | `meta/templates/` | One template per note type, mirrored from the kit. **Never add a file here.** |
 | `site/` | The public, player-facing site, generated from `open` content only. |
-| `example-world/` | The demo world. Read it, then delete it. |
+| `example-world/` | The demo world. Read it, and keep it: it is the worldkit's worked example, not this world's canon. `./init-world.sh --fetch-example` restores it if it was deleted. |
 
 Every folder has an `_index.md` that links its notes.
 
@@ -127,6 +132,7 @@ will fail the build if a citation rots.
 | Know how to write a note | the kit's `meta/conventions/conventions.md`, then `meta/world-conventions.md` for this world's own choices |
 | Write a thread, a Campaign or a Quest | the kit's `meta/conventions/campaign-authoring-guide.md` |
 | See a finished example | `example-world/` |
+| Know which script to run, and when | the kit's `meta/conventions/tooling.md` |
 | Check my work | `python3 tools/lint.py` |
 | Prove the whole pipeline | `tools/verify-world.sh` |
 | Publish the player-facing view | the kit's `meta/conventions/site.md`, plus this world's `meta/site.md` |

@@ -42,6 +42,11 @@ Then write `world.config.yaml` (**the one file a world must supply**) and start 
 config's schema is `meta/conventions/conventions.md` §2; a worked example is the demo world's config at
 `template/example-world/world.config.yaml`.
 
+**Which command to run, and when** is the runbook: `meta/conventions/tooling.md` in a world, or
+`template/meta/conventions/tooling.md` here. It maps what you just changed to the command that proves
+it — the everyday loop, the pre-commit gate, publishing, and what each tool writes.
+`tools/README.md` is the script-by-script reference beside it.
+
 ## What a world must supply
 
 | Thing | Where | Notes |
@@ -69,7 +74,8 @@ template/              the generated world-template's source: the skeleton a new
 template/meta/conventions/  EVERY WORLD-FACING DOCUMENT: conventions.md (the rules),
                        campaign-authoring-guide.md, thread-pattern.md, site.md, testimony.md,
                        tag-vocabulary.md, atlas.md, engine-capability-register.md, agent-protocol.md,
-                       licensing.md (what a world may and may not relicence)
+                       tooling.md (which script to run, and when), licensing.md (what a world may
+                       and may not relicence)
                        A world holds these at meta/conventions/ at the pinned tag. They are prose,
                        not notes: no frontmatter, no id, cited by name and section, never wikilinked
 template/meta/templates/    one template per note type, vendored into a world as meta/templates/

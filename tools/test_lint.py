@@ -57,6 +57,15 @@ class TestClean(VaultCase):
         self.link_all("a")
         self.assertEqual(self.codes(), [])
 
+    def test_the_repositorys_own_prose_is_not_a_note(self):
+        # A kit or a world keeps a CHANGELOG and a CONTRIBUTING at its root; neither is lore, and
+        # linting the repository root reported FM001 on both.
+        self.write("world/a.md", note())
+        self.link_all("a")
+        self.write("CHANGELOG.md", "# Changelog\n\nWhat changed, and why.\n")
+        self.write("CONTRIBUTING.md", "# Contributing\n\nHow to work here.\n")
+        self.assertEqual(self.codes(), [])
+
 
 VOCAB = """---
 id: topic_tag_vocabulary
@@ -73,16 +82,16 @@ tags: []
 **Summary:** The tag vocabulary under test.
 
 ```tags-vocabulary
-peoples: [humans, fae]
-powers: [choir]
-places: [dustport]
-magic: [leylines]
+peoples: [folk, kin]
+powers: [guild]
+places: [harbour]
+magic: [wards]
 relic_categories: [holy]
-choir: [gate-born]
+guild: [banner]
 world: [ruins]
-gm_only: [gate-born]
+gm_only: [banner]
 homes:
-  choir: the-choir
+  guild: the-guild
 ```
 """
 
@@ -102,21 +111,21 @@ class TestTags(VaultCase):
 
     def test_a_vocabulary_tag_passes(self):
         self.vocabulary()
-        self.write("world/a.md", note(extra="tags: [ruins, leylines]\n"))
+        self.write("world/a.md", note(extra="tags: [ruins, wards]\n"))
         self.assertEqual(self.tag_codes(), [])
 
     def test_a_naming_tag_must_resolve_to_a_note(self):
         self.vocabulary()
-        self.write("world/a.md", note(extra="tags: [dustport]\n"))
+        self.write("world/a.md", note(extra="tags: [harbour]\n"))
         self.assertEqual(self.tag_codes(), ["TG002"])
-        self.write("world/places/dustport.md", note(id_="loc_dustport", kind="SETTLEMENT", title="Dustport"))
+        self.write("world/places/harbour.md", note(id_="loc_harbour", kind="SETTLEMENT", title="Harbour"))
         self.assertEqual(self.tag_codes(), [])
 
     def test_a_home_overrides_the_slug(self):
         self.vocabulary()
-        self.write("world/a.md", note(extra="tags: [choir]\n"))
-        self.assertEqual(self.tag_codes(), ["TG002"])  # expects the-choir, not choir
-        self.write("world/factions/the-choir.md", note(id_="faction_choir", kind="FACTION", title="The Choir"))
+        self.write("world/a.md", note(extra="tags: [guild]\n"))
+        self.assertEqual(self.tag_codes(), ["TG002"])  # expects the-guild, not guild
+        self.write("world/factions/the-guild.md", note(id_="faction_guild", kind="FACTION", title="The Guild"))
         self.assertEqual(self.tag_codes(), [])
 
     def test_no_vocabulary_block_means_no_tag_check(self):

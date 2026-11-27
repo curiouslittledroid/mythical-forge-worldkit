@@ -9,7 +9,7 @@ engine: true
 era: present
 tags: []
 thread: ferry
-interface: { class: resolvable, arms: [ferry_armed], reads: [], sets: [ferry_sold_on, ferry_debt_paid, ferry_fled], terminals: [evt_ferry_settled, evt_ferry_gone, evt_ferry_sold_on], inputs_from: [], outputs_to: [thread_quiet_trade_in_motion] }
+interface: { class: resolvable, arms: [ferry_armed], reads: [], sets: [ferry_sold_on, ferry_debt_paid, ferry_fled], terminals: [evt_ferry_settled, evt_ferry_gone, evt_ferry_sold_on], inputs_from: [], outputs_to: [] }
 ---
 
 # The Ferryman's Debt
@@ -32,7 +32,7 @@ Tomas Reed, a Dustport ferryman, is three months behind on his water-chits. The 
 | **S0 Armed** | a Campaign sets `ferry_armed` | Marsh's collect-Want starts (25 days) | Seized, Paid, Fled |
 | **S1 Seized** | `evt_ferry_seized`: nobody stood surety in time | creditors CONTROL Reed | In the pans, Paid (buy him back) |
 | **S2 In the pans** | `evt_ferry_transit` (30 days) | Reed moves to Saltmarch | Sold on, Paid |
-| **Sold on** *(idle terminal, output)* | `evt_ferry_sold_on` (40 days) | `ferry_sold_on`; the thread closes | the Quiet Trade thread |
+| **Sold on** *(idle terminal, output)* | `evt_ferry_sold_on` (40 days) | `ferry_sold_on`; the thread closes | the buyer (a later thread's problem) |
 | **Paid** *(terminal)* | a Quest sets `ferry_debt_paid` | `evt_ferry_settled` retires the Wants | |
 | **Fled** *(terminal)* | a Quest, or `evt_ferry_missing` (Reed left Dustport unscripted) | `evt_ferry_gone` retires the Wants | |
 
@@ -68,7 +68,7 @@ authority: GUIDED
 ```engine
 kind: FACT
 id: fact_ferry_creditors_sell_debtors
-text: "The creditors do not wait for debts to be paid. They sell defaulters' contracts to the Quiet Trade."
+text: "The creditors do not wait for debts to be paid. They sell defaulters' contracts on to the buyers at the pans."
 truth: TRUE
 _known_by_groups:
   - { group: faction_ferry_creditors, tier: inner }

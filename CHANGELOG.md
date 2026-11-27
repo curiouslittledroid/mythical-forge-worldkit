@@ -4,6 +4,103 @@ A world pins the kit by copying its version into `TOOLING_VERSION` and updating 
 `tools/sync-tooling.sh`. **A change a world cannot absorb silently is a major bump and gets a
 migration note here.**
 
+## Unreleased — a new world keeps the demo world, and the tools get a runbook
+
+`init-world.sh` no longer removes `example-world/`. Deleting it was the wrong default: it is the one
+worked example of every note type, a complete thread and a running campaign, and a new author asks
+"what does a finished note look like?" for months. The tools already leave a root `example-world/`
+alone — the linter and the citation checker skip it, and the engine export reads only `world/` and
+`campaigns/` — so keeping it costs a folder and nothing else.
+
+- **`--keep-example` is gone**; keeping the example is what happens. `--fetch-example` puts it back
+  at the repository's `TOOLING_VERSION` (or the kit's default branch when the pin is `unreleased`) —
+  a repair, not an initialisation: it asks nothing, changes nothing else, and refuses to overwrite a
+  copy that is still there. `WORLDKIT_REPO` points it at a local checkout, as with `sync-tooling.sh`.
+- `template-fork.yml` now proves both halves on a fresh fork: the demo world survives `init-world.sh`,
+  and `--fetch-example` restores it after a deletion and refuses to clobber a live copy.
+- **The template's docs say keep it**: `README.md`, `AGENTS.md` and `ROADMAP.md` no longer tell an
+  author to delete the example once their own notes exist.
+
+**No migration.** `init-world.sh` lives in the template, not in a world's vendored `tools/`, so an
+existing world is unaffected. A fork made after this change keeps `example-world/`; delete it by hand
+if you really do not want it.
+
+**New: `meta/conventions/tooling.md`, the runbook.** The tools were documented script by script
+(`tools/README.md`) and step by step (`ROADMAP.md`), but nothing answered the question an author
+actually has: *I changed this — what do I run now?* The new document is task-first: what you just
+changed, the command that proves it, the order for the everyday loop and the pre-commit gate, the
+publish order, what each tool writes, what runs in CI without you, what to do when a tool refuses,
+and which document holds the rules. `tools/README.md` now points at it and keeps the
+script-by-script reference.
+
+It is a synced document: a world receives it at `meta/conventions/tooling.md` on its next
+`tools/sync-tooling.sh`. The template's `AGENTS.md`, `README.md` and `ROADMAP.md` list it, and
+`template-fork.yml` requires it in the export.
+
+That workflow's completeness list also stopped demanding `tools/docs/conventions.md`, a path retired
+in 3.0.0 — the export correctly does not contain it, so the check could never pass. Found while
+adding the new document to the same list.
+
+**More of the extracted world's residue, removed.** The same sweep that fixed site.md's keystones
+found the rest of its shape:
+
+- `thread-pattern.md` taught the pattern with the extraction source's pilot — its thread, its NPCs,
+  its flags, its settlements. The examples are now the demo world's Ferryman's Debt where it can
+  carry the pattern, and placeholders where the demo is too small (a Managed ladder, a long Ratchet).
+- The same residue in smaller pieces: the campaign authoring guide's Managed-cycle blocks and its
+  links, two note templates that named another world's epoch as `t0`'s reference, the capability
+  register's overland id and a pilot count, the demo world's thread naming a thread it does not
+  contain, and the simulate example in `tools/README.md`.
+- The demo world's site note labelled eighteen tags belonging to another world and published three
+  that were not among them; it now labels its own.
+
+**A check, so this cannot come back quietly.** `tools/check_doc_examples.py` reads the world-facing
+documents and fails on two things: an engine id the demo world does not have (unless it is an obvious
+placeholder), and a phrase from the world the kit was extracted from. It is the id half of the rule
+the kit's CI already greps for by name (`Hollowfall`), and the phrase half that would have caught
+site.md's "current list". It runs in `ci.yml`, in the shipped `checks.yml`, and at the top of
+`verify-kit.sh` — no schemas needed — and it skips with a clear message when a repository has no
+demo world.
+
+Still outside the list at that point: the atlas tools and the agent prompts. They are fixed in the
+entry below.
+
+**The atlas is data-driven, and the prompts are generic.** The atlas schema had one world's frames,
+sections and type vocabulary baked into `atlas_yaml.py`, and `atlas_tables.py` wrote that world's
+geography into the note it generated. The agent prompt `atlas-refresh.md` was that world's map
+brief, down to its feature lists and note ids.
+
+- **`atlas_yaml.py`** validates structure, not a world's taxonomy: the YAML declares `frames:`
+  (each with `x`/`y`, and optionally `name`, `prefix`, `grid_km`) and a `default_frame:`; every
+  list-valued top-level key is a section; an entry needs an `id`, a `name` (or a plate's `title`,
+  or a route leg's `from`/`to`), a `status`, and well-formed geometry if it has any. `source` is
+  no longer required by the tool — the world's register decides that.
+- **`atlas_tables.py`** writes the generated note from the data: `title`, `summary`, `notes`,
+  `labels`, `gm_sections`, `links` and `travel` are the world's, with generic fallbacks. Grid
+  references come from each frame's `prefix` and `grid_km`; a frames table replaces the world
+  prose. `atlas.md` documents the contract.
+- **`atlas-refresh.md`** is rewritten as a procedure: read the YAML, the register and the
+  feature-owning notes; extend the sections the file declares; never a list of one world's places.
+- **The template ships `maps/atlas-register.md`** (a brief with the questions to answer), which is
+  the note the prompt cites — so a fresh fork's citation check is now clean.
+- **Fixtures and comments**: `test_lint.py`'s tag vocabulary, `voice_lint.py`'s example and a
+  `kit_config.py` comment are neutral. The remaining names in `test_voice.py` and
+  `test_site_export.py` are test prose (a fixture teller and her town), not guidance; they are left
+  for a dedicated sweep rather than mixed into this one.
+
+**`tools/check_doc_examples.py --all`** now also sweeps `tools/` and `template/` for the source
+world's phrases (the list lives once, in that tool). `ci.yml` and `verify-kit.sh` run `--all`; the
+shipped `checks.yml` keeps the document check. New `tools/test_atlas.py` (26 tests) covers the
+schema, the view and `--check`.
+
+**What a world must do, on syncing this (major bump, per the sync contract):**
+regenerate `maps/atlas-features.md` and read the diff. To keep the old grid references, add
+`prefix` and `grid_km` to the frames that had a local grid (`far_reach` was `FR` at 100 km, and so
+on); the default frame keeps its 250 km master grid. The generated note's headings and preamble now
+come from the data: set `title`, `summary`, `notes`, `labels`, `gm_sections` and `links` in the YAML
+to keep the prose you had. The YAML's own `frames:` and sections are unchanged, so it still
+validates; nothing in a place note moves.
+
 ## 3.0.0 — the kit owns the template; the template repo is generated
 
 The refactor that makes `mythical-forge-worldkit` the single source of truth for both the demo world

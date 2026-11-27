@@ -88,6 +88,12 @@ jobs:
       - name: Every section citation resolves
         run: python3 tools/check_citations.py
 
+      # The kit's own documents teach with the demo world. A world holds them at meta/conventions/
+      # and keeps example-world/, so the same check runs here; without a demo world it says so and
+      # passes rather than inventing a verdict.
+      - name: The kit's documents teach with the demo world's examples
+        run: python3 tools/check_doc_examples.py
+
       - name: Every lore section has a disclosure class
         if: steps.kind.outputs.world == 'true'
         run: python3 tools/disclosure.py --check
