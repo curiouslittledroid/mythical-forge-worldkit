@@ -52,7 +52,9 @@ you accepting or changing them. See the protocol in `AGENTS.md`.
 bible: you can loosen a licence later, but not tighten one, because everything already published
 keeps the licence it had. The worldkit's own material you are carrying — `tools/`, `meta/conventions/`,
 `meta/templates/`, the site theme, the prompts — is MIT and CC BY 4.0 (`tools/LICENSE`,
-`tools/LICENSE-CONTENT`) and is not yours to relicense.
+`tools/LICENSE-CONTENT`) and is not yours to relicense. **Read
+`meta/conventions/licensing.md`** before you decide: it says what you inherit, what you decide, and
+what you may not touch.
 
 ### 5. Keep the machinery current
 
