@@ -30,31 +30,40 @@ jobs:
       - name: Every section citation resolves
         run: python3 tools/check_citations.py
 
-      # The guide check needs MYTHICAL_FORGE_ROOT -- the platform repository, which is private. A
-      # runner cannot have it unless the job is given a token, so a missing platform SKIPS the check
-      # with a warning instead of failing: red-forever teaches nobody anything, and the warning says
-      # what was not checked. The pipeline itself (transform, validate, thread-check, the six
-      # scenarios) is proved by ./verify-kit.sh, which is local-only for the same reason; a token would
-      # let this job run it. Everything else here and the identity gate below are standard-library.
-      - name: Is the platform repository available?
-        id: platform
+      # The engine's schemas are the one thing this job cannot get for free: they are published on
+      # GitHub Packages (Phase 5 B4) and the registry needs a token. Without one, the checks that need
+      # them are SKIPPED with a warning naming what was skipped -- red-forever teaches nobody
+      # anything. Add a secret named WORLDKIT_PACKAGES_TOKEN (a token with read:packages on
+      # @curiouslittledroid) and this job also runs the guide check and the whole pipeline,
+      # ./verify-kit.sh, against the kit's own demo world.
+      - name: Are the engine's schemas available?
+        id: schemas
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.WORLDKIT_PACKAGES_TOKEN }}
         run: |
-          if [ -n "${MYTHICAL_FORGE_ROOT:-}" ] && [ -d "$MYTHICAL_FORGE_ROOT/packages/authored-content" ]; then
+          if [ -n "${NODE_AUTH_TOKEN:-}" ]; then
             echo "have=1" >> "$GITHUB_OUTPUT"
+            npm install --no-audit --no-fund
           else
             echo "have=0" >> "$GITHUB_OUTPUT"
-            echo "::warning::MYTHICAL_FORGE_ROOT is unset or has no packages/authored-content: the"
-            echo "::warning::pipeline checks (guide, transform, validate, scenarios) are SKIPPED here."
-            echo "::warning::verify-kit.sh runs them locally, and that is the proof; this job covers the"
-            echo "::warning::half of the kit that does not need the platform."
+            echo "::warning::no WORLDKIT_PACKAGES_TOKEN: the guide check and ./verify-kit.sh are SKIPPED."
+            echo "::warning::The schemas are on GitHub Packages and need read:packages on @curiouslittledroid."
+            echo "::warning::Locally, 'npm install && ./verify-kit.sh' runs the same checks."
           fi
 
       - name: The guide's blocks match the demo world
-        if: steps.platform.outputs.have == '1'
+        if: steps.schemas.outputs.have == '1'
         run: node tools/check-guide.mjs
 
       - name: The protocol region is in sync
         run: python3 tools/sync-agent-protocol.py --check
+
+      # The kit's own end-to-end proof, which used to be local-only for want of exactly this: the
+      # demo world is built into a Game Ready Repository, the engine's schemas accept it, and the six
+      # fixture scenarios still play.
+      - name: The whole pipeline, against the demo world
+        if: steps.schemas.outputs.have == '1'
+        run: ./verify-kit.sh
 
       # The invariant: no world's identity inside the kit's own machinery. Scoped on purpose -
       # CHANGELOG, README, ROADMAP, CONTRIBUTING and meta/platform-requests are PROVENANCE, and

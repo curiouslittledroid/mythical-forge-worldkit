@@ -14,13 +14,13 @@ import { readFileSync, readdirSync, existsSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { loadConfig, mfRoot, requireMf } from './kit_config.mjs';
+import { authoredContent, loadConfig, requireMf } from './kit_config.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const ROOT = resolve(HERE, '..');
 const cfg = loadConfig();
 const YAML = requireMf('yaml');
-const { parseAuthoredEntity } = requireMf(join(mfRoot(), 'packages', 'authored-content', 'dist', 'index.js'));
+const { parseAuthoredEntity } = authoredContent();
 
 /** First path that exists, so one tool serves the worldkit, the staged kit and a world. */
 const firstExisting = (...paths) => paths.find((p) => existsSync(p));

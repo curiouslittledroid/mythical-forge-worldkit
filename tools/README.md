@@ -10,18 +10,20 @@ flags note lives asks the config. See `docs/extraction.md` for the design and th
 
 Standard library Python 3.12+; Node 18+ for the transformer and the site.
 
-## Setup: `MYTHICAL_FORGE_ROOT`
+## Setup: the engine's schemas
 
-The Node tools read the platform's own schemas and YAML implementation, so they need the
-checkout that holds `packages/authored-content`:
+The Node tools read the engine's own schemas and its YAML implementation (Design 23 §4.1). They come
+from one of two places, and `tools/kit_config.mjs` is the only code that decides which:
 
-```bash
-export MYTHICAL_FORGE_ROOT=/path/to/mythical-forge/main
-```
+| Source | When | How |
+|---|---|---|
+| **The published package** — `@curiouslittledroid/authored-content`, pinned exactly in this repository's root `package.json` | The default, and what CI uses | `export NODE_AUTH_TOKEN=<a PAT with read:packages>`, then `npm install`. The repository's `.npmrc` points at GitHub Packages; without a token the install is a 401 |
+| **A local checkout** — `packages/authored-content` in the platform repository | Developing an unreleased schema change | `export MYTHICAL_FORGE_ROOT=/path/to/mythical-forge/main` — it wins when set |
 
-**There is no default.** In a bare-repo-plus-worktree layout it is the *worktree*
-(`.../mythical-forge/main`), not the parent. Without it a Node tool stops immediately and says
-so; with a wrong path it names the missing package rather than failing later on a stray `require`.
+A tool that finds neither stops immediately and names both fixes. A `MYTHICAL_FORGE_ROOT` pointing
+somewhere without `packages/authored-content` is its own loud error, rather than a stray `require`
+much later. In a bare-repo-plus-worktree layout the path is the *worktree*
+(`.../mythical-forge/main`), not the parent.
 
 ## Configuration
 

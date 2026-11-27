@@ -82,6 +82,20 @@ jobs:
           WORLDKIT_REPO="$GITHUB_WORKSPACE/kit" tools/sync-tooling.sh "$latest"
           cat TOOLING_VERSION
 
+      - name: Are the engine's schemas available?
+        id: schemas
+        if: steps.template.outcome == 'success'
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.WORLDKIT_PACKAGES_TOKEN }}
+        run: |
+          if [ -n "${NODE_AUTH_TOKEN:-}" ]; then
+            echo "have=1" >> "$GITHUB_OUTPUT"
+          else
+            echo "have=0" >> "$GITHUB_OUTPUT"
+            echo "::warning::no WORLDKIT_PACKAGES_TOKEN: the fork's own pipeline (verify-world.sh) is SKIPPED."
+            echo "::warning::The schemas are on GitHub Packages and need read:packages on @curiouslittledroid."
+          fi
+
       - name: Fork it, and give it an identity
         if: steps.template.outcome == 'success'
         run: |
@@ -101,6 +115,14 @@ jobs:
           python3 tools/lint.py
           python3 tools/check_citations.py
           python3 tools/disclosure.py --check
+          # The strongest proof a fork owns: its vault compiles and its (empty) scenario set passes.
+          # It needs the engine's schemas, which come from GitHub Packages, so it needs the token.
+          if [ "${{ steps.schemas.outputs.have }}" = "1" ]; then
+            npm install --no-audit --no-fund
+            tools/verify-world.sh
+          fi
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.WORLDKIT_PACKAGES_TOKEN }}
 
       - name: The site a new world gets
         if: steps.template.outcome == 'success'
@@ -123,8 +145,9 @@ jobs:
               raise SystemExit("a fresh fork's audit has unresolved references")
           PY
 
-      - name: What this job could not prove
-        if: steps.template.outcome == 'success'
+      - name: What this job did not prove
+        if: steps.template.outcome == 'success' && steps.schemas.outputs.have != '1'
         run: |
-          echo "Not run: tools/verify-world.sh (the engine pipeline) -- it needs MYTHICAL_FORGE_ROOT,"
-          echo "and the platform repository is private. Run it locally before a kit tag."
+          echo "Not run: tools/verify-world.sh (the fork's own pipeline), because no"
+          echo "WORLDKIT_PACKAGES_TOKEN secret is set and the engine's schemas are on a private"
+          echo "registry. Add one (read:packages on @curiouslittledroid) and this job runs it."

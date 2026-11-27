@@ -23,7 +23,7 @@ A tool is a script in `tools/` plus a test beside it. Keep both in the same comm
    that loads the live config with both readers and compares them. A change to one reader without
    the other is caught there, not in a world.
 6. **Document it in `tools/README.md`** — one row in the table, in the order a reader would meet it.
-7. **Run the proof:** `./verify-kit.sh` (green, with `MYTHICAL_FORGE_ROOT` set). It builds the demo
+7. **Run the proof:** `./verify-kit.sh` (green — with the schemas installed, or `MYTHICAL_FORGE_ROOT` set). It builds the demo
    world in a throwaway directory and runs the whole pipeline on it.
 
 ## Change a rule

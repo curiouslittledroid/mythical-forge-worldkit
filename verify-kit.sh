@@ -3,8 +3,10 @@
 # runs the whole pipeline on it: lint, transform, validate, thread-check, and the fixture's six
 # scenarios. Nothing here is touched.
 #
-# Needs MYTHICAL_FORGE_ROOT, pointing at the platform repository (the directory holding
-# packages/authored-content): the transformer and the validator are the engine's own code.
+# The schemas the transformer and the validator check against are the engine's own (Design 23 §4.1).
+# Two sources, and this script does not care which: the published `@curiouslittledroid/authored-content`,
+# installed as an ordinary dependency (`npm install` in the kit's root), or a local checkout named by
+# MYTHICAL_FORGE_ROOT — which wins when set. The installed package is what lets this script run in CI.
 #
 # Usage: ./verify-kit.sh [--keep]
 set -euo pipefail
@@ -12,9 +14,10 @@ ROOT="$(cd "$(dirname "$0")" && pwd)"
 TMP="$(mktemp -d)"
 trap '[ "${1:-}" = "--keep" ] || rm -rf "$TMP"' EXIT
 
-if [ -z "${MYTHICAL_FORGE_ROOT:-}" ]; then
-  echo "verify-kit: MYTHICAL_FORGE_ROOT is unset. It must point at the platform repository —" >&2
-  echo "            the directory that holds packages/authored-content." >&2
+# The schemas, from whichever source, probed once here: a missing install is one clear message naming
+# both fixes rather than a stack trace out of the first tool that needs them.
+if ! schemas_err="$(node --input-type=module -e "import('$ROOT/tools/kit_config.mjs').then((m) => { m.authoredContent(); }).catch((e) => { console.error(e.message); process.exit(1); })" 2>&1)"; then
+  printf '%s\n' "$schemas_err" | sed 's/^/verify-kit: /' >&2
   exit 2
 fi
 
@@ -48,6 +51,12 @@ EOF
 rsync -a --exclude .git --exclude node_modules --exclude __pycache__ --exclude site/dist \
       "$ROOT/" "$TMP/world/"
 mkdir -p "$TMP/gameready"
+# The copy excludes node_modules -- slow to copy, and not part of the vault -- so the real one is
+# linked back in: the tools need the engine's schemas, and in an installed deployment those are this
+# repository's own dependencies. Unset when the schemas come from a checkout instead (the guard above
+# has already established that one source or the other is available).
+[ -d "$ROOT/node_modules" ] && ln -s "$ROOT/node_modules" "$TMP/world/node_modules"
+
 cd "$TMP/world"
 
 echo "== suites";     for suite in tools/test_*.py; do printf '%s ' "$suite"; python3 "$suite" | tail -1; done

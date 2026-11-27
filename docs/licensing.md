@@ -103,6 +103,19 @@ If a world publishes text derived from the SRD, that text carries the SRD's own 
 attribution — separate from everything above and unaffected by it. Publishing *keys* or ids is not
 that: they are names, not text.
 
+### The engine's schemas — FSL-1.1-ALv2, and not ours
+
+The toolchain has one runtime dependency that is neither ours nor MIT:
+`@curiouslittledroid/authored-content` (Phase 5 task B4) — the engine's own Zod schemas, which the
+transformer and the validator check a world's vault against. It is published from the platform
+repository under the **Functional Source License 1.1, Apache-2.0 future licence** (`FSL-1.1-ALv2`):
+any use is permitted except competing with the licensor, and the terms become Apache-2.0 after two
+years. It is a *dependency*, so this kit's MIT says nothing about it — the notice travels with the
+package into `node_modules/`, where `npm install` puts it.
+
+Nothing else in this repository pulls anything at runtime: the site's build dependencies are the
+site's own (`site/LICENSES.md`), and the Python is standard library.
+
 ## 7. What a world decides, and what it may not touch
 
 **The world decides:** its own `LICENSE`; the `license:` sentence in `world.config.yaml`; whether to

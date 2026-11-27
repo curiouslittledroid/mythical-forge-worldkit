@@ -149,19 +149,32 @@ export function parseSubset(text, name = '<text>') {
   return root;
 }
 
-// ─── the platform root (T2) ──────────────────────────────────────────────────────────
+// ─── the authored-content schemas: a checkout, or the installed package (T2, Phase 5 B4) ─────
 
 /**
- * `$MYTHICAL_FORGE_ROOT`, verified. There is deliberately **no default**: the old one pointed at a
- * path that does not exist, so every Node tool died with `Cannot find module 'yaml'`, which names
- * neither the variable nor the problem.
+ * The engine's schemas come from one of two places, and this is the only code that decides which.
+ *
+ *   1. **`$MYTHICAL_FORGE_ROOT` set** — a local checkout of the platform repository, for developing
+ *      an unreleased schema change. Set-but-wrong is a loud error, never `Cannot find module`.
+ *   2. **unset** — the published `@curiouslittledroid/authored-content`, an ordinary dependency of
+ *      this repository. This is what lets the whole pipeline run with no checkout of anything but
+ *      the world itself, which is what makes `tools/verify-world.sh` usable in CI (task 5.B4).
+ *
+ * Nothing here reads a token: the package lives on GitHub Packages, so installing it is what needs
+ * one. `authoredContent()` loads the schemas; `requireMf(spec)` loads `yaml` — which the package
+ * depends on, so it is resolved through the package's own closure rather than by hoping for a
+ * hoist.
  */
+const AUTHORED_CONTENT = '@curiouslittledroid/authored-content';
+
+/** The checkout root, or null when the consumer did not ask for one. */
 export function mfRoot() {
   const root = process.env.MYTHICAL_FORGE_ROOT;
+  if (!root) return null;
   const hint = 'Point MYTHICAL_FORGE_ROOT at the directory that holds packages/authored-content, e.g.\n'
     + '  MYTHICAL_FORGE_ROOT=/path/to/mythical-forge/main node tools/transform.mjs\n'
-    + 'In a bare-repo-plus-worktree checkout that is the worktree (…/mythical-forge/main), not the parent.';
-  if (!root) throw new Error(`MYTHICAL_FORGE_ROOT is not set.\n${hint}`);
+    + 'In a bare-repo-plus-worktree checkout that is the worktree (…/mythical-forge/main), not the parent.\n'
+    + 'Or unset it to use the installed package instead.';
   const pkg = join(root, 'packages', 'authored-content', 'package.json');
   if (!existsSync(pkg)) {
     throw new Error(`MYTHICAL_FORGE_ROOT is '${root}', but there is no ${pkg}.\n${hint}`);
@@ -169,11 +182,42 @@ export function mfRoot() {
   return root;
 }
 
-/** Require a module out of the platform's own install (so output matches the engine's reader). */
-export function requireMf(spec) {
+/** The `require` the schemas and `yaml` are loaded through: the checkout's, or the package's own. */
+function schemaRequire() {
   const root = mfRoot();
-  const require = createRequire(join(root, 'packages', 'authored-content', 'package.json'));
-  return require(spec);
+  if (root) return createRequire(join(root, 'packages', 'authored-content', 'package.json'));
+  const own = createRequire(import.meta.url);
+  let entry;
+  try {
+    entry = own.resolve(AUTHORED_CONTENT);
+  } catch {
+    throw new Error(
+      `${AUTHORED_CONTENT} is not installed, and MYTHICAL_FORGE_ROOT is not set.\n`
+      + 'The pipeline needs the engine’s own schemas (Design 23 §4.1, packages/authored-content). Either\n'
+      + 'install the pinned version — the package is on GitHub Packages, so this needs a token with\n'
+      + 'read:packages on @curiouslittledroid:\n'
+      + '\n'
+      + '  .npmrc:  @curiouslittledroid:registry=https://npm.pkg.github.com\n'
+      + '           //npm.pkg.github.com/:_authToken=${NODE_AUTH_TOKEN}\n'
+      + '  install: npm install          # in this repository’s root\n'
+      + '\n'
+      + 'or point at a local checkout, while developing a schema change:\n'
+      + '  MYTHICAL_FORGE_ROOT=/path/to/mythical-forge/main node tools/verify-world.sh');
+  }
+  // Anchored at the package's own entry so `yaml` comes from its dependency closure.
+  return createRequire(entry);
+}
+
+/** Require a module by name — `yaml`, or anything else the engine's install provides. */
+export function requireMf(spec) {
+  return schemaRequire()(spec);
+}
+
+/** The schemas: `parseAuthoredEntity`, `parseWorldManifest`, `ENTITY_SCHEMAS`, `formatIssues`, … */
+export function authoredContent() {
+  const root = mfRoot();
+  if (root) return schemaRequire()(join(root, 'packages', 'authored-content', 'dist', 'index.js'));
+  return schemaRequire()(AUTHORED_CONTENT);
 }
 
 // ─── the scenario conventions (T4) ───────────────────────────────────────────────────

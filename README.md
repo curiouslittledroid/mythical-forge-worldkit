@@ -80,13 +80,24 @@ python3 tools/lint.py                      # the demo world
 ./verify-kit.sh                            # the whole pipeline, in a throwaway directory
 ```
 
-`verify-kit.sh` needs the **platform repository** (`MYTHICAL_FORGE_ROOT`, pointing at the directory
-that holds `packages/authored-content`), because the transformer and the validator are the engine's
-own code. It copies the demo world to a throwaway directory, overlays the Ferryman's Debt, and runs
-lint → transform → validate → thread-check → six scenarios. Nothing in a real world is touched.
+`verify-kit.sh` needs the **engine's schemas**, because the transformer and the validator are the
+engine's own code (Design 23 §4.1). Install them once — they are published on GitHub Packages, so
+this needs a token with `read:packages`:
 
-CI runs the Python suites and the lint only: the platform repository is private, so the end-to-end
-proof is a local, pre-commit step. Run it before you tag a release.
+```bash
+export NODE_AUTH_TOKEN=<a fine-grained PAT with read:packages>
+npm install          # the pinned version, from the repository's own .npmrc
+```
+
+Or point at a local checkout instead — it wins when set, and it is how an unreleased schema change is
+developed: `MYTHICAL_FORGE_ROOT=/path/to/mythical-forge/main ./verify-kit.sh`. Either way the script
+copies the demo world to a throwaway directory, and runs lint → transform → validate → thread-check →
+six scenarios. Nothing in a real world is touched.
+
+CI runs the same proof: the suites, the lint, the citations and the workflow check always, and — when
+the `WORLDKIT_PACKAGES_TOKEN` secret is present — the guide check and `./verify-kit.sh`. Without the
+secret those two are skipped with a warning naming what was skipped, because the schemas live on a
+private registry.
 
 ## Working on the kit
 

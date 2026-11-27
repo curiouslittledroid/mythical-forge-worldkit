@@ -53,10 +53,6 @@ Ordered. Each task is one commit, verified before it lands (see `CONTRIBUTING.md
 - [K13] **A fork's Open Graph image is missing.** `site/public/` ships a deliberately plain favicon;
   `og-default.jpg` and the hero are a world's own, so a fresh fork's social card is empty until it
   makes one. Harmless, permanent, and worth a line in the template's quickstart.
-- [K14] **The strongest proof is still the most manual one.** `verify-kit.sh` and the template fork
-  both need `MYTHICAL_FORGE_ROOT`, so the engine pipeline is proved locally before a tag and never in
-  CI. `docs/extraction.md`'s first testing gap proposes the fix: a stub `packages/authored-content`,
-  because the schemas are the contract and the engine is not.
 
 
 - [OPEN] **Licence** (K1). The rule is intended to be permissive for a world that publishes its own

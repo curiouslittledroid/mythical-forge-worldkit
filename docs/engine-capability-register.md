@@ -3,7 +3,7 @@
 **What this is.** Every mechanic a world wants, classified against what the engine can actually
 express — and the **single home for the platform requests**. It is the kit's, because it is a
 statement about the engine: what the schemas and vocabularies in
-`$MYTHICAL_FORGE_ROOT/packages/authored-content` and the SRD data in `packages/shared-data` can do.
+`@curiouslittledroid/authored-content` (or a checkout named by `$MYTHICAL_FORGE_ROOT`) and the SRD data in `packages/shared-data` can do.
 Each world keeps its **own** register (`meta/mechanics-gap-register.md`) listing the gaps *it* hits,
 with its rows numbered `M1…`, and refers to the requests by id from here.
 

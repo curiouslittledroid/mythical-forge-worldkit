@@ -4,6 +4,52 @@ A world pins the kit by copying its version into `TOOLING_VERSION` and updating 
 `tools/sync-tooling.sh`. **A change a world cannot absorb silently is a major bump and gets a
 migration note here.**
 
+## 2.0.0 — the schemas are a package, so the pipeline runs anywhere (task 5.B4)
+
+The engine's Zod schemas were reachable only through a checkout of the platform repository, named by
+`MYTHICAL_FORGE_ROOT`. That is why `verify-kit.sh`, a world's `tools/verify-world.sh` and the template
+fork could only be run by hand, on a machine with the platform installed and built: the strongest proof
+this project has was its most manual one. Phase 5 task B4 published the schemas as
+`@curiouslittledroid/authored-content` (ADR-0023 records why the scope is the maintainer's personal
+one), and this release consumes it.
+
+**A world cannot absorb this silently, so it is a major bump.** What a world does, once:
+
+1. Take the repository's two new root files: `package.json` (the pin — `0.0.3`, **exact**) and
+   `.npmrc` (the registry, and the token read from the environment, never committed).
+2. `export NODE_AUTH_TOKEN=<a fine-grained PAT with read:packages on @curiouslittledroid>`, then
+   `npm install`.
+3. Nothing else. Every Node tool finds the schemas, and the world's own pipeline runs in CI as soon as
+   a `WORLDKIT_PACKAGES_TOKEN` secret exists.
+
+`MYTHICAL_FORGE_ROOT` still works and still **wins when set**, so a world mid-migration is not stuck:
+the old behaviour is one environment variable away, and the new path is what CI uses.
+
+What changed:
+
+- `tools/kit_config.mjs` — `mfRoot()` now returns the checkout or `null`, and one new function,
+  `authoredContent()`, loads the schemas from whichever source exists. `requireMf(spec)` keeps its
+  name; in installed mode it resolves `yaml` through the package's own dependency closure, not by
+  hoping for a hoist.
+- `tools/validate-world.mjs`, `tools/check-guide.mjs` — ask `authoredContent()`, instead of reaching
+  into a checkout by path.
+- `verify-kit.sh`, `tools/verify-world.sh` — no longer require the variable. Each probes the schemas
+  once, prints one message naming both fixes, and links the repository's `node_modules` into the
+  throwaway copy its proof runs in.
+- `checks.yml`, `ci.yml`, `template-fork.yml` — the pipeline is now part of CI, token-gated, with a
+  warning that says what was skipped when the secret is absent. `ci.yml` running `verify-kit.sh`
+  closes the last open testing item in the roadmap.
+- `package.json`, `.npmrc` — new at the root, for the one runtime dependency.
+- The documents that promised a checkout — `README.md`, `tools/README.md` (its Setup section is a
+  two-row table now), `docs/conventions.md`, `docs/engine-capability-register.md`, `CONTRIBUTING.md` —
+  say what is true. `docs/licensing.md` §6 records the dependency's FSL-1.1-ALv2 terms, which are not
+  this kit's MIT.
+- `ROADMAP.md` — K14 is closed and gone.
+
+One deliberate non-change: **no lockfile is committed here.** Generated from a local tarball it would
+record a `file:` path, and each world's lockfile is its own business; the pin is exact, which is what
+determinism needs.
+
 ## 1.3.9 — the guard was on one step of two
 
 `tooling-drift.yml` grew an "Is this a world?" step when it started failing on the kit, and I put the

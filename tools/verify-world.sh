@@ -11,8 +11,12 @@
 # a broken toolchain and broken lore looked the same. Now the kit answers the first question and this
 # answers the second, from the world's own content.
 #
-# Needs MYTHICAL_FORGE_ROOT - the platform repository, i.e. the directory holding
-# packages/authored-content - because the transformer and the validator are the engine's own code.
+# The schemas the transformer and the validator check against are the engine's own (Design 23 §4.1).
+# Two sources, and this script does not care which: the published `@curiouslittledroid/authored-content`,
+# installed as an ordinary dependency (`npm install` in this repository's root), or a local checkout
+# named by MYTHICAL_FORGE_ROOT — which wins when set, so an unreleased schema change is developed
+# against it. The installed package is what lets this script run in CI, with no checkout of anything
+# but the world itself.
 #
 # Usage: tools/verify-world.sh [--keep] [--scenario file.yaml ...]
 #        with no scenario arguments, every scenario in `vault.scenarios` is run (`--coverage`).
@@ -27,10 +31,10 @@ for a in "$@"; do
   esac
 done
 
-if [ -z "${MYTHICAL_FORGE_ROOT:-}" ]; then
-  echo "verify-world: MYTHICAL_FORGE_ROOT is unset. It must point at the platform repository —" >&2
-  echo "              the directory that holds packages/authored-content. The transformer and the" >&2
-  echo "              validator are the engine's own code." >&2
+# The schemas, from whichever source. Probed once here, so a missing install is one clear message
+# naming both fixes rather than a stack trace out of the first tool that needs them.
+if ! schemas_err="$(node --input-type=module -e "import('$ROOT/tools/kit_config.mjs').then((m) => { m.authoredContent(); }).catch((e) => { console.error(e.message); process.exit(1); })" 2>&1)"; then
+  printf '%s\n' "$schemas_err" | sed 's/^/verify-world: /' >&2
   exit 2
 fi
 
@@ -52,6 +56,12 @@ python3 "$ROOT/tools/voice_stale.py" | tail -5 || true
 # maintainer eventually trusts.)
 rsync -a --exclude .git --exclude node_modules --exclude __pycache__ --exclude site/dist \
       "$ROOT/" "$TMP/world/"
+# The copy excludes node_modules -- slow to copy, and not part of the vault -- so the real one is
+# linked back in: the tools need the engine's schemas, and in an installed deployment those are this
+# repository's own dependencies. Unset when the schemas come from a checkout instead (the guard above
+# has already established that one source or the other is available).
+[ -d "$ROOT/node_modules" ] && ln -s "$ROOT/node_modules" "$TMP/world/node_modules"
+
 cd "$TMP/world"
 
 echo "== citations     (every section citation names a section the document has)"

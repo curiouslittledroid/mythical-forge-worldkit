@@ -16,15 +16,14 @@ import { readFileSync, readdirSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { loadConfig, mfRoot, requireMf } from './kit_config.mjs';
+import { authoredContent, loadConfig, requireMf } from './kit_config.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const CODEX_ROOT = resolve(HERE, '..');
 const cfg = loadConfig();
 
 const YAML = requireMf('yaml');
-const dist = join(mfRoot(), 'packages', 'authored-content', 'dist', 'index.js');
-const { parseAuthoredEntity, parseWorldManifest } = requireMf(dist);
+const { parseAuthoredEntity, parseWorldManifest } = authoredContent();
 
 const args = process.argv.slice(2);
 const outIndex = args.indexOf('--repo');

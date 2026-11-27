@@ -1,0 +1,9 @@
+{
+  "name": "mythical-forge-worldkit",
+  "private": true,
+  "description": "The world-building toolchain: the tools, the rules, the note templates and the site theme that a world vendors. Not published — this file exists for the toolchain's one runtime dependency: the engine's own authored-content schemas (Design 23 §4.1), installed as an ordinary package so the pipeline runs without a checkout of the platform repository.",
+  "license": "MIT",
+  "dependencies": {
+    "@curiouslittledroid/authored-content": "0.0.3"
+  }
+}

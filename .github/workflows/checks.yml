@@ -51,6 +51,26 @@ jobs:
             echo "world=true" >> "$GITHUB_OUTPUT"
           fi
 
+      # The engine's schemas are the one thing CI cannot get for free: they are published on GitHub
+      # Packages (Phase 5 B4), and the registry needs a token. Without one the checks that need them
+      # are SKIPPED with a warning naming what was skipped — red-forever teaches nobody anything.
+      # Add a secret named WORLDKIT_PACKAGES_TOKEN (read:packages on @curiouslittledroid) and this job
+      # also proves the world compiles: transform, validate, thread-check and every scenario.
+      - name: Are the engine's schemas available?
+        id: schemas
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.WORLDKIT_PACKAGES_TOKEN }}
+        run: |
+          if [ -n "${NODE_AUTH_TOKEN:-}" ]; then
+            echo "have=1" >> "$GITHUB_OUTPUT"
+            npm install --no-audit --no-fund
+          else
+            echo "have=0" >> "$GITHUB_OUTPUT"
+            echo "::warning::no WORLDKIT_PACKAGES_TOKEN: the world's own pipeline is SKIPPED."
+            echo "::warning::The schemas are on GitHub Packages and need read:packages on @curiouslittledroid."
+            echo "::warning::Locally, 'npm install && tools/verify-world.sh' runs the same checks."
+          fi
+
       - name: The suites
         if: steps.kind.outputs.world == 'true'
         run: |
@@ -71,3 +91,10 @@ jobs:
       - name: Every lore section has a disclosure class
         if: steps.kind.outputs.world == 'true'
         run: python3 tools/disclosure.py --check
+
+      # The strongest proof this repository owns: the vault compiles into a Game Ready Repository the
+      # engine's own schemas accept, and its scenarios still play. It needs the schemas, and it needs
+      # to be a world (the kit proves itself with verify-kit.sh).
+      - name: The world compiles, and its scenarios pass
+        if: steps.schemas.outputs.have == '1' && steps.kind.outputs.world == 'true'
+        run: tools/verify-world.sh
