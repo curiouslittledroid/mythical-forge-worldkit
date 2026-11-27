@@ -11,7 +11,7 @@ engine: false
 
 **Summary:** The player-facing promise, in the world's own words: what a game here is like, and what
 it asks of the table. It is shown on the site's landing page and About page, from the
-`what_to_expect` list in `meta/site-decisions.md` (the kit's `site.md` section 4 covers the
+`what_to_expect` list in `meta/site-decisions.md` (the kit's `meta/conventions/site.md` section 4 covers the
 landing page).
 
 ## Questions

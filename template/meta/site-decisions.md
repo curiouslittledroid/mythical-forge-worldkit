@@ -11,7 +11,7 @@ engine: false
 
 **Summary:** The site's vocabularies: which tags earn an index page, which words must never appear on
 a public page, which thread names are ordinary vocabulary rather than a spoiler, and the tone lines a
-reader sees. The mechanism is the kit's `site.md` section 3.3.
+reader sees. The mechanism is the kit's `meta/conventions/site.md` section 3.3.
 
 ```site-vocabulary
 published_tags: [REPLACE]

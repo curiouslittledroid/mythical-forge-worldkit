@@ -30,8 +30,8 @@ Declared in `world.config.yaml` and shown to readers on the site's About page:
 - `REPLACE` (the engine's descriptors, e.g. `VIOLENCE`, `HORROR`, `MATURE_THEMES`)
 
 Then write the sentence the reader needs: what kind of violence, how close the horror sits, and
-anything the table should know before session one. The kit's `site.md` section 5 covers
-how the site presents it.
+anything the table should know before session one. The kit's `meta/conventions/site.md` section 5
+covers how the site presents it.
 
 ## Links
 
