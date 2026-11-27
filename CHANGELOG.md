@@ -19,12 +19,15 @@ embedded `example-world/` demo), and `export-template.sh` assembles the publishe
 `mythical-forge-world-template` repo from it. `sync-tooling.sh` no longer mirrors `example-world/`
 into a template — that is the export's job now.
 
-**The documents split by reader, and one of them moved.** `docs/` now holds **only what it takes to
-maintain the kit**: `extraction.md` and `licensing.md`. Every document a world author must read —
-`conventions.md`, `campaign-authoring-guide.md`, `thread-pattern.md`, `site.md`, `testimony.md`,
-`tag-vocabulary.md`, `atlas.md`, `engine-capability-register.md`, `agent-protocol.md` — moved to
-`template/meta/conventions/`, and a world now holds them at **`meta/conventions/`**. `tools/docs/`
-is gone. Two rules are unchanged and now easier to state: they are **prose, not notes** (no
+**The documents split by reader, and they moved.** `docs/` now holds **only what it takes to
+maintain the kit**: `extraction.md`. Every document a world author must read — `conventions.md`,
+`campaign-authoring-guide.md`, `thread-pattern.md`, `site.md`, `testimony.md`, `tag-vocabulary.md`,
+`atlas.md`, `engine-capability-register.md`, `agent-protocol.md`, and **`licensing.md`** (a world
+has to know what it may not relicence) — moved to `template/meta/conventions/`, and a world now
+holds them at **`meta/conventions/`**. `tools/docs/` is gone.
+
+`extraction.md` deliberately does **not** travel: it is the record of extracting the kit from the
+first world and names that world throughout. A world used to receive it; it no longer does. Two rules are unchanged and now easier to state: they are **prose, not notes** (no
 frontmatter, no id; the linter does not read them as part of the vault), and they are **cited by name
 and section, never by wikilink**. The move puts a rule one file away instead of one directory away,
 and it keeps the folder wholly the kit's, so the sync replaces it wholesale.
