@@ -31,23 +31,8 @@ what_to_expect:
 
 # How our tags read on a page. A tag with no entry falls back to its title-cased slug.
 tag_labels:
-  choir: The Choir
-  gods: The Gods
-  fae: The Fae
-  ketheri: The Ketheri
-  elves: Elves
-  dwarves: Dwarves
-  gnomes: Gnomes
-  humans: Humans
-  league: The Crimson League
-  wardens: The Wardens of the Stone
-  church: The Church of the Giver
-  far-reach: The Far Reach
-  heartland: The Heartland
-  saltmarch: Saltmarch
-  waygates: Waygates
-  leylines: Leylines
-  wardstones: Wardstones
-  ruins: Ruins
+  ferry: The Dust Ferrymen
+  debt: Debt and Surety
+  town: Dustport
 
 ```

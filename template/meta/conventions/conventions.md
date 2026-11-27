@@ -78,7 +78,7 @@ The **top-level contracts** are fixed, because the tooling depends on them:
 ## 5. Ids and filenames
 
 - **Ids** use the engine grammar: lowercase ASCII tokens joined by single underscores, starting with a
-  letter, at least two tokens, max 100 characters (e.g. `npc_harbourmaster`). **Ids never change once
+  letter, at least two tokens, max 100 characters (e.g. `npc_tomas_reed`). **Ids never change once
   published.**
 - **Filenames are the kebab-case slug of the title** (a note titled *The Long Eclipse* is
   `the-long-eclipse.md`). The id lives in
@@ -91,15 +91,15 @@ The **top-level contracts** are fixed, because the tooling depends on them:
 
 | Kind | Prefix | Example |
 |---|---|---|
-| NPC | `npc_` | `npc_harbourmaster` |
-| WANT | `want_` | `want_harbourmaster_gate` |
-| FACT | `fact_` | `fact_waygates_are_choir_tech` |
-| RELATIONSHIP | `rel_` (optional id) | `rel_consortium_controls_highwell` |
-| WORLD_EVENT | `evt_` | `evt_well_fails` |
+| NPC | `npc_` | `npc_tomas_reed` |
+| WANT | `want_` | `want_reed_clear_his_debt` |
+| FACT | `fact_` | `fact_ferry_debt_was_padded` |
+| RELATIONSHIP | `rel_` (optional id) | `rel_<faction>_controls_<target>` |
+| WORLD_EVENT | `evt_` | `evt_ferry_seized` |
 | QUEST | `quest_` | |
 | ROOM | `room_` | |
 | ENCOUNTER | `enc_` | |
-| FACTION | `faction_` | `faction_wardens_of_the_stone` |
+| FACTION | `faction_` | `faction_ferry_creditors` |
 | ITEM | `item_` | |
 | MONSTER | `mon_` | |
 | MODULE | `mod_` | |
@@ -297,7 +297,7 @@ prose that NPC agents and the narrator read. `tools/lore_export.py` implements t
 
 | Section | Audience |
 |---|---|
-| an explicit `**Known by:** faction_x@inner, race_elf` line under the heading | that |
+| an explicit `**Known by:** faction_x@inner, race_human` line under the heading | that |
 | an NPC's `**Want:**` line, or its `## Secrets` / `## Keystone secrets` | **itself only** |
 | `open` | everyone (`scope: world`) |
 | a FACTION note's `earned` / `sealed` section | that faction, `select` / `inner` |

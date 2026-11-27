@@ -91,7 +91,7 @@ if __name__ == "__main__":
     import tempfile
 
     with tempfile.TemporaryDirectory() as tmp:
-        got = write_config(tmp, published_tags=["choir", "leylines"])
+        got = write_config(tmp, published_tags=["tag-one", "tag-two"])
         back = kit_config.load(Path(tmp) / "world.config.yaml")
         print(f"features  {sorted(back.features)}")
         print(f"sections  {[s.slug for s in back.site.sections]}")

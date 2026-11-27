@@ -445,13 +445,13 @@ class TestTags(SiteCase):
                                            "--audit", str(self.audit_file)]), 1)
 
     def test_a_keystone_term_in_a_tag_is_a_keyword_hit(self):
-        self.write("world/places/a.md", note(disclosure="open", extra="tags: [lineage]\n"))
+        self.write("world/places/a.md", note(disclosure="open", extra="tags: [sealedword]\n"))
         testkit.write_config(
             self.root,
-            published_tags=[*testkit.real_vocabulary()["published_tags"], "lineage"],
-            keystones=["Lineage"])
+            published_tags=[*testkit.real_vocabulary()["published_tags"], "sealedword"],
+            keystones=["SEALEDWORD"])
         audit = self.build()
-        self.assertEqual([h["term"] for h in audit["keyword_hits"]], ["Lineage"])
+        self.assertEqual([h["term"] for h in audit["keyword_hits"]], ["SEALEDWORD"])
 
 
 class TestAuditAndHistory(SiteCase):
@@ -468,10 +468,10 @@ class TestAuditAndHistory(SiteCase):
 
     def test_keyword_hits_are_reported(self):
         self.write("world/places/a.md", note(disclosure="open",
-                                            body="## Details\nThe archmage knew.\n"))
-        testkit.write_config(self.root, keystones=["archmage"])
+                                            body="## Details\nThe sealed word was known.\n"))
+        testkit.write_config(self.root, keystones=["Sealed Word"])
         audit = self.build()
-        self.assertEqual([h["term"] for h in audit["keyword_hits"]], ["archmage"])
+        self.assertEqual([h["term"] for h in audit["keyword_hits"]], ["Sealed Word"])
 
     def test_changelog_records_added_then_updated(self):
         self.write("world/places/a.md", note(disclosure="open"))
@@ -711,13 +711,13 @@ class TestTestimony(SiteCase):
         self.assertEqual(self.audit_field("testimony_undated")[0]["page"], "a")
 
     def test_testimony_is_in_the_keystone_scan(self):
-        leaky = self.ACCOUNT.replace("A promise made by a city.", "The Convenor said so.")
+        leaky = self.ACCOUNT.replace("A promise made by a city.", "The sealed word was said.")
         self.write("world/places/a.md", note(
             disclosure="open", body="## Details\n- some lore\n\n" + leaky))
-        testkit.write_config(self.root, keystones=["Convenor"])
+        testkit.write_config(self.root, keystones=["Sealed Word"])
         self.build()
         terms = [h["term"] for h in self.audit_field("keyword_hits")]
-        self.assertIn("Convenor", terms)
+        self.assertIn("Sealed Word", terms)
 
     def test_the_book_page_assembles_every_account(self):
         self.write("world/items-materials/book.md", note(
