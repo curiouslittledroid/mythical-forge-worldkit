@@ -3,7 +3,8 @@ name: Tooling drift
 # Is the vendored worldkit still the version this world thinks it is? Two questions, both cheap:
 #
 #   1. Is `TOOLING_VERSION` behind the kit's newest tag?
-#   2. Do the files at `tools/`, `meta/conventions/` and `meta/templates/` still MATCH that tag?
+#   2. Do the files at `tools/`, `meta/conventions/`, `meta/templates/` and `.pi/prompts/` still
+#      MATCH that tag?
 #
 # The second is the one that matters quietly. Vendoring means a world commits the kit's files as
 # ordinary files, so a hand-edit to one of them is invisible until the next sync silently reverts it.
@@ -133,6 +134,7 @@ jobs:
           compare "tools/"        /tmp/kit/tools        tools             "--exclude=docs --exclude=LICENSE --exclude=LICENSE-CONTENT" 
           compare "meta/conventions/" /tmp/kit/template/meta/conventions meta/conventions
           compare "meta/templates/" /tmp/kit/template/meta/templates meta/templates
+          compare ".pi/prompts/"   /tmp/kit/template/.pi/prompts    .pi/prompts
           # The licences are vendored like everything else, and for a licence that is the point.
           compare "tools/LICENSE"  /tmp/kit/LICENSE  tools/LICENSE
           compare "tools/LICENSE-CONTENT" /tmp/kit/LICENSE-CONTENT tools/LICENSE-CONTENT
