@@ -581,13 +581,15 @@ its scenarios, its engine blocks) and it passes the same checks yours will.
 - **Context to carry:** `disclosure` is the only publish axis, and the exporter **ports the
   classification** — it never re-derives it, so a typo cannot publish a secret. The codex repository
   stays private forever; only `site/dist` is published. **The site never authors canon**: the only
-  hand-written prose is the three pages a world owns (`site/src/pages/index.astro`, `about.astro`,
-  `follow.astro`). Those three are the world's files: the sync never overwrites them.
+  hand-written prose is the three pages a world owns (`site/src/pages/index.astro`,
+  `site/src/pages/about.astro`, `site/src/pages/follow.astro`). Those three are the world's files: the
+  sync never overwrites them.
 - **Tasks, in order:**
   1. Fill the `site:` section and write `meta/site.md`; set the world's own copy on the three pages.
   2. **Export:** `python3 tools/site_export.py` (stdlib only) — it applies every redaction rule in the
-     kit's `meta/conventions/site.md` §2.2 and emits `content/`, `audit/latest.json`, `changelog.json`,
-     `redirects.json` and `navigation.json`.
+     kit's `meta/conventions/site.md` §2.2. It writes the pages to `site/src/content/generated/`, and
+     `site/src/data/generated/site.json`, `navigation.json`, `changelog.json` and `redirects.json`,
+     plus the audit at `site/audit/latest.json`. All of them are generated: never hand-edit one.
   3. **Build:** `npm --prefix site run build`, then `python3 tools/site_link_check.py` — the build fails
      on any internal link to a file that does not exist.
   4. **Read the audit** (`site/audit/latest.json`) before deploying: keyword hits and dangling

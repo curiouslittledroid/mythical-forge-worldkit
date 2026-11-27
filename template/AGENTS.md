@@ -6,7 +6,7 @@ each designed in a separate session.
 
 **This file is the world brief, then the shared protocol.** Everything from the protocol marker down
 is the worldkit's, written for every world, and synced here by `tools/sync-agent-protocol.py`; edit
-the kit's `agent-protocol.md`, never the copy. Everything above the marker is this world's.
+the kit's `meta/conventions/agent-protocol.md`, never the copy. Everything above the marker is this world's.
 
 ## Where things are
 
@@ -18,18 +18,18 @@ the kit's `agent-protocol.md`, never the copy. Everything above the marker is th
 | `ROADMAP.md` | The ordered work plan, per-step context and status tracker. **Start here for what to do next.** |
 | `world.config.yaml` | **This world's identity and settings:** ids, title, the note slugs the tools read, the feature switches, the site's navigation. A non-note root file. |
 | `TOOLING_VERSION` | The pinned worldkit version. Moved by `tools/sync-tooling.sh`; never hand-edited. |
-| the kit's `conventions.md` | **The rules:** layout contracts, ids, frontmatter, engine blocks, disclosure, status values. Follow it for every note. |
-| `meta/conventions/` | **The kit's documents, in the vault.** Every world-facing document the kit publishes, at the pinned version: `conventions.md`, `site.md`, `thread-pattern.md`, `testimony.md`, `tag-vocabulary.md`, `atlas.md`, `campaign-authoring-guide.md`, `agent-protocol.md`, `engine-capability-register.md` — and whatever a future release adds, which is the point of reading this folder rather than a list. They are **wholly the kit's**: written by the sync, never by hand, and never linted as notes (they carry no frontmatter and no id). Cite one by name and section, never by wikilink. |
+| the kit's `meta/conventions/conventions.md` | **The rules:** layout contracts, ids, frontmatter, engine blocks, disclosure, status values. Follow it for every note. |
+| `meta/conventions/` | **The kit's documents, in the vault.** Every world-facing document the kit publishes, at the pinned version: `meta/conventions/conventions.md`, `meta/conventions/site.md`, `meta/conventions/thread-pattern.md`, `meta/conventions/testimony.md`, `meta/conventions/tag-vocabulary.md`, `meta/conventions/atlas.md`, `meta/conventions/campaign-authoring-guide.md`, `meta/conventions/agent-protocol.md`, `meta/conventions/engine-capability-register.md` — and whatever a future release adds, which is the point of reading this folder rather than a list. They are **wholly the kit's**: written by the sync, never by hand, and never linted as notes (they carry no frontmatter and no id). Cite one by name and section, never by wikilink. |
 | `meta/world-conventions.md` | **This world's choices** on top of those rules: its identity, its folder shape, the headings it adds, its vocabularies, its keystones. |
-| the kit's `engine-capability-register.md` + `meta/mechanics-gap-register.md` | What the engine can express (the kit's) and the gaps **this** world hits (ours). |
+| the kit's `meta/conventions/engine-capability-register.md` + `meta/mechanics-gap-register.md` | What the engine can express (the kit's) and the gaps **this** world hits (ours). |
 | the kit's `meta/conventions/site.md` + `meta/site.md` | How a site is generated (the kit's) and this world's pages, navigation and visual direction (ours). |
-| the kit's `campaign-authoring-guide.md` | **How to author a thread, a Campaign, its Modules and Quests.** The how-to; the world's own design note is the why. |
+| the kit's `meta/conventions/campaign-authoring-guide.md` | **How to author a thread, a Campaign, its Modules and Quests.** The how-to; the world's own design note is the why. |
 | `meta/templates/` | One template per note type, **vendored from the kit and mirrored by the sync**: never add a file here, it will be deleted. This world's own examples go elsewhere in `meta/`. |
 | `meta/canon-digest.md` | A one-to-two page summary of the canon. Read it before the detailed notes. |
 | `example-world/` | The demo world the kit ships: a small complete world, with engine blocks, a thread, a campaign and passing scenarios. **Read it, then delete it** once this world has notes of its own. |
 | `world/`, `principles/`, `campaigns/`, `maps/` | The lore codex (an Obsidian-style vault; the vault root is the repo root). |
 | `tools/` | The worldkit's tools, **vendored**: the transformer, the linter, the site exporter, the scenario simulator. Pinned by `TOOLING_VERSION`; updated by `tools/sync-tooling.sh`. **This directory is the kit's** — only `tools/local/` (this world's own scripts) is ours, and the sync never touches it. |
-| `site/` | The **public, player-facing site**. Generated from `open` sections only; `site/image-prompts/` holds the art prompts. Rules: the kit's `meta/conventions/site.md`, this world's choices in `meta/site.md`. The pages `site/src/pages/index.astro`, `about.astro` and `follow.astro` are **this world's own files** — the sync never overwrites them. |
+| `site/` | The **public, player-facing site**. Generated from `open` sections only; `site/image-prompts/` holds the art prompts. Rules: the kit's `meta/conventions/site.md`, this world's choices in `meta/site.md`. The pages `site/src/pages/index.astro`, `site/src/pages/about.astro` and `site/src/pages/follow.astro` are **this world's own files** — the sync never overwrites them. |
 
 **Documents that live in another repo are cited by name and section, never by wikilink.** A wikilink
 cannot reach across a repository boundary; a named pointer a reader can follow can.
@@ -99,7 +99,7 @@ You are a **seasoned fantasy tabletop RPG designer and world builder**. You thin
 
 ## How to work (session protocol)
 
-1. **Read** the world's `ROADMAP.md` (its context sections), the kit's `conventions.md`, the world's `meta/canon-digest.md`, then only the notes listed under the step's **Read first**. Don't load the whole canon.
+1. **Read** the world's `ROADMAP.md` (its context sections), the kit's `meta/conventions/conventions.md`, the world's `meta/canon-digest.md`, then only the notes listed under the step's **Read first**. Don't load the whole canon.
 2. **Do not contradict** the canon or the settled decisions. If something looks wrong, raise it as a question. Never silently change a decision.
 3. **Work by interview.** Use the **grilling** approach:
    - Ask **rounds of numbered questions**, each with a **recommended answer** worded so that "yes" accepts it.
@@ -110,20 +110,20 @@ You are a **seasoned fantasy tabletop RPG designer and world builder**. You thin
 4. **Record as you go.** After each round, update the note of the entity the decision is about. Record **decisions, not discussion**. Each fact has **one home**. Link to it, don't restate it.
 5. **Mark open items** `[OPEN]` and add them to the world's `meta/open-questions.md`.
 6. **Update the status table** in the world's `ROADMAP.md` at the end of the session.
-7. **Lint before you commit:** run `python3 tools/lint.py` and fix every error (see the kit's `conventions.md` section 16). Re-run it after any bulk or scripted edit.
+7. **Lint before you commit:** run `python3 tools/lint.py` and fix every error (see the kit's `meta/conventions/conventions.md` section 16). Re-run it after any bulk or scripted edit.
 8. **Refresh the public site** if the session changed lore or player-facing copy — the exporter, the build, then read the audit before deploying (`python3 tools/site_export.py`; the build and the audit are the kit's `meta/conventions/site.md` section 9). Never publish a canon change without it.
 9. **Commit at the end of each session** with a clear message. Keep the working tree clean.
 
 ## Vault and engine rules
 
-- **One note per entity.** Follow the kit's `conventions.md`: the id grammar, filenames, frontmatter (`id`, `kind`, `title`, `name_status`, `status`, `engine`) and the note-body contract.
+- **One note per entity.** Follow the kit's `meta/conventions/conventions.md`: the id grammar, filenames, frontmatter (`id`, `kind`, `title`, `name_status`, `status`, `engine`) and the note-body contract.
 - **Ids match the engine.** Use the engine prefixes (`npc_`, `want_`, `fact_`, `faction_`, `evt_`, `loc_`, ...) from the start. Codex-only ids are `hist_`, `fig_`, `god_`, `race_`, `thread_`, `topic_`. Ids never change once published. Filenames are kebab-case slugs of the title.
 - **Engine blocks live in the note.** A fenced `engine` YAML block inside the entity's note is the only source for the engine copy. The transformer extracts it deterministically. Block homes: a Want in its NPC's note, a Relationship in its `from` note, a Fact in its topic's note, a World Event in its thread note. Templates use `engine-example` blocks until real.
 - **Effect-only flags are declared in the world's flag register** (its `flags` note), never invented in an engine block. A Condition tests a flag; a `set_flag` Effect sets one. That note explains what flags are for and the declare → set → test workflow.
 - **Group knowledge** is written by group and tier (`common`, `select`, `inner`) with `_known_by_groups`, and the transformer resolves it to NPC ids. NPCs declare `groups` with a `rank`.
 - **Units are metric** (km, m, kg) throughout the codex; the transformer converts to the engine's imperial units. Metric is the kit's law; spelling is the world's setting.
 - **Never author derived or stamped values:** no `hp`, `ac`, `bab`, `cr`, and no `author_id` or `world_id`. The engine stamps what it stamps.
-- **Closed vocabularies stay closed.** Relationship kinds, flags, judgement tags, effects, tactics and content descriptors are fixed by the engine. If the world needs something the engine can't express, add it to the world's mechanics gap register and the kit's `engine-capability-register.md`. Don't invent it. The engine can't author new spells, feats, classes or item properties.
+- **Closed vocabularies stay closed.** Relationship kinds, flags, judgement tags, effects, tactics and content descriptors are fixed by the engine. If the world needs something the engine can't express, add it to the world's mechanics gap register and the kit's `meta/conventions/engine-capability-register.md`. Don't invent it. The engine can't author new spells, feats, classes or item properties.
 - **Use the engine's relationship kinds** (`CONTROLS`, `SECRETLY_SERVES`, `OWES`, `MEMBER_OF`, ...) when describing links between entities, so they convert cleanly.
 - **Keep engine text short.** Authored text is token-capped and untrusted prompt input. The long version stays in prose.
 - **Status is explicit:** `working` → `agreed` → `engine-ready` (or `deprecated`). Update it when it changes.

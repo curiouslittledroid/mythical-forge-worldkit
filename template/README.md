@@ -7,7 +7,7 @@ It is **not a world**. It carries one small worked example — `example-world/`,
 world — so that "what does a finished note look like?" has an answer on disk. Delete that directory
 once you have notes of your own.
 
-The vault's shape is fixed by the toolchain (the kit's `conventions.md` §3). What goes in
+The vault's shape is fixed by the toolchain (the kit's `meta/conventions/conventions.md` §3). What goes in
 it is yours: a world bible for tabletop play, written to be run by a game master, with the lore
 readable in Obsidian, the engine's data extracted from it, and — if you want one — a public site
 generated from its open content.
@@ -124,8 +124,8 @@ will fail the build if a citation rots.
 | I want to… | Do this |
 |---|---|
 | Know what to do next | `ROADMAP.md` |
-| Know how to write a note | the kit's `conventions.md`, then `meta/world-conventions.md` for this world's own choices |
-| Write a thread, a Campaign or a Quest | the kit's `campaign-authoring-guide.md` |
+| Know how to write a note | the kit's `meta/conventions/conventions.md`, then `meta/world-conventions.md` for this world's own choices |
+| Write a thread, a Campaign or a Quest | the kit's `meta/conventions/campaign-authoring-guide.md` |
 | See a finished example | `example-world/` |
 | Check my work | `python3 tools/lint.py` |
 | Prove the whole pipeline | `tools/verify-world.sh` |

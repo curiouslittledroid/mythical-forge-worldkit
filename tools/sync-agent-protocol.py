@@ -67,9 +67,12 @@ def main() -> int:
     root = find_root()
     source = find_source(root)
     want = region_of(source.read_text(encoding="utf-8"), start=START, stop=STOP, what=str(source))
-    if source.parent.name == "conventions" and source.parent.parent.parent.name == "template":
-        # The kit itself: this repository owns the protocol, so there is nothing to sync into its
-        # own AGENTS.md. A self-sync would copy a file onto itself and say nothing (D36).
+    # The kit owns the protocol, so there is nothing to sync into the KIT's own AGENTS.md: a
+    # self-sync would copy a file onto itself and say nothing (D36). The test is the source's path
+    # RELATIVE to the vault root, not the names of its parent directories: the kit's own template/
+    # holds a copy at exactly the world's path (`meta/conventions/`), and that copy must be synced.
+    rel = source.relative_to(root).as_posix()
+    if rel == "template/meta/conventions/agent-protocol.md":
         print("sync-agent-protocol: this is the worldkit, which owns the protocol; nothing to sync")
         return 0
     agents = root / "AGENTS.md"
