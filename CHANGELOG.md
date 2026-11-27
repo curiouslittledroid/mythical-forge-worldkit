@@ -4,6 +4,27 @@ A world pins the kit by copying its version into `TOOLING_VERSION` and updating 
 `tools/sync-tooling.sh`. **A change a world cannot absorb silently is a major bump and gets a
 migration note here.**
 
+## Unreleased — a new world keeps the demo world
+
+`init-world.sh` no longer removes `example-world/`. Deleting it was the wrong default: it is the one
+worked example of every note type, a complete thread and a running campaign, and a new author asks
+"what does a finished note look like?" for months. The tools already leave a root `example-world/`
+alone — the linter and the citation checker skip it, and the engine export reads only `world/` and
+`campaigns/` — so keeping it costs a folder and nothing else.
+
+- **`--keep-example` is gone**; keeping the example is what happens. `--fetch-example` puts it back
+  at the repository's `TOOLING_VERSION` (or the kit's default branch when the pin is `unreleased`) —
+  a repair, not an initialisation: it asks nothing, changes nothing else, and refuses to overwrite a
+  copy that is still there. `WORLDKIT_REPO` points it at a local checkout, as with `sync-tooling.sh`.
+- `template-fork.yml` now proves both halves on a fresh fork: the demo world survives `init-world.sh`,
+  and `--fetch-example` restores it after a deletion and refuses to clobber a live copy.
+- **The template's docs say keep it**: `README.md`, `AGENTS.md` and `ROADMAP.md` no longer tell an
+  author to delete the example once their own notes exist.
+
+**No migration.** `init-world.sh` lives in the template, not in a world's vendored `tools/`, so an
+existing world is unaffected. A fork made after this change keeps `example-world/`; delete it by hand
+if you really do not want it.
+
 ## 3.0.0 — the kit owns the template; the template repo is generated
 
 The refactor that makes `mythical-forge-worldkit` the single source of truth for both the demo world
