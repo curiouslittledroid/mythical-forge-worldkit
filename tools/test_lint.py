@@ -57,6 +57,15 @@ class TestClean(VaultCase):
         self.link_all("a")
         self.assertEqual(self.codes(), [])
 
+    def test_the_repositorys_own_prose_is_not_a_note(self):
+        # A kit or a world keeps a CHANGELOG and a CONTRIBUTING at its root; neither is lore, and
+        # linting the repository root reported FM001 on both.
+        self.write("world/a.md", note())
+        self.link_all("a")
+        self.write("CHANGELOG.md", "# Changelog\n\nWhat changed, and why.\n")
+        self.write("CONTRIBUTING.md", "# Contributing\n\nHow to work here.\n")
+        self.assertEqual(self.codes(), [])
+
 
 VOCAB = """---
 id: topic_tag_vocabulary

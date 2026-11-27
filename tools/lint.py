@@ -33,9 +33,13 @@ ROOT = Path(__file__).resolve().parent.parent
 # Resolved lazily, per `ROOT`, so the test harness can point ROOT at a fixture vault. When a
 # vault carries no config, these are inert rather than wrong (D15).
 
-#: Process documents the kit always exempts from frontmatter. A world adds its own in
-#: `vault.process_docs` — e.g. a temporary plan of a world's own.
-KIT_DOC_FILES = {"README.md", "ROADMAP.md", "AGENTS.md", "meta/world-conventions.md"}
+#: Process documents the kit always exempts from frontmatter: the repository's own prose, which is
+#: not lore and has no id. A world adds its own in `vault.process_docs` — e.g. a temporary plan of a
+#: world's own. CHANGELOG and CONTRIBUTING are here because they are repository prose in every
+#: repository, the kit's included; without them a CI lint of the kit's own root reported FM001 on
+#: two files that are not notes.
+KIT_DOC_FILES = {"README.md", "ROADMAP.md", "AGENTS.md", "CHANGELOG.md", "CONTRIBUTING.md",
+                 "meta/world-conventions.md"}
 
 def world_config() -> "kit_config.Config | None":
     """The world's config, or None when there is none. Cached per resolved root by kit_config."""
