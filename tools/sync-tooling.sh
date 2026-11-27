@@ -160,7 +160,7 @@ mkdir -p "$WORLD_ROOT/meta/templates"
 
 # The theme. `--delete` everywhere the kit owns the file; the exclusions are what a world keeps:
 # the generated pages, its art, its own prompt notes, and its deploy state.
-if [ -d "$TMP/kit/site" ] && [ -d "$WORLD_ROOT/site" ]; then
+if [ -d "$TMP/kit/site-theme" ] && [ -d "$WORLD_ROOT/site" ]; then
   # Three pages are the WORLD'S copy, not theme chrome: the landing page, About and Follow. The kit
   # ships a neutral version of each so a new world has a working site, and then leaves them alone -
   # a world's About page is its own prose, and a sync that rewrote it would be destroying content.
@@ -173,14 +173,14 @@ if [ -d "$TMP/kit/site" ] && [ -d "$WORLD_ROOT/site" ]; then
   $RS \
         --exclude 'content' --exclude 'data' \
         --exclude 'pages/index.astro' --exclude 'pages/about.astro' --exclude 'pages/follow.astro' \
-        "$TMP/kit/site/src/" "$WORLD_ROOT/site/src/"
+        "$TMP/kit/site-theme/src/" "$WORLD_ROOT/site/src/"
   for f in astro.config.mjs package.json package-lock.json deploy.sh README.md LICENSES.md; do
-    [ -f "$TMP/kit/site/$f" ] && cpfile "$TMP/kit/site/$f" "$WORLD_ROOT/site/$f"
+    [ -f "$TMP/kit/site-theme/$f" ] && cpfile "$TMP/kit/site-theme/$f" "$WORLD_ROOT/site/$f"
   done
-  [ -d "$TMP/kit/site/infra" ] && $RS --exclude 'state.json' \
-        "$TMP/kit/site/infra/" "$WORLD_ROOT/site/infra/"
-  [ -f "$TMP/kit/site/image-prompts/README.md" ] && \
-    cpfile "$TMP/kit/site/image-prompts/README.md" "$WORLD_ROOT/site/image-prompts/README.md"
+  [ -d "$TMP/kit/site-theme/infra" ] && $RS --exclude 'state.json' \
+        "$TMP/kit/site-theme/infra/" "$WORLD_ROOT/site/infra/"
+  [ -f "$TMP/kit/site-theme/image-prompts/README.md" ] && \
+    cpfile "$TMP/kit/site-theme/image-prompts/README.md" "$WORLD_ROOT/site/image-prompts/README.md"
 fi
 # The template mirrors the kit's EXAMPLE WORLD: one copy of the fixture, so the example an author
 # reads can never drift from the one the kit's own tests run against. `template: true` in

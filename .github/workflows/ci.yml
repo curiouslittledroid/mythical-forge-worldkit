@@ -73,7 +73,7 @@ jobs:
       # so it names the world it extracted from, throughout. A world's identity in a
       # tool, a template, an agent prompt, a doc's mechanism or the demo world's config is the defect.
       # `.pi/prompts/` is included because it was not, and a prompt arrived full of one world's
-      # monster rules. `site/` is excluded until K6 settles the theme's default look (the first
+      # monster rules. `site-theme/` is excluded until K6 settles the theme's default look (the first
       # world's art style and prompts are in there, deliberately, as the worked example).
       - name: No world identity in the machinery
         run: |

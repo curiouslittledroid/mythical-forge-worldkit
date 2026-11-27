@@ -47,6 +47,7 @@ vault:
     - CONTRIBUTING.md
     - CHANGELOG.md
     - ROADMAP.md
+    - REFACTOR-TASKS.md
 
 features: [site, testimony, voice]
 

@@ -20,7 +20,7 @@ on:
       - tools/**
       - docs/**
       - meta/templates/**
-      - site/**
+      - site-theme/**
       - .pi/prompts/**
       - .github/workflows/template-fork.yml
 

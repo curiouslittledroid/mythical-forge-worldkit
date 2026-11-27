@@ -80,7 +80,7 @@ FORBIDDEN_ENGINE_KEYS = {"hp", "ac", "bab", "cr", "author_id"}
 # Condition predicate names that look like ids (npc_, fact_, quest_ prefixes) but are not references.
 PREDICATE_NAMES = {"npc_alive", "fact_revealed", "quest_state"}
 EXCLUDE_DIRS = {".git", ".obsidian", "node_modules", ".trash", "tools", "meta/templates",
-                "site", ".pi",
+                "site", "site-theme", ".pi",
                 # The template's mirrored example world is a world, but it is not THIS vault: it must
                 # neither be linted as one nor be published by the exporter (which reuses load_notes).
                 # The id resolver never sees it either: it walks SCOPE_DIRS, not the vault root.
