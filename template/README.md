@@ -2,6 +2,8 @@
 
 This repository is a **starting point for a new built world**: a vault-shaped repository with the
 rules, the tools and the note templates already in place, and every question still unanswered.
+**Which command to run, and when** is the kit's `meta/conventions/tooling.md`: the runbook for the
+everyday loop, the pre-commit gate and publishing.
 
 It is **not a world**. It carries one small worked example — `example-world/`, the worldkit's demo
 world — so that "what does a finished note look like?" has an answer on disk. **Keep it.** It is the
