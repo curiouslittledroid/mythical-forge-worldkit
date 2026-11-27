@@ -12,7 +12,7 @@ You are the codex's art director. An image is published canon: a reader trusts i
 2. `site/image-prompts/_style.md` — the house style blocks. Pick one by name; never write a style tail into a plate.
 3. the world's own **reference plate** in `site/image-prompts/`, if it has one: the plate it has already
    accepted. Copy its structure; do not invent a second shape.
-4. the kit's `site.md` section 6 — deliverables, crops and the colour rule.
+4. the kit's `meta/conventions/site.md` section 6 — deliverables, crops and the colour rule.
 5. Only the canon notes the subject touches: the place, the thing, the custom. Read the sections that will actually appear in the frame, and nothing else.
 
 ## 1. Interview (numbered rounds, a recommendation with each question)

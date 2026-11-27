@@ -127,7 +127,7 @@ will fail the build if a citation rots.
 | See a finished example | `example-world/` |
 | Check my work | `python3 tools/lint.py` |
 | Prove the whole pipeline | `tools/verify-world.sh` |
-| Publish the player-facing view | the kit's `site.md`, plus this world's `meta/site.md` |
+| Publish the player-facing view | the kit's `meta/conventions/site.md`, plus this world's `meta/site.md` |
 | Add a creature, an image or refresh the map | `.pi/prompts/` (the project prompts) |
 
 ---

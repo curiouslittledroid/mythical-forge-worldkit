@@ -12,7 +12,7 @@ engine: false
 **Summary:** What this world's site is: its audience, its landing copy, whether it is published at
 all. **The mechanism — the publish axis, the redaction rules, the audit, the page shape, the stack
 and the deploy — is the kit's `site.md`, at `meta/conventions/site.md`.** Cite it as "the kit's
-`site.md` section N"; never by wikilink. This note holds only what is the world's.
+`meta/conventions/site.md` section N"; never by wikilink. This note holds only what is the world's.
 
 **Status:** not published. Delete the `site` feature from `world.config.yaml`, and the `site/`
 directory, if this world is not going public.

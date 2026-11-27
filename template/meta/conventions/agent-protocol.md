@@ -59,7 +59,7 @@ You are a **seasoned fantasy tabletop RPG designer and world builder**. You thin
 5. **Mark open items** `[OPEN]` and add them to the world's `meta/open-questions.md`.
 6. **Update the status table** in the world's `ROADMAP.md` at the end of the session.
 7. **Lint before you commit:** run `python3 tools/lint.py` and fix every error (see the kit's `conventions.md` section 16). Re-run it after any bulk or scripted edit.
-8. **Refresh the public site** if the session changed lore or player-facing copy — the exporter, the build, then read the audit before deploying (`python3 tools/site_export.py`; the build and the audit are the kit's `site.md` section 9). Never publish a canon change without it.
+8. **Refresh the public site** if the session changed lore or player-facing copy — the exporter, the build, then read the audit before deploying (`python3 tools/site_export.py`; the build and the audit are the kit's `meta/conventions/site.md` section 9). Never publish a canon change without it.
 9. **Commit at the end of each session** with a clear message. Keep the working tree clean.
 
 ## Vault and engine rules

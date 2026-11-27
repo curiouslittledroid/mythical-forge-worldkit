@@ -22,14 +22,14 @@ the kit's `agent-protocol.md`, never the copy. Everything above the marker is th
 | `meta/conventions/` | **The kit's documents, in the vault.** Every world-facing document the kit publishes, at the pinned version: `conventions.md`, `site.md`, `thread-pattern.md`, `testimony.md`, `tag-vocabulary.md`, `atlas.md`, `campaign-authoring-guide.md`, `agent-protocol.md`, `engine-capability-register.md` — and whatever a future release adds, which is the point of reading this folder rather than a list. They are **wholly the kit's**: written by the sync, never by hand, and never linted as notes (they carry no frontmatter and no id). Cite one by name and section, never by wikilink. |
 | `meta/world-conventions.md` | **This world's choices** on top of those rules: its identity, its folder shape, the headings it adds, its vocabularies, its keystones. |
 | the kit's `engine-capability-register.md` + `meta/mechanics-gap-register.md` | What the engine can express (the kit's) and the gaps **this** world hits (ours). |
-| the kit's `site.md` + `meta/site.md` | How a site is generated (the kit's) and this world's pages, navigation and visual direction (ours). |
+| the kit's `meta/conventions/site.md` + `meta/site.md` | How a site is generated (the kit's) and this world's pages, navigation and visual direction (ours). |
 | the kit's `campaign-authoring-guide.md` | **How to author a thread, a Campaign, its Modules and Quests.** The how-to; the world's own design note is the why. |
 | `meta/templates/` | One template per note type, **vendored from the kit and mirrored by the sync**: never add a file here, it will be deleted. This world's own examples go elsewhere in `meta/`. |
 | `meta/canon-digest.md` | A one-to-two page summary of the canon. Read it before the detailed notes. |
 | `example-world/` | The demo world the kit ships: a small complete world, with engine blocks, a thread, a campaign and passing scenarios. **Read it, then delete it** once this world has notes of its own. |
 | `world/`, `principles/`, `campaigns/`, `maps/` | The lore codex (an Obsidian-style vault; the vault root is the repo root). |
 | `tools/` | The worldkit's tools, **vendored**: the transformer, the linter, the site exporter, the scenario simulator. Pinned by `TOOLING_VERSION`; updated by `tools/sync-tooling.sh`. **This directory is the kit's** — only `tools/local/` (this world's own scripts) is ours, and the sync never touches it. |
-| `site/` | The **public, player-facing site**. Generated from `open` sections only; `site/image-prompts/` holds the art prompts. Rules: the kit's `site.md`, this world's choices in `meta/site.md`. The pages `site/src/pages/index.astro`, `about.astro` and `follow.astro` are **this world's own files** — the sync never overwrites them. |
+| `site/` | The **public, player-facing site**. Generated from `open` sections only; `site/image-prompts/` holds the art prompts. Rules: the kit's `meta/conventions/site.md`, this world's choices in `meta/site.md`. The pages `site/src/pages/index.astro`, `about.astro` and `follow.astro` are **this world's own files** — the sync never overwrites them. |
 
 **Documents that live in another repo are cited by name and section, never by wikilink.** A wikilink
 cannot reach across a repository boundary; a named pointer a reader can follow can.
@@ -111,7 +111,7 @@ You are a **seasoned fantasy tabletop RPG designer and world builder**. You thin
 5. **Mark open items** `[OPEN]` and add them to the world's `meta/open-questions.md`.
 6. **Update the status table** in the world's `ROADMAP.md` at the end of the session.
 7. **Lint before you commit:** run `python3 tools/lint.py` and fix every error (see the kit's `conventions.md` section 16). Re-run it after any bulk or scripted edit.
-8. **Refresh the public site** if the session changed lore or player-facing copy — the exporter, the build, then read the audit before deploying (`python3 tools/site_export.py`; the build and the audit are the kit's `site.md` section 9). Never publish a canon change without it.
+8. **Refresh the public site** if the session changed lore or player-facing copy — the exporter, the build, then read the audit before deploying (`python3 tools/site_export.py`; the build and the audit are the kit's `meta/conventions/site.md` section 9). Never publish a canon change without it.
 9. **Commit at the end of each session** with a clear message. Keep the working tree clean.
 
 ## Vault and engine rules

@@ -315,7 +315,7 @@ its scenarios, its engine blocks) and it passes the same checks yours will.
 
 - **Goal:** nothing, in a new world. Older worlds carried a `visibility` field built for a printed
   player primer; `disclosure` replaced it, because a site needs per-*section* granularity.
-- **Read first:** the kit's `site.md` §2 and the kit's `conventions.md` §6–§7.
+- **Read first:** the kit's `meta/conventions/site.md` §2 and the kit's `conventions.md` §6–§7.
 - **Produce:** nothing here. A world that still carries the field deletes the line from every note and
   from the templates, and the linter's `REQUIRED` list shrinks by one.
 - **Done when:** the vault mentions the field only inside fenced `engine` blocks, where it is the
@@ -574,7 +574,7 @@ its scenarios, its engine blocks) and it passes the same checks yours will.
 
 - **Goal:** publish the player-facing view of the codex — **open content only, no GM material** — as a
   static site that rebuilds whenever the lore does.
-- **Read first:** the kit's `site.md` (the whole document: rules, page anatomy, deploy);
+- **Read first:** the kit's `meta/conventions/site.md` (the whole document: rules, page anatomy, deploy);
   `meta/site.md` (this world's pages, navigation and visual direction — **write it in this step**);
   `world.config.yaml` (`site:` — url, doorways, sections, blurbs, the search placeholder, the content
   descriptors); `tools/disclosure.py`, `tools/lint.py`; `site/image-prompts/`.
@@ -586,7 +586,7 @@ its scenarios, its engine blocks) and it passes the same checks yours will.
 - **Tasks, in order:**
   1. Fill the `site:` section and write `meta/site.md`; set the world's own copy on the three pages.
   2. **Export:** `python3 tools/site_export.py` (stdlib only) — it applies every redaction rule in the
-     kit's `site.md` §2.2 and emits `content/`, `audit/latest.json`, `changelog.json`,
+     kit's `meta/conventions/site.md` §2.2 and emits `content/`, `audit/latest.json`, `changelog.json`,
      `redirects.json` and `navigation.json`.
   3. **Build:** `npm --prefix site run build`, then `python3 tools/site_link_check.py` — the build fails
      on any internal link to a file that does not exist.
