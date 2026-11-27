@@ -6,7 +6,12 @@ Repository, the public site, the atlas, and the checks that keep the vault hones
 **Nothing here is specific to one world.** Every world value lives in `world.config.yaml` at the
 vault root and in the world's fenced vault blocks, both read by `kit_config` (Python and Node).
 A script that needs to know the world's name, its section list, its era vocabulary or where its
-flags note lives asks the config. See `docs/extraction.md` for the design and the reasoning.
+flags note lives asks the config. The design and the reasoning are the kit's, in its own
+`docs/extraction.md`; a world does not receive that file.
+
+**Which script to run, and when:** the kit's `meta/conventions/tooling.md`. It is the task-first
+map — what you just changed, what proves it, what each tool writes and what it will not catch. This
+file is the reference: one row per script, its purpose, its flags.
 
 Standard library Python 3.12+; Node 18+ for the transformer and the site.
 

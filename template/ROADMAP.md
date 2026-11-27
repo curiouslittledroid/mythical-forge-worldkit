@@ -35,7 +35,7 @@ kit's `meta/conventions/conventions.md` §3); how `world/` is organised inside i
 | `world/`, `campaigns/` | The lore. **The transformer scans these two only.** |
 | `maps/` | Coordinate data and the atlas. |
 | `site/` | The public, player-facing site, if the world publishes one. |
-| `tools/` | The worldkit's tools, vendored and pinned. **`tools/local/` is the world's own** and the sync never touches it. |
+| `tools/` | The worldkit's tools, vendored and pinned. **`tools/local/` is the world's own** and the sync never touches it. Which script to run, and when: the kit's `meta/conventions/tooling.md`; each script in detail: `tools/README.md`. |
 | `meta/templates/` | One template per note type, **mirrored from the kit**: never add a file here, it will be deleted. |
 | `example-world/` | The demo world the kit ships, mirrored here so you have something to read. **Keep it**: it is the kit's worked example, and the tools skip it. `./init-world.sh --fetch-example` restores it if it was deleted. |
 

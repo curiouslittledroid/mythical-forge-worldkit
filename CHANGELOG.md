@@ -4,7 +4,7 @@ A world pins the kit by copying its version into `TOOLING_VERSION` and updating 
 `tools/sync-tooling.sh`. **A change a world cannot absorb silently is a major bump and gets a
 migration note here.**
 
-## Unreleased — a new world keeps the demo world
+## Unreleased — a new world keeps the demo world, and the tools get a runbook
 
 `init-world.sh` no longer removes `example-world/`. Deleting it was the wrong default: it is the one
 worked example of every note type, a complete thread and a running campaign, and a new author asks
@@ -24,6 +24,22 @@ alone — the linter and the citation checker skip it, and the engine export rea
 **No migration.** `init-world.sh` lives in the template, not in a world's vendored `tools/`, so an
 existing world is unaffected. A fork made after this change keeps `example-world/`; delete it by hand
 if you really do not want it.
+
+**New: `meta/conventions/tooling.md`, the runbook.** The tools were documented script by script
+(`tools/README.md`) and step by step (`ROADMAP.md`), but nothing answered the question an author
+actually has: *I changed this — what do I run now?* The new document is task-first: what you just
+changed, the command that proves it, the order for the everyday loop and the pre-commit gate, the
+publish order, what each tool writes, what runs in CI without you, what to do when a tool refuses,
+and which document holds the rules. `tools/README.md` now points at it and keeps the
+script-by-script reference.
+
+It is a synced document: a world receives it at `meta/conventions/tooling.md` on its next
+`tools/sync-tooling.sh`. The template's `AGENTS.md`, `README.md` and `ROADMAP.md` list it, and
+`template-fork.yml` requires it in the export.
+
+That workflow's completeness list also stopped demanding `tools/docs/conventions.md`, a path retired
+in 3.0.0 — the export correctly does not contain it, so the check could never pass. Found while
+adding the new document to the same list.
 
 ## 3.0.0 — the kit owns the template; the template repo is generated
 

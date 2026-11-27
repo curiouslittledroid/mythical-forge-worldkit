@@ -130,6 +130,7 @@ will fail the build if a citation rots.
 | Know how to write a note | the kit's `meta/conventions/conventions.md`, then `meta/world-conventions.md` for this world's own choices |
 | Write a thread, a Campaign or a Quest | the kit's `meta/conventions/campaign-authoring-guide.md` |
 | See a finished example | `example-world/` |
+| Know which script to run, and when | the kit's `meta/conventions/tooling.md` |
 | Check my work | `python3 tools/lint.py` |
 | Prove the whole pipeline | `tools/verify-world.sh` |
 | Publish the player-facing view | the kit's `meta/conventions/site.md`, plus this world's `meta/site.md` |

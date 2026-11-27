@@ -78,9 +78,10 @@ jobs:
               principles/_index.md world/_index.md maps/_index.md campaigns/_index.md \
               meta/_index.md meta/templates/npc.md meta/conventions/conventions.md \
               meta/conventions/licensing.md meta/conventions/agent-protocol.md \
+              meta/conventions/tooling.md \
               .pi/prompts/new-creature.md \
               tools/lint.py tools/verify-world.sh tools/sync-tooling.sh \
-              tools/docs/conventions.md tools/LICENSE tools/LICENSE-CONTENT \
+              tools/LICENSE tools/LICENSE-CONTENT \
               site/astro.config.mjs site/src/lib/site.ts \
               site/src/pages/index.astro site/src/pages/about.astro site/src/pages/follow.astro \
               .github/workflows/checks.yml .github/workflows/site.yml \
