@@ -14,6 +14,8 @@
 - [x] S5 — remove the `template: true` special-case from `sync-tooling.sh`
 - [ ] S6 — single vendoring manifest (K15) — **DEFERRED to a follow-up** (orthogonal cleanup of sync↔drift-check; not needed for the export)
 - [x] S7 — `export-template.sh` (manual; the branch/commit/merge is a release step, not scripted)
+- [x] S10 — note templates into `template/meta/templates/` (kit root `meta/` = platform-requests only)
+- [x] S11 — **docs split by reader**: `docs/` = kit maintenance (`extraction.md`, `licensing.md`); every world-facing document → `template/meta/conventions/` (a world holds it at `meta/conventions/`); `tools/docs/` retired
 - [ ] S8 — K2 de-brand the fixture — **DEFERRED**: ~145 references across docs, tools, tests and the whole fixture (incl. the six scenarios); needs its own PR, not a fold-in
 - [x] S9 — docs (README/AGENTS/CONTRIBUTING/ROADMAP/CHANGELOG + TOOLING_VERSION v3.0.0) — done; the first real export (branch → commit → merge → tag the template repo) is a merge-time step
 

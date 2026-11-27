@@ -19,14 +19,29 @@ embedded `example-world/` demo), and `export-template.sh` assembles the publishe
 `mythical-forge-world-template` repo from it. `sync-tooling.sh` no longer mirrors `example-world/`
 into a template — that is the export's job now.
 
-**What a world does: nothing.** The sync re-execs itself onto the new script, so the renamed theme
-source (`site-theme/`) is picked up without a manual step. The pin still moves with
-`tools/sync-tooling.sh <tag>`. Worlds that never set `template: true` see no other change; only the
-kit's own layout and the template-generation process moved.
+**The documents split by reader, and one of them moved.** `docs/` now holds **only what it takes to
+maintain the kit**: `extraction.md` and `licensing.md`. Every document a world author must read —
+`conventions.md`, `campaign-authoring-guide.md`, `thread-pattern.md`, `site.md`, `testimony.md`,
+`tag-vocabulary.md`, `atlas.md`, `engine-capability-register.md`, `agent-protocol.md` — moved to
+`template/meta/conventions/`, and a world now holds them at **`meta/conventions/`**. `tools/docs/`
+is gone. Two rules are unchanged and now easier to state: they are **prose, not notes** (no
+frontmatter, no id; the linter does not read them as part of the vault), and they are **cited by name
+and section, never by wikilink**. The move puts a rule one file away instead of one directory away,
+and it keeps the folder wholly the kit's, so the sync replaces it wholesale.
 
-**A change a world cannot absorb silently is a major bump.** This one is silent to worlds (the re-exec
-covers it), but it is major because the kit's shape and the template process changed underneath
-everyone, and a migration note is the cheapest insurance against a world that pinned the old layout.
+**What a world does — two steps, once.** The sync re-execs itself onto the new script, so the renamed
+theme source (`site-theme/`) needs nothing. The documents need one action:
+
+1. `git rm -r tools/docs` — the folder is retired, and a sync that would delete it will refuse until
+   you commit the removal (the rails are working as designed).
+2. `tools/sync-tooling.sh v3.0.0` — this writes `meta/conventions/` and the pin.
+
+A world's `meta/conventions/` is the kit's: never edit it, the sync replaces it. A world's own
+decisions still live beside it in its own `meta/` notes, which the sync never touches.
+
+**A change a world cannot absorb silently is a major bump.** The pin moves on its own, but
+`tools/docs/` disappearing is not something a sync can do without a decision from the world — hence
+the migration note.
 
 ## 2.0.1 — the fork workflow's check that could never pass, and a test for the new seam
 
