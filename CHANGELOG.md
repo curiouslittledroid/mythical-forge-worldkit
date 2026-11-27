@@ -4,6 +4,20 @@ A world pins the kit by copying its version into `TOOLING_VERSION` and updating 
 `tools/sync-tooling.sh`. **A change a world cannot absorb silently is a major bump and gets a
 migration note here.**
 
+## 2.0.1 — the fork workflow's check that could never pass, and a test for the new seam
+
+Two things 2.0.0 left, both found by running the work rather than reading it.
+
+- **`template-fork.yml`'s "nothing left behind" check failed on every run.** It greps the fork for
+  `REPLACE_ME`, and `init-world.sh` contains that string by definition — it is the thing that replaces
+  it. `--exclude=init-world.sh` now, plus `--exclude-dir=dist` for a build that happens to sit in the
+  tree. The job had never passed, so nobody had seen it.
+- **`tools/test_authored_content_resolution.py`** locks the seam down: the installed package is the
+  default, a checkout wins when `MYTHICAL_FORGE_ROOT` is set, a wrong checkout names the missing
+  `packages/authored-content/package.json`, and having neither produces one actionable message — not a
+  stack trace, which is what a world actually sees first. Written in the kit's Python suite style, so
+  CI runs it with the rest.
+
 ## 2.0.0 — the schemas are a package, so the pipeline runs anywhere (task 5.B4)
 
 The engine's Zod schemas were reachable only through a checkout of the platform repository, named by

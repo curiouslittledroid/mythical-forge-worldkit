@@ -103,8 +103,11 @@ jobs:
           mkdir -p /tmp/fork && cp -r template/. /tmp/fork/
           cd /tmp/fork
           ./init-world.sh --title "Fork Test" --yes
-          test -z "$(grep -rIl REPLACE_ME --exclude-dir=tools . || true)" \
-            || { echo "::error::init-world.sh left REPLACE_ME behind"; grep -rIl REPLACE_ME --exclude-dir=tools . ; exit 1; }
+          # `init-world.sh` itself is excluded: it contains the placeholder by definition, being the
+          # thing that replaces it. Without that exclusion this check failed on every run -- found by
+          # running it on a real fork, which is the only way it was ever going to be found.
+          test -z "$(grep -rIl REPLACE_ME --exclude-dir=tools --exclude-dir=dist --exclude=init-world.sh . || true)" \
+            || { echo "::error::init-world.sh left REPLACE_ME behind:"; grep -rIl REPLACE_ME --exclude-dir=tools --exclude-dir=dist --exclude=init-world.sh . ; exit 1; }
 
       - name: The checks a new world can run
         if: steps.template.outcome == 'success'
