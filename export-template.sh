@@ -86,13 +86,22 @@ chmod +x "$DEST/tools/"*.sh 2>/dev/null || true
 # with template/ above, so nothing to do here.
 
 
-# The theme. Same exclusions as sync-tooling.sh: the three world-owned pages, and the exporter's
-# generated directories. The kit keeps the theme at site-theme/; a world holds it at site/.
+# The theme. The kit keeps it at site-theme/; a world holds it at site/.
+#
+# NOT the sync's exclusions. A sync must leave the three world-owned pages alone (the landing page,
+# About and Follow are a world's own prose, and the kit ships a neutral copy only so a NEW world has
+# a working site). An export is building that new world, so it needs the neutral copies: excluding
+# them here produced a template with no landing page, and therefore a site that cannot build.
+# Only the exporter's generated directories are excluded -- they do not exist in a fresh fork.
 mkdir -p "$DEST/site/src" "$DEST/site/infra" "$DEST/site/image-prompts"
-rsync -a \
-      --exclude 'content' --exclude 'data' \
-      --exclude 'pages/index.astro' --exclude 'pages/about.astro' --exclude 'pages/follow.astro' \
+rsync -a --exclude 'content' --exclude 'data' \
       "$TMP/kit/site-theme/src/" "$DEST/site/src/"
+for page in index about follow; do
+  [ -f "$DEST/site/src/pages/$page.astro" ] || {
+    echo "export-template: the theme has no neutral pages/$page.astro; a fork would have no $page page" >&2
+    exit 1
+  }
+done
 for f in astro.config.mjs package.json package-lock.json deploy.sh README.md LICENSES.md; do
   [ -f "$TMP/kit/site-theme/$f" ] && cp "$TMP/kit/site-theme/$f" "$DEST/site/$f"
 done
