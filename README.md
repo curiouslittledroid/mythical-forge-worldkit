@@ -58,8 +58,8 @@ config's schema is `meta/conventions/conventions.md` §2; a worked example is th
 
 ```
 docs/                  KIT MAINTENANCE only - nothing an author of a world needs to read
-  extraction.md                the record of the extraction from the first world
-  licensing.md                 why MIT for the code and CC BY 4.0 for the prose
+  extraction.md                the record of the extraction from the first world. It names that
+                               world throughout, so it does NOT travel with a world
 meta/platform-requests/  draft specs written for the platform repository - not the kit's backlog
 tools/                 the scripts and their tests
 site-theme/            the Astro theme, vendored into a world as site/
@@ -68,7 +68,8 @@ template/              the generated world-template's source: the skeleton a new
                        the empty vault) plus the embedded example-world/ demo
 template/meta/conventions/  EVERY WORLD-FACING DOCUMENT: conventions.md (the rules),
                        campaign-authoring-guide.md, thread-pattern.md, site.md, testimony.md,
-                       tag-vocabulary.md, atlas.md, engine-capability-register.md, agent-protocol.md
+                       tag-vocabulary.md, atlas.md, engine-capability-register.md, agent-protocol.md,
+                       licensing.md (what a world may and may not relicence)
                        A world holds these at meta/conventions/ at the pinned tag. They are prose,
                        not notes: no frontmatter, no id, cited by name and section, never wikilinked
 template/meta/templates/    one template per note type, vendored into a world as meta/templates/
@@ -135,5 +136,7 @@ A world that vendors the kit receives both at `tools/LICENSE` and `tools/LICENSE
 MIT requires its notice to travel with every copy — and a world's `tools/` is a copy. A world's own
 lore stays the world's, under the world's own `LICENSE`.
 
-**`docs/licensing.md` is the reasoning:** why MIT and not Apache-2.0 or the GPL, why CC BY and not
-BY-SA, why a world starts restrictive, and how the notices are enforced rather than declared.
+**`template/meta/conventions/licensing.md` is the reasoning:** why MIT and not Apache-2.0 or the GPL,
+why CC BY and not BY-SA, why a world starts restrictive, and how the notices are enforced rather
+than declared. It is world-facing (a world holds it at `meta/conventions/licensing.md`), because a
+world author has to know what they inherit and what they may not relicence.

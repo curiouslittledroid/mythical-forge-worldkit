@@ -74,6 +74,7 @@ ALIASES = {
     "thread-pattern": "meta/conventions/thread-pattern.md",
     "tag-vocabulary": "meta/conventions/tag-vocabulary.md",
     "agent-protocol": "meta/conventions/agent-protocol.md",
+    "licensing": "meta/conventions/licensing.md",
 }
 
 # A line can opt out: fixture text in a test, or an example of a BAD citation in documentation.

@@ -30,8 +30,9 @@ A tool is a script in `tools/` plus a test beside it. Keep both in the same comm
 
 The documents in `template/meta/conventions/` are the kit's interface: a world reads them (at
 `meta/conventions/`), and its content is shaped by them. **`docs/` holds only what it takes to
-maintain the kit** — the extraction record and the licensing reasoning. If a world author must read
-it, it belongs in `template/meta/conventions/`.
+maintain the kit** — today just the extraction record. If a world author must read it, it belongs in
+`template/meta/conventions/`. The licensing reasoning is there, not here, because a world has to
+know what it may not relicence.
 
 - **A rule change is a code change.** If you change what `tools/lint.py` accepts, change the
   conventions section, the template and the linter's test **in the same commit**. A rule that exists
@@ -77,4 +78,5 @@ By contributing, you agree that your contribution is licensed under the kit's ow
 agreement — there is no CLA — which means you must have the right to contribute what you send: your
 own work, or work whose licence permits this use.
 
-`docs/licensing.md` explains the split, and why it is a split.
+The kit's `licensing.md` (vendored into a world at `meta/conventions/licensing.md`) explains the
+split, and why it is a split.

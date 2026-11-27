@@ -146,7 +146,9 @@ kit makes no claim on them, which is the point of that directory.
 
 ## 9. See also
 
-- `LICENSE`, `LICENSE-CONTENT` — the texts themselves
-- `README.md` — the one-paragraph version, for someone deciding whether to use the kit
+- `tools/LICENSE`, `tools/LICENSE-CONTENT` — the texts themselves, carried beside the machinery they
+  cover (the kit holds the originals at its root)
+- the kit's `README.md` — the one-paragraph version, for someone deciding whether to use the kit
 - `site/LICENSES.md` — the site's dependencies and the fonts' notice
-- `docs/extraction.md` — why the kit is three repositories, which is why there are three licences
+- the kit's `docs/extraction.md` — why the kit is three repositories, which is why there are three
+  licences. That one is the kit's own record and does not travel with a world.

@@ -15,7 +15,7 @@ only serious mistake available in this repository.
 | Path | Purpose |
 |---|---|
 | `ROADMAP.md` | The kit's own work plan. **Start here for what to do next.** |
-| `docs/extraction.md`, `docs/licensing.md` | **The kit's own documents.** The record of the extraction, and why MIT for the code and CC BY 4.0 for the prose. Nothing an author of a world reads. |
+| `docs/extraction.md` | **The kit's own document.** The record of the extraction from the first world; it names that world throughout, so it does **not** travel with a world. Nothing an author of a world reads. |
 | `template/meta/conventions/` | **Every world-facing document.** A world holds them at `meta/conventions/` at the pinned tag, so this is where an author reads the rules. |
 | ↑ `conventions.md` | **The rules** every world follows: layout contracts, ids, frontmatter, engine blocks, disclosure, status values, the linter's codes. The kit's most load-bearing document. |
 | ↑ `engine-capability-register.md` | What the engine can express, the platform requests, and the dispositions. **Where a platform release lands.** |
@@ -23,6 +23,7 @@ only serious mistake available in this repository.
 | ↑ `campaign-authoring-guide.md` | The how-to for authoring threads, Campaigns, Modules and Quests. |
 | ↑ `thread-pattern.md` | The reference behind the guide — **why** a thread is a state graph. |
 | ↑ `site.md`, `testimony.md`, `tag-vocabulary.md`, `atlas.md` | How a site is generated, the first-person device, the tag rules, and the map pipeline. |
+| ↑ `licensing.md` | Why MIT for the code and CC BY 4.0 for the prose, and **what a world may not relicence**. World-facing, because that is an author's obligation. |
 | `tools/` | The scripts, and the tests beside them. |
 | `site-theme/` | The Astro theme a world installs (vendored into a world as `site/`). |
 | `template/` | The generated world-template's source: the skeleton a new author forks, the world-facing documents (`template/meta/conventions/`), the note templates (`template/meta/templates/`), and the embedded `example-world/` demo. `export-template.sh` assembles the template repo from it. |
