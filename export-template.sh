@@ -10,10 +10,15 @@
 #   - TOOLING_VERSION    the pin.
 #
 # Usage:
-#   ./export-template.sh                 # the latest tag, into /tmp/template-export
-#   ./export-template.sh out/            # the latest tag, into out/
-#   ./export-template.sh v1.2.0 out/     # a named tag, into out/
+#   ./export-template.sh                     # the latest tag, into /tmp/template-export
+#   ./export-template.sh out/                # the latest tag, into out/
+#   ./export-template.sh v1.2.0 out/         # a named tag, into out/
+#   ./export-template.sh --worktree out/     # THIS working tree, unpinned (what CI proves)
 #   WORLDKIT_REPO=/path/to/checkout ./export-template.sh out/
+#
+# `--worktree` skips the clone and exports the checkout this script sits in, so an uncommitted
+# change can be exported and CI can prove the commit it actually ran on rather than a branch tip.
+# The pin then names the newest tag, or `unreleased` when the commit is past it.
 #
 # This only WRITES the destination directory. Committing, pushing and opening a PR into
 # mythical-forge-world-template is a separate, deliberate step (see the release steps in
@@ -25,10 +30,12 @@ KIT_REPO="${WORLDKIT_REPO:-https://github.com/curiouslittledroid/mythical-forge-
 TAG=""
 DEST=""
 FORCE=0
+WORKTREE=0
 POS=()
 while [ $# -gt 0 ]; do
   case "$1" in
     --force|-f) FORCE=1; shift ;;
+    --worktree|-w) WORKTREE=1; shift ;;
     -h|--help) sed -n '2,20p' "$0" | sed 's/^# \?//'; exit 0 ;;
     -*) echo "export-template: unknown option: $1" >&2; exit 2 ;;
     *) POS+=("$1"); shift ;;
@@ -50,15 +57,26 @@ fi
 TMP="$(mktemp -d)"
 trap 'rm -rf "$TMP"' EXIT
 
-echo "export-template: fetching ${TAG:-the latest tag} from $KIT_REPO"
-if [ -d "$KIT_REPO/.git" ]; then
+if [ "$WORKTREE" = 1 ]; then
+  [ -z "$TAG" ] || { echo "export-template: --worktree exports the working tree; it cannot also take the tag '$TAG'" >&2; exit 2; }
+  echo "export-template: exporting the working tree at $ROOT"
+  mkdir -p "$TMP/kit"
+  rsync -a --exclude .git --exclude node_modules --exclude __pycache__ \
+        --exclude 'site-theme/dist' --exclude 'site-theme/.astro' \
+        "$ROOT/" "$TMP/kit/"
+elif [ -d "$KIT_REPO/.git" ]; then
+  echo "export-template: fetching ${TAG:-the latest tag} from $KIT_REPO"
   git clone --quiet "$KIT_REPO" "$TMP/kit"
   [ -n "$TAG" ] && git -C "$TMP/kit" checkout --quiet "$TAG"
 else
+  echo "export-template: fetching ${TAG:-the latest tag} from $KIT_REPO"
   git clone --quiet ${TAG:+--branch "$TAG"} --depth 1 "$KIT_REPO" "$TMP/kit"
 fi
 if [ -z "$TAG" ]; then
-  TAG="$(git -C "$TMP/kit" describe --tags --abbrev=0 2>/dev/null || echo unreleased)"
+  # In worktree mode the copy under $TMP has no history; the pin comes from the real checkout.
+  src="$TMP/kit"
+  [ "$WORKTREE" = 1 ] && src="$ROOT"
+  TAG="$(git -C "$src" describe --tags --abbrev=0 2>/dev/null || echo unreleased)"
 fi
 if [ ! -f "$TMP/kit/TOOLING_VERSION" ]; then
   echo "export-template: $KIT_REPO is not a worldkit (no TOOLING_VERSION)" >&2; exit 2
@@ -106,7 +124,13 @@ for f in astro.config.mjs package.json package-lock.json deploy.sh README.md LIC
   [ -f "$TMP/kit/site-theme/$f" ] && cp "$TMP/kit/site-theme/$f" "$DEST/site/$f"
 done
 rsync -a --exclude 'state.json' "$TMP/kit/site-theme/infra/" "$DEST/site/infra/"
-cp "$TMP/kit/site-theme/image-prompts/README.md" "$DEST/site/image-prompts/README.md"
+# The kit's two image-prompt files: the process (README.md) and the house style (_style.md). The
+# process calls _style.md the authority on the look, so an export without it ships half the pipeline.
+for f in README.md _style.md; do
+  [ -f "$TMP/kit/site-theme/image-prompts/$f" ] || {
+    echo "export-template: the theme has no image-prompts/$f" >&2; exit 1; }
+  cp "$TMP/kit/site-theme/image-prompts/$f" "$DEST/site/image-prompts/$f"
+done
 
 # The workflows a world runs. (The agent prompts arrive with template/ above.)
 mkdir -p "$DEST/.github/workflows"

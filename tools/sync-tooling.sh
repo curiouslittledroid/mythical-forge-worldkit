@@ -68,7 +68,8 @@ cpfile() {
 # own art are the world's, so a world is expected to have them dirty.
 if [ "$DRY" = 0 ] && [ "$FORCE" = 0 ] && [ -z "${SYNC_REEXEC:-}" ] && [ -d "$WORLD_ROOT/.git" ]; then
   dirty="$(git -C "$WORLD_ROOT" status --porcelain -- \
-             tools meta/templates meta/conventions site/src site/image-prompts/README.md \
+             tools meta/templates meta/conventions site/src \
+             site/image-prompts/README.md site/image-prompts/_style.md \
              .pi/prompts .github/workflows 2>/dev/null \
            | grep -vE ' tools/local/| site/src/pages/(index|about|follow)\.astro$' || true)"
   if [ -n "$dirty" ]; then
@@ -184,8 +185,13 @@ if [ -d "$TMP/kit/site-theme" ] && [ -d "$WORLD_ROOT/site" ]; then
   done
   [ -d "$TMP/kit/site-theme/infra" ] && $RS --exclude 'state.json' \
         "$TMP/kit/site-theme/infra/" "$WORLD_ROOT/site/infra/"
-  [ -f "$TMP/kit/site-theme/image-prompts/README.md" ] && \
-    cpfile "$TMP/kit/site-theme/image-prompts/README.md" "$WORLD_ROOT/site/image-prompts/README.md"
+  # The kit's TWO image-prompt files, by name. The rest of a world's site/image-prompts/ is the
+  # world's: its own prompt notes and its candidates. `_style.md` is the house style the process
+  # calls authoritative, so a world without it has an image pipeline and no look.
+  for f in README.md _style.md; do
+    [ -f "$TMP/kit/site-theme/image-prompts/$f" ] && \
+      cpfile "$TMP/kit/site-theme/image-prompts/$f" "$WORLD_ROOT/site/image-prompts/$f"
+  done
 fi
 
 mkdir -p "$WORLD_ROOT/.pi/prompts"

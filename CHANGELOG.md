@@ -46,6 +46,25 @@ decisions still live beside it in its own `meta/` notes, which the sync never to
 `tools/docs/` disappearing is not something a sync can do without a decision from the world — hence
 the migration note.
 
+**`template: true` is gone.** It existed so the sync could mirror the demo world into a template. The
+template is an export now, so nothing reads the switch and it is no longer a config key — a
+`world.config.yaml` that still carries it is an unknown-key error rather than a silent no-op. The
+template no longer has it, and `init-world.sh` no longer removes it.
+
+**What the export and the fork proof fixed.** `template-fork.yml` no longer syncs into the published
+template; it **exports a template from the commit it is running on** and forks that, so a change that
+breaks the export fails its own CI. Making that real found four defects, all fixed here:
+
+- the export reused the *sync's* exclusions and dropped the theme's three neutral pages
+  (`index.astro`, `about.astro`, `follow.astro`), so a generated template had no landing page and its
+  site could not build;
+- `site/image-prompts/_style.md` — the house style the image process calls authoritative — was never
+  shipped, by the sync or by the export;
+- a fresh fork carried a stray two-line `meta/flags.md`, which collided with `world/flags.md`: six
+  lint errors, so a fork could never pass `tools/lint.py`;
+- the engine-capability register's Links section pointed at the **first world's** notes. It names the
+  kit's documents now.
+
 ## 2.0.1 — the fork workflow's check that could never pass, and a test for the new seam
 
 Two things 2.0.0 left, both found by running the work rather than reading it.

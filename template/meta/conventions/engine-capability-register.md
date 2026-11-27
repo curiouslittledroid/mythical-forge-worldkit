@@ -274,4 +274,12 @@ Audited after Step 2b: the standard body line for deferred engine fields is now 
 - [OPEN] Whether the SRD library is expanded per world (a world supplies its own base map) or the platform ships a full SRD.
 
 ## Links
-[[conventions]], [[pilot-findings]], [[the-conspiracy]], [[the-peacemaker]], [[magic]], [[leylines]], [[metals]], [[economy]], [[the-choir]], [[wardens-of-the-stone]], [[flags|World Flags]]
+
+Every one of these is a kit document, at `meta/conventions/`; the last is the world's own.
+
+- `meta/conventions/conventions.md` — the rules the register's vocabularies feed
+- `meta/conventions/thread-pattern.md` — the graph the Conditions and Effects move
+- `meta/conventions/campaign-authoring-guide.md` — the authoring how-to
+- `meta/conventions/site.md` — what reaches the public site
+- `meta/mechanics-gap-register.md` — which of these requests **this** world's lore is waiting on
+- `world/flags.md` — the world's declared effect-only flags

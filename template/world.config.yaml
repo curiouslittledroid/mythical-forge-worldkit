@@ -9,11 +9,6 @@
 
 version: 1
 
-# This repository IS the template, not a world. The one thing it changes: the sync also mirrors the
-# kit's example world into example-world/ so a new author has one to read. `init-world.sh` removes
-# both this line and that directory.
-template: true
-
 world:
   id: world_REPLACE
   title: REPLACE_ME

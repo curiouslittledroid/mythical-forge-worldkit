@@ -150,10 +150,6 @@ text = re.sub(r"^  scenarios:.*$\n", "", text, flags=re.M)
 text = re.sub(r"^\s+blurb: \"REPLACE_ME[^\"]*\"$\n", "", text, flags=re.M)
 text = re.sub(r"^  # The landing page's \"Ways in\" cards\..*\n(^  #.*\n)*", "", text, flags=re.M)
 
-# The switch that mirrors the demo world. init-world.sh is removing the demo world instead.
-text = re.sub(r"^template: true$\n", "", text, flags=re.M)
-text = re.sub(r"^# This repository IS the template.*\n(^#.*\n)*", "", text, flags=re.M)
-
 if "REPLACE_ME" in text:
     leftover = [l for l in text.splitlines() if "REPLACE_ME" in l]
     raise SystemExit("init-world: REPLACE_ME survived in " + path + ":\n  " + "\n  ".join(leftover))
@@ -212,8 +208,8 @@ if [ "$KEEP_EXAMPLE" -eq 1 ]; then
   say "-> keeping example-world/ (the demo world) for reference"
 elif [ -d example-world ]; then
   rm -rf example-world
-  say "-> removed example-world/ (the demo world); it comes back with a sync while \`template: true\`"
-  say "   is set, so do not set that switch again by hand"
+  say "-> removed example-world/ (the demo world; it is the kit's, so fetch it again from the"
+  say "   kit's template/ if you want to read it later)"
 fi
 
 if [ "$INIT_GIT" -eq 1 ]; then
