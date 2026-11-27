@@ -51,7 +51,7 @@ can find its own work without re-reading the catalogue.
 
 ## Release
 
-1. `./verify-kit.sh` green; the Python suites green; `python3 tools/lint.py` clean.
+1. `./verify-kit.sh` green (it lints the demo world) and the Python suites green.
 2. Bump `TOOLING_VERSION`.
 3. Add a `CHANGELOG.md` entry. **A change a world cannot absorb silently is a major bump and needs a
    migration note** — state the change, why it is not silent, and what a world must do.
@@ -64,6 +64,9 @@ can find its own work without re-reading the catalogue.
 6. `python3 tools/check_citations.py` — if a document's sections moved, every citation of it moved
    too, here and in every world that synced the old numbers. The check is the sweep; do not rely on
    reading the diff.
+7. **Export the template** at the milestone: `./export-template.sh <tag>`, then create a branch in
+   `mythical-forge-world-template`, commit the generated tree, merge, and tag it. The template repo
+   is never edited by hand.
 
 ## What a contribution is licensed under
 

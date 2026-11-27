@@ -6,16 +6,16 @@
 
 ## Status
 
-- [ ] D1 — demo-world config placement decided (blocked on owner; see Open decisions)
-- [ ] S1 — rename `site/` → `site-theme/`
-- [ ] S2 — bring the template skeleton into `template/`
-- [ ] S3 — move the demo world into `template/example-world/`
-- [ ] S4 — rewire `verify-kit.sh`, `testkit.py`, config readers, CI
-- [ ] S5 — remove the `template: true` special-case from `sync-tooling.sh`
-- [ ] S6 — single vendoring manifest (K15) shared by sync and export
-- [ ] S7 — `export-template.sh` + the manual branch/commit/merge wrapper
-- [ ] S8 — K2 de-brand the fixture
-- [ ] S9 — docs + release + first real export
+- [x] D1 — demo-world config placement: **option A** (`template/example-world/world.config.yaml`)
+- [x] S1 — rename `site/` → `site-theme/`
+- [x] S2 — bring the template skeleton into `template/`
+- [x] S3 — move the demo world into `template/example-world/`
+- [x] S4 — rewire `verify-kit.sh`, `testkit.py`, config readers, CI
+- [x] S5 — remove the `template: true` special-case from `sync-tooling.sh`
+- [ ] S6 — single vendoring manifest (K15) — **DEFERRED to a follow-up** (orthogonal cleanup of sync↔drift-check; not needed for the export)
+- [x] S7 — `export-template.sh` (manual; the branch/commit/merge is a release step, not scripted)
+- [ ] S8 — K2 de-brand the fixture — **DEFERRED**: ~145 references across docs, tools, tests and the whole fixture (incl. the six scenarios); needs its own PR, not a fold-in
+- [x] S9 — docs (README/AGENTS/CONTRIBUTING/ROADMAP/CHANGELOG + TOOLING_VERSION v3.0.0) — done; the first real export (branch → commit → merge → tag the template repo) is a merge-time step
 
 ---
 

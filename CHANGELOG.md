@@ -4,6 +4,30 @@ A world pins the kit by copying its version into `TOOLING_VERSION` and updating 
 `tools/sync-tooling.sh`. **A change a world cannot absorb silently is a major bump and gets a
 migration note here.**
 
+## 3.0.0 — the kit owns the template; the template repo is generated
+
+The refactor that makes `mythical-forge-worldkit` the single source of truth for both the demo world
+and the world template, so the template repo is never edited by hand.
+
+**The kit's layout changed.** The demo world (`world/`, `campaigns/`, and the demo's `meta/` notes)
+now lives, complete with its own `world.config.yaml`, at `template/example-world/`. The kit root is no
+longer a world; its `meta/` holds only `templates/` and `platform-requests/`. The theme directory is
+renamed `site/` → `site-theme/` (it is still vendored into a world as `site/`).
+
+**The template is generated.** `template/` is the source (the skeleton an author forks, plus the
+embedded `example-world/` demo), and `export-template.sh` assembles the published
+`mythical-forge-world-template` repo from it. `sync-tooling.sh` no longer mirrors `example-world/`
+into a template — that is the export's job now.
+
+**What a world does: nothing.** The sync re-execs itself onto the new script, so the renamed theme
+source (`site-theme/`) is picked up without a manual step. The pin still moves with
+`tools/sync-tooling.sh <tag>`. Worlds that never set `template: true` see no other change; only the
+kit's own layout and the template-generation process moved.
+
+**A change a world cannot absorb silently is a major bump.** This one is silent to worlds (the re-exec
+covers it), but it is major because the kit's shape and the template process changed underneath
+everyone, and a migration note is the cheapest insurance against a world that pinned the old layout.
+
 ## 2.0.1 — the fork workflow's check that could never pass, and a test for the new seam
 
 Two things 2.0.0 left, both found by running the work rather than reading it.

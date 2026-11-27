@@ -39,8 +39,8 @@ echo v1.0.0 > TOOLING_VERSION
 ```
 
 Then write `world.config.yaml` (**the one file a world must supply**) and start authoring notes. The
-config's schema is `docs/conventions.md` §2; a worked example is this repository's own `world.config.yaml` 
-in the root, which is the demo world's config.
+config's schema is `docs/conventions.md` §2; a worked example is the demo world's config at
+`template/example-world/world.config.yaml`.
 
 ## What a world must supply
 
@@ -67,20 +67,25 @@ docs/                  the rules and the registers - the kit's own documents
   testimony.md                 the first-person device, the voice sheets and the two checks
   tag-vocabulary.md            the five rules, the block the linter reads, how themes are chosen
   atlas.md                     the map pipeline, the data layer, and what stays the world's
-meta/templates/        one template per note type. The end-to-end example IS the demo world
-                       (world/, campaigns/ferryman-demo/), so there is no second copy to drift
+meta/templates/        one template per note type (mirrored into a world)
 meta/platform-requests/  draft specs written for the platform repository - not the kit's backlog
 tools/                 the scripts and their tests
-world/, campaigns/, meta/  the DEMO WORLD: the smallest complete vault the tools can run against
-verify-kit.sh          the end-to-end proof: lint, transform, validate, thread-check, six scenarios
+site-theme/            the Astro theme, vendored into a world as site/
+template/              the generated world-template's source: the skeleton a new author forks
+                       (world.config.yaml, init-world.sh, the brief, the roadmap, principles/,
+                       the empty vault) plus the embedded example-world/ demo world
+example-world/         (inside template/) the DEMO WORLD: the smallest complete vault the tools
+                       run against
+export-template.sh     assembles mythical-forge-world-template from template/ + the vendored kit
+verify-kit.sh          the end-to-end proof: assembles the demo world, then lint → transform →
+                       validate → thread-check → six scenarios
 ```
 
 ## Verify it
 
 ```bash
-python3 tools/test_lint.py                 # and the four other suites
-python3 tools/lint.py                      # the demo world
-./verify-kit.sh                            # the whole pipeline, in a throwaway directory
+python3 tools/test_lint.py                 # and the other suites
+./verify-kit.sh                            # assembles the demo world and runs the whole pipeline
 ```
 
 `verify-kit.sh` needs the **engine's schemas**, because the transformer and the validator are the
@@ -94,8 +99,8 @@ npm install          # the pinned version, from the repository's own .npmrc
 
 Or point at a local checkout instead — it wins when set, and it is how an unreleased schema change is
 developed: `MYTHICAL_FORGE_ROOT=/path/to/mythical-forge/main ./verify-kit.sh`. Either way the script
-copies the demo world to a throwaway directory, and runs lint → transform → validate → thread-check →
-six scenarios. Nothing in a real world is touched.
+assembles the demo world (`template/example-world/` + the vendored `tools/`) in a throwaway directory,
+and runs lint → transform → validate → thread-check → six scenarios. Nothing in a real world is touched.
 
 CI runs the same proof: the suites, the lint, the citations and the workflow check always, and — when
 the `WORLDKIT_PACKAGES_TOKEN` secret is present — the guide check and `./verify-kit.sh`. Without the
