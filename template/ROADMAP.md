@@ -18,7 +18,7 @@ refers to "Step 12", `meta/conventions/site.md` to "Step 16"), so keep the numbe
 ### 0.1 Where things are
 
 The canon is the **vault** at the repository root. The top-level layout is fixed by the tooling (the
-kit's `conventions.md` §3); how `world/` is organised inside it is yours.
+kit's `meta/conventions/conventions.md` §3); how `world/` is organised inside it is yours.
 
 | Path | What it is |
 |---|---|
@@ -27,10 +27,10 @@ kit's `conventions.md` §3); how `world/` is organised inside it is yours.
 | `ROADMAP.md` | This file. |
 | `world.config.yaml` | **The world's identity:** ids, title, slug, the notes the tools read, the feature switches, the site's navigation. |
 | `TOOLING_VERSION` | The pinned worldkit version. Moved by `tools/sync-tooling.sh`; never hand-edited. |
-| the kit's `conventions.md` | **The rules:** layout, ids, frontmatter, engine blocks, disclosure, status. |
+| the kit's `meta/conventions/conventions.md` | **The rules:** layout, ids, frontmatter, engine blocks, disclosure, status. |
 | `meta/conventions/` | Every world-facing kit document, at the pinned version. Written by the sync, never by hand. |
 | `meta/world-conventions.md` | **This world's choices** on top of those rules: its folder shape, the headings it adds, its vocabularies, its keystones. |
-| `meta/` | This world's own decisions: `canon-digest.md`, `names.md`, `open-questions.md`, `mechanics-gap-register.md`, the site notes. Never extracted by the transformer. |
+| `meta/` | This world's own decisions: `meta/canon-digest.md`, `meta/names.md`, `meta/open-questions.md`, `meta/mechanics-gap-register.md`, the site notes. Never extracted by the transformer. |
 | `principles/` | The four notes that decide what the world is. **Nothing else can be written well until they are answered.** |
 | `world/`, `campaigns/` | The lore. **The transformer scans these two only.** |
 | `maps/` | Coordinate data and the atlas. |
@@ -86,8 +86,8 @@ The session protocol is the same for every step; only the class of work changes.
 
 | # | Step | Model | Status | Produces | Depends on |
 |---|---|---|---|---|---|
-| 0a | Conventions and note templates | — | Done (the kit's) | the kit's `conventions.md`, `meta/templates/` | — |
-| 0b | Decide what this world is | Creative | Not started | `world.config.yaml`, `principles/pillars.md`, `permanence-rules.md`, `originality-guardrails.md`, `meta/canon-digest.md`, `meta/names.md` | — |
+| 0a | Conventions and note templates | — | Done (the kit's) | the kit's `meta/conventions/conventions.md`, `meta/templates/` | — |
+| 0b | Decide what this world is | Creative | Not started | `world.config.yaml`, `principles/pillars.md`, `principles/permanence-rules.md`, `principles/originality-guardrails.md`, `meta/canon-digest.md`, `meta/names.md` | — |
 | 0c | Tone | Creative | Not started | `principles/tone.md`, `principles/what-to-expect.md` | 0b |
 | 1 | The truth ledger and the history timeline | Creative | Not started | `world/history/`, `meta/timeline.md` | 0b, 0c |
 | 1b | The conflicts between the fall and the present | Creative | Not started | `world/history/` era and war notes | 1 |
@@ -115,7 +115,7 @@ The session protocol is the same for every step; only the class of work changes.
 | 16 | The public codex site | Mixed | Not started | `tools/site_export.py`, `site/`, `meta/site.md` | 2d (can run beside 14) |
 
 Steps can be done in any order where `Depends on` allows. The suggested order is the table's, top to
-bottom. Every note from Step 2 on follows the kit's `conventions.md` and the templates from
+bottom. Every note from Step 2 on follows the kit's `meta/conventions/conventions.md` and the templates from
 Step 0a.
 
 ---
@@ -132,7 +132,7 @@ its scenarios, its engine blocks) and it passes the same checks yours will.
 
 - **Goal:** none. The worldkit ships the rules and a template for every note type, and this vault
   already has them (`meta/conventions/conventions.md`, `meta/templates/`).
-- **Read first:** the kit's `conventions.md` — §3 (layout), §5 (ids and filenames), §6
+- **Read first:** the kit's `meta/conventions/conventions.md` — §3 (layout), §5 (ids and filenames), §6
   (frontmatter), §7 (disclosure), §9 (note bodies), §16 (the linter).
 - **Produce:** nothing. A world never edits `meta/templates/` (the sync deletes it) and never edits
   the kit's rules: if a rule is wrong for your world, write your version in
@@ -146,15 +146,15 @@ its scenarios, its engine blocks) and it passes the same checks yours will.
 - **Goal:** answer the questions the whole canon depends on, before any lore is written: what the
   world is *for*, what is scarce, who holds power, what is permanently broken, what it is not.
 - **Read first:** `principles/_index.md` and the four notes it lists; `world.config.yaml`; the
-  kit's `campaign-authoring-guide.md` (how to run the session); `example-world/world.config.yaml`
+  kit's `meta/conventions/campaign-authoring-guide.md` (how to run the session); `example-world/world.config.yaml`
   for a filled-in config.
-- **Method:** grilling rounds with recommended answers (the kit's `agent-protocol.md`).
+- **Method:** grilling rounds with recommended answers (the kit's `meta/conventions/agent-protocol.md`).
   Record the answers in `principles/`, not in this file.
 - **Produce:** a filled `world.config.yaml` (id, title, slug, tagline, description, author, licence,
-  spelling, feature switches); `principles/pillars.md` and `permanence-rules.md` `agreed`;
+  spelling, feature switches); `principles/pillars.md` and `principles/permanence-rules.md` `agreed`;
   `principles/originality-guardrails.md` (the absences: what this world must never contain);
   `meta/canon-digest.md` as a skeleton; `meta/names.md` started.
-- **Done when:** a stranger reads `pillars.md` and can say what the world is for and what players do
+- **Done when:** a stranger reads `principles/pillars.md` and can say what the world is for and what players do
   in it; `python3 tools/lint.py` is clean apart from the `REPLACE` placeholders you mean to keep.
 - **Watch for:** a world with no absence list is a world with no flavour. Write down what it is *not*.
 
@@ -164,7 +164,7 @@ its scenarios, its engine blocks) and it passes the same checks yours will.
 
 - **Goal:** make tone a rule rather than a vibe: what grim dark (or whatever this world's dial is)
   means *here*, what horror it runs on, what it never shows, and what it asks of players.
-- **Read first:** `principles/pillars.md`, `permanence-rules.md`, `originality-guardrails.md`.
+- **Read first:** `principles/pillars.md`, `principles/permanence-rules.md`, `principles/originality-guardrails.md`.
 - **Produce:** `principles/tone.md` — with a short test a session can apply to new material, the
   lines and veils, and the world's content descriptors (the engine's closed vocabulary; which of
   them apply is the world's decision, and they go in `world.config.yaml` under `site.content_descriptors`);
@@ -179,7 +179,7 @@ its scenarios, its engine blocks) and it passes the same checks yours will.
 - **Goal:** for every major event, record the **official story**, the **popular myth**, the **rival
   versions** and the **real truth**, and place them on a dated timeline. This is the step that makes
   "layered secrets" mechanical: the same event, known differently by different people.
-- **Read first:** the kit's `conventions.md` §7 (audience and disclosure); `principles/pillars.md`;
+- **Read first:** the kit's `meta/conventions/conventions.md` §7 (audience and disclosure); `principles/pillars.md`;
   `meta/timeline.md`; `example-world/meta/timeline.md` (the demo world's dated events).
 - **Context to carry:** decide the **era scale** and the anchors (the world's `T0`, the present, the
   big gaps). Decide which events need a note; most do not — one per event that somebody *lies about*.
@@ -218,8 +218,8 @@ its scenarios, its engine blocks) and it passes the same checks yours will.
 
 - **Goal:** profile every power centre in the starting region so a GM can run it tomorrow.
 - **Read first:** the Steps 1 and 1b notes; the world's ecology and materials notes if they exist;
-  `example-world/world/places/dustport.md`, `world/factions/the-creditors-clerks.md`,
-  `world/npcs/idra-vance.md` (the demo world's shapes, including engine blocks).
+  `example-world/world/places/dustport.md`, `example-world/world/factions/the-creditors-clerks.md`,
+  `example-world/world/npcs/idra-vance.md` (the demo world's shapes, including engine blocks).
 - **Questions to grill, per place:** who rules and how succession works; population and how it is
   fed; law and punishment; what it needs from each neighbour and what it gives; its secret; its
   enemies and debts; three to five named NPCs; three hooks; what it looks, sounds and smells like.
@@ -240,7 +240,7 @@ its scenarios, its engine blocks) and it passes the same checks yours will.
 
 - **Goal:** prove the codex-to-engine path on one small slice and find the gaps cheaply, before
   converting more.
-- **Read first:** the kit's `conventions.md` §9–§11 (engine blocks, kinds, ids); the
+- **Read first:** the kit's `meta/conventions/conventions.md` §9–§11 (engine blocks, kinds, ids); the
   platform's Design 23 and `packages/authored-content` at `$MYTHICAL_FORGE_ROOT`; `example-world/campaigns/ferryman-demo/`.
 - **Context to carry:** `MYTHICAL_FORGE_ROOT` has no default. The tools fail loudly and name it if it
   is unset — that is deliberate, so nobody silently builds against the wrong platform checkout.
@@ -259,7 +259,7 @@ its scenarios, its engine blocks) and it passes the same checks yours will.
 
 - **Goal:** list every mechanic the world needs and classify whether the engine can express it, so
   you stop designing things it cannot run. **Design within what the engine can run.**
-- **Read first:** the kit's `engine-capability-register.md` (the catalogue of what exists),
+- **Read first:** the kit's `meta/conventions/engine-capability-register.md` (the catalogue of what exists),
   `meta/mechanics-gap-register.md` (this world's rows — start it here), the world's rule-heavy notes,
   `meta/pilot-findings.md`.
 - **Context to carry:** the engine is **closed over the SRD**. It cannot author new spells, feats,
@@ -295,7 +295,7 @@ its scenarios, its engine blocks) and it passes the same checks yours will.
 
 - **Goal:** settle how the codex's knowledge reaches the agents, the narrator and the player: who **in
   the world** could know a thing, and **whether and how** the narrator may disclose it.
-- **Read first:** the kit's `conventions.md` §7 (the model, in full) and §9.5; the worldkit's
+- **Read first:** the kit's `meta/conventions/conventions.md` §7 (the model, in full) and §9.5; the worldkit's
   `meta/conventions/campaign-authoring-guide.md`; `meta/mechanics-gap-register.md`.
 - **Context to carry:** **audience** (who knows it, by group and tier) and **disclosure** (how the
   narrator may release it) are **separate axes**. The classes are `open`, `earned` and `sealed`;
@@ -315,7 +315,7 @@ its scenarios, its engine blocks) and it passes the same checks yours will.
 
 - **Goal:** nothing, in a new world. Older worlds carried a `visibility` field built for a printed
   player primer; `disclosure` replaced it, because a site needs per-*section* granularity.
-- **Read first:** the kit's `meta/conventions/site.md` §2 and the kit's `conventions.md` §6–§7.
+- **Read first:** the kit's `meta/conventions/site.md` §2 and the kit's `meta/conventions/conventions.md` §6–§7.
 - **Produce:** nothing here. A world that still carries the field deletes the line from every note and
   from the templates, and the linter's `REQUIRED` list shrinks by one.
 - **Done when:** the vault mentions the field only inside fenced `engine` blocks, where it is the
@@ -388,7 +388,7 @@ its scenarios, its engine blocks) and it passes the same checks yours will.
 - **Goal:** what the old world left behind, what it does, what it costs and who wants it.
 - **Read first:** the world's history and materials notes; `meta/mechanics-gap-register.md`.
 - **Context to carry:** **relics are an SRD item plus narrative.** No new mechanical properties. Every
-  relic records its **SRD base** in the standard body line (the kit's `conventions.md` §9.6);
+  relic records its **SRD base** in the standard body line (the kit's `meta/conventions/conventions.md` §9.6);
   if the library has no match, write `[OPEN]` with the nearest equivalent in words and keep
   `engine: false`.
 - **Questions to grill:** the categories and grades; each grade's cost or side effect; named legendary
@@ -421,7 +421,7 @@ its scenarios, its engine blocks) and it passes the same checks yours will.
 
 - **Goal:** the texture of ordinary life: what people eat, drink, earn, fear and pay.
 - **Read first:** the world's place, society and materials notes; `meta/mechanics-gap-register.md`;
-  the kit's `conventions.md` (the calendar maps onto the engine's day counter).
+  the kit's `meta/conventions/conventions.md` (the calendar maps onto the engine's day counter).
 - **Questions to grill:** food and agriculture; water and fuel (scarcity is where the plots are);
   housing and clothing; disease and medicine; law and punishment; the calendar and its holidays;
   travel, inns and caravans; entertainment; money in practice (a price table); literacy; superstition.
@@ -466,7 +466,7 @@ its scenarios, its engine blocks) and it passes the same checks yours will.
 
 - **Goal:** make each thread **move without the player and survive what the player does**, in a world
   where play diverges. Not a calendar: a **state graph** per thread.
-- **Read first:** the kit's `campaign-authoring-guide.md` (**the how-to; follow it**) and
+- **Read first:** the kit's `meta/conventions/campaign-authoring-guide.md` (**the how-to; follow it**) and
   `meta/conventions/thread-pattern.md` §6 (**the resolution classes**: Resolvable, Managed, Ratchet) and §10;
   `meta/world-events-design.md`; Step 12a's pilot card and findings; `world/flags.md`.
 - **Context to carry:** three layers — the **World** owns pressure (threads, Wants), **Campaigns** own
@@ -501,7 +501,7 @@ its scenarios, its engine blocks) and it passes the same checks yours will.
 ### Step 13: Maps
 
 - **Goal:** drawable and shareable maps, for players and for the GM.
-- **Read first:** the kit's `atlas.md`; the world's coordinate data and `maps/`.
+- **Read first:** the kit's `meta/conventions/atlas.md`; the world's coordinate data and `maps/`.
 - **Context to carry:** keep a **GM version** and a **player version**. Decide the frame (what
   coordinates mean), the plate ladder (world → region → site) and the finish (a generated skeleton the
   world's own script renders, hand-finished at the end).
@@ -520,7 +520,7 @@ its scenarios, its engine blocks) and it passes the same checks yours will.
 
 - **Goal:** the deterministic path from the codex to the Game Ready Repository, reliably enough to run
   in CI.
-- **Read first:** the kit's `conventions.md` §9–§11; `meta/pilot-findings.md`;
+- **Read first:** the kit's `meta/conventions/conventions.md` §9–§11; `meta/pilot-findings.md`;
   `meta/mechanics-gap-register.md`; the platform's Design 23 at `$MYTHICAL_FORGE_ROOT`.
 - **Context to carry:** **the kit owns this.** `tools/transform.mjs`, `tools/validate-world.mjs`,
   `tools/thread-check.mjs` and `tools/simulate-world.mjs` are vendored, not written here; this step is
@@ -542,7 +542,7 @@ its scenarios, its engine blocks) and it passes the same checks yours will.
 
 - **Goal:** prove, with an LLM in the loop, that the agents and the narrator respect audience and
   disclosure. The scenario simulator cannot: it tests the deterministic web, never language.
-- **Read first:** the Step 2d output; the kit's `campaign-authoring-guide.md`;
+- **Read first:** the Step 2d output; the kit's `meta/conventions/campaign-authoring-guide.md`;
   `tools/simulate-world.mjs` (what scenarios already cover).
 - **Case categories:** leakage (a direct question about a `sealed` truth; an indirect one; a
   prompt-injection attempt; pressure on an NPC for a secret outside its audience); under-knowledge;
@@ -558,8 +558,8 @@ its scenarios, its engine blocks) and it passes the same checks yours will.
 ### Step 15: Progressive engine conversion, per campaign
 
 - **Goal:** convert only the lore a campaign uses, and design that campaign's modules.
-- **Read first:** the kit's `campaign-authoring-guide.md` (the how-to); `world/flags.md`;
-  `meta/mechanics-gap-register.md` (what the engine can express); the kit's `thread-pattern.md` §8.
+- **Read first:** the kit's `meta/conventions/campaign-authoring-guide.md` (the how-to); `world/flags.md`;
+  `meta/mechanics-gap-register.md` (what the engine can express); the kit's `meta/conventions/thread-pattern.md` §8.
 - **Context to carry:** campaigns are separate design sessions. Unconverted lore stays prose. A
   converted note's `status` moves to `engine-ready`.
 - **Tasks, per campaign:** arm the threads it uses; set the stage each begins at; write Modules whose
