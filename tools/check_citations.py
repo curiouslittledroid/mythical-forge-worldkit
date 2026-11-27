@@ -47,7 +47,7 @@ ROOT = Path(__file__).resolve().parent.parent
 # example world. `site/` is NOT skipped -- the art prompts are markdown that cites sections.
 SKIP_DIRS = {".git", ".obsidian", ".trash", "node_modules", "example-world",
              "__pycache__", ".astro", "dist"}
-SKIP_PATHS = {".git", "node_modules", "example-world", "site/node_modules", "site/dist",
+SKIP_PATHS = {".git", "node_modules", "example-world", "template", "site/node_modules", "site/dist",
               "site/.astro", "site/src/content/generated", "site/src/data/generated"}
 
 

@@ -1,0 +1,8 @@
+# The vault is plain Markdown; nothing here is generated except the site and the caches.
+node_modules/
+site/dist/
+site/.astro/
+site/src/data/generated/
+site/src/content/generated/
+__pycache__/
+.DS_Store

@@ -1,0 +1,9 @@
+{
+  "name": "REPLACE_ME",
+  "private": true,
+  "description": "Not published: this file exists for the toolchain's one runtime dependency, the engine's own authored-content schemas, so the pipeline runs without a checkout of the platform repository. `init-world.sh` renames this package to the fork's own slug.",
+  "license": "SEE LICENSE IN LICENSE",
+  "dependencies": {
+    "@curiouslittledroid/authored-content": "0.0.3"
+  }
+}

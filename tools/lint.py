@@ -81,6 +81,10 @@ FORBIDDEN_ENGINE_KEYS = {"hp", "ac", "bab", "cr", "author_id"}
 PREDICATE_NAMES = {"npc_alive", "fact_revealed", "quest_state"}
 EXCLUDE_DIRS = {".git", ".obsidian", "node_modules", ".trash", "tools", "meta/templates",
                 "site", "site-theme", ".pi",
+                # The kit's own source of the world template. It is a world (the skeleton an author
+                # forks), but it is not THIS vault: it is verified where it is exported, and its
+                # embedded example world is a separate world again.
+                "template",
                 # The template's mirrored example world is a world, but it is not THIS vault: it must
                 # neither be linted as one nor be published by the exporter (which reuses load_notes).
                 # The id resolver never sees it either: it walks SCOPE_DIRS, not the vault root.
