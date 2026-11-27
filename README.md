@@ -2,29 +2,32 @@
 
 **The tooling and the shared rules for a Mythical Forge world codex.** A *world* is a repository of
 lore — places, people, factions, history — written as markdown notes. This kit turns one into a
-**Game Ready Repository** the engine can run, a **player-facing site**, and a set of maps; and it
-holds the rules every world follows so that a new world does not have to invent them.
+**Game Ready Repository** the engine can run, a **player-facing publishable website**, and a set of maps; and it
+holds the conventions every world follows so that it is consumable by the Mythical Forge engine.
 
-It is not a world and it contains no canon. Its only prose is the rules, and its only example is the
+It is not a world and it contains no canon. Its only prose are the conventions. It contains an example world - 
 **Ferryman's Debt** — a fixture small enough to hold in your head and real enough to run.
 
 ## The three repositories
 
 | Repository | Owns | Depends on |
 |---|---|---|
-| **`mythical-forge-worldkit`** (this) | the tools, the rules, the note templates, the site theme, the engine-capability register, the agent protocol | — |
+| **`mythical-forge-worldkit`** (this) | the tools, the rules, the note templates, the website theme, the engine-capability register, the agent protocol | — |
 | `mythical-forge-world-template` | an empty, forked-ready world: the folder skeleton, the quickstart, `init-world.sh` | the kit, vendored |
 | a world (for example `hollowfall-codex`) | its lore, its decisions, its spelling, its vocabularies | the kit, vendored at `tools/` |
 
 A world does **not** depend on this repository at run time. It holds a **copy** of the kit's tools in
 `tools/`, pinned by `TOOLING_VERSION`, and updates them with `tools/sync-tooling.sh`. Nothing is
 published as a package and nothing is installed: a world is a git repository that happens to contain
-a copy of `tools/`, so a clone is always buildable.
+a copy of `tools/`, so the world repo is always buildable.
 
 ## Install it in a world
 
 ```bash
+# clone the template world
 git clone https://github.com/curiouslittledroid/mythical-forge-world-template my-world
+
+# set up the new world and import the worldkit scripts
 cd my-world && ./init-world.sh        # asks for the world's name, title, id and site slug
 ```
 
@@ -36,8 +39,8 @@ echo v1.0.0 > TOOLING_VERSION
 ```
 
 Then write `world.config.yaml` (**the one file a world must supply**) and start authoring notes. The
-config's schema is `docs/conventions.md` §2; a worked example is this repository's own, which is the
-demo world's.
+config's schema is `docs/conventions.md` §2; a worked example is this repository's own `world.config.yaml` 
+in the root, which is the demo world's config.
 
 ## What a world must supply
 
