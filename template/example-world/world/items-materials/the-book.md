@@ -17,4 +17,4 @@ disclosure: open
 ## Details
 
 - The demo world publishes no testimony, so this note carries no evidence and no voice sheets. The
-  mechanism is the worldkit's `docs/testimony.md` section 3.4.
+  mechanism is the kit's `testimony.md` section 3.4.

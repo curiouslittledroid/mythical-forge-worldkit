@@ -138,7 +138,7 @@ A **zone** is the engine's lazy-hydration unit (Design 04.1 §3) and an authored
 Rules:
 
 - **The region notes define the zones.** The atlas draws them; nothing else invents one.
-  `python3 tools/atlas_yaml.py maps/atlas-features.yaml` plus the atlas check (`docs/atlas.md`)
+  `python3 tools/atlas_yaml.py maps/atlas-features.yaml` plus the atlas check (`meta/conventions/atlas.md`)
   keeps the two homes in step.
 - **Two scales, and a zone is never a site.** A continent is a zone, and each of its regions is too.
   A settlement, site or other place **is not a zone**: it carries `zone:` and its own `loc_` id. An
@@ -464,7 +464,7 @@ gaps *it* hits; the mechanism belongs to the kit.
 
 ### 9.8 Threads, flags, Campaigns and Modules
 
-The full pattern is in `docs/thread-pattern.md`. The rules the linter and tools enforce:
+The full pattern is in `meta/conventions/thread-pattern.md`. The rules the linter and tools enforce:
 
 - **A thread is a state graph.** Its note is a *thread card* (template `thread`): premise, actors and
   successors, the state graph, an **interface**, quest contracts, the idle run. The thread note's
@@ -491,7 +491,7 @@ The full pattern is in `docs/thread-pattern.md`. The rules the linter and tools 
 - **A Campaign** arms threads with a genesis World Event in its overlay (`day_reached: 0`, guarded by
   `not <thread>_armed`). It never edits a thread's events.
 - The step-by-step tutorial for writing a thread, Campaign, Modules and Quests, and every block, is
-  `docs/campaign-authoring-guide.md`.
+  `meta/conventions/campaign-authoring-guide.md`.
 
 ## 10. Note body
 
@@ -580,7 +580,7 @@ conventions note. Rooms, encounters and quests get templates with the campaign p
 
 **Vocabulary gaps are the register's business, not this file's.** Each world logs the mechanics it
 needs that the engine cannot express in its own `meta/mechanics-gap-register.md`, and the live
-catalogue of platform requests lives in `docs/engine-capability-register.md`. The kit never assumes a
+catalogue of platform requests lives in `meta/conventions/engine-capability-register.md`. The kit never assumes a
 gap is universal: a mechanic one world needs may be irrelevant to another.
 
 ## 14. Obsidian setup
@@ -638,13 +638,15 @@ The linter does **not** check engine schemas (the transformer does that with
 
 When a note cites a rule by number, name the document in the same sentence:
 
-- In the kit's own voice: `docs/conventions.md` §9.6. A world cites the same document as "the
-  worldkit's `docs/conventions.md` §9.6, vendored at `tools/docs/conventions.md`".
-- **Never a wikilink** into the kit (the kit is not a vault) and **never a bare basename**: `site.md`
-  is two different documents in a world — the kit's `docs/site.md` and the world's `meta/site.md`.
+- In the kit's own voice: `meta/conventions/conventions.md` §9.6. A world holds the same document
+  at the same path and cites it as "the kit's `conventions.md` §9.6".
+- **Never a wikilink** into the kit (the kit's documents are prose, not notes: no frontmatter, no id,
+  and the linter does not read them as part of the vault) and **never a bare basename**: `site.md`
+  is two different documents in a world — the kit's `meta/conventions/site.md` and the world's
+  `meta/site.md`.
 - **A number only if the document numbers its sections.** A document whose sections have names is
   cited by name: "the section on required reviewers".
-- A citation of where something *used to be* says so: "formerly `docs/site.md` §3.4".
+- A citation of where something *used to be* says so: "formerly the `site.md` document, §3.4".
 - **A citation this repository cannot check** ends its line with `citations: ignore`: a world's note
   named from the kit, or an example of a bad citation in prose. In the first five lines of a file it
   opts the whole file out. Use it for what is genuinely uncheckable, never for what is merely

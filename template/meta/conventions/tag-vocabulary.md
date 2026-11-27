@@ -42,7 +42,7 @@ homes:                         # a naming tag -> the note it must resolve to
   the linter's fixtures still work.
 - A **naming** tag (one that names people, powers or places) must resolve to a real note, through its
   `homes:` entry, its own slug, or `the-<tag>`.
-- The **published set** is a separate list, in the site's vocabulary (see `docs/site.md` §3.3): it is a
+- The **published set** is a separate list, in the site's vocabulary (see `meta/conventions/site.md` §3.3): it is a
   subset of the world's tags, never a new vocabulary. A published tag that no note carries is a build
   failure, so a theme cannot rot.
 
@@ -50,7 +50,7 @@ homes:                         # a naming tag -> the note it must resolve to
 
 A site publishes a **subset**, drawn from the vocabulary, of tags that cross sections and mean
 something to a reader. The mechanism — the vocabulary block, the audit's `withheld_tags` and
-`empty_tags`, the deny-by-default rule — is `docs/site.md` §3.3. The rule of thumb for a world: if a theme
+`empty_tags`, the deny-by-default rule — is `meta/conventions/site.md` §3.3. The rule of thumb for a world: if a theme
 lives in one section it is a worse copy of that section, and a sealed keystone is never a theme.
 
 ## Enforcing it
@@ -79,6 +79,6 @@ does the reduction **once**, and records it in its own note:
 
 ## Links
 
-- `docs/site.md` §3.3 — the published set, the audit fields and the deny-by-default rule
+- `meta/conventions/site.md` §3.3 — the published set, the audit fields and the deny-by-default rule
 - `conventions.md` — the `tags:` field and the frontmatter contract
 - a world's own tag note — its families, its vocabulary block, its merge and retirement tables

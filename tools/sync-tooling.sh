@@ -19,10 +19,12 @@
 #
 # What it replaces (all of it the kit's):
 #   tools/            except tools/local/ — world-owned; the kit never writes it
-#   docs/ of the kit  into tools/docs/ — the RULES ARE PART OF THE TOOLING: a tool enforces a rule
-#                     the world's agent must be able to read. A pointer in prose therefore names the
-#                     kit document AND its vendored path ("the kit's conventions.md §7, vendored at
-#                     tools/docs/conventions.md"), so the rule is always one file away.
+#   meta/conventions/ the kit's world-facing documents (conventions, the authoring guide, the
+#                     thread pattern, site, testimony, tag vocabulary, atlas, the capability
+#                     register, the agent protocol). They live IN the vault, so the rule a world
+#                     follows is one file away: "the kit's conventions.md §7" is
+#                     meta/conventions/conventions.md. Wholly the kit's, so a document deleted
+#                     upstream goes away.
 #   meta/templates/   the canonical note templates (mirrored: this directory is wholly the kit's,
 #                     so a template deleted upstream goes away. A world's own examples live in its
 #                     own folder, never here.)
@@ -65,7 +67,8 @@ cpfile() {
 # own art are the world's, so a world is expected to have them dirty.
 if [ "$DRY" = 0 ] && [ "$FORCE" = 0 ] && [ -z "${SYNC_REEXEC:-}" ] && [ -d "$WORLD_ROOT/.git" ]; then
   dirty="$(git -C "$WORLD_ROOT" status --porcelain -- \
-             tools meta/templates site/src site/image-prompts/README.md .pi/prompts .github/workflows 2>/dev/null \
+             tools meta/templates meta/conventions site/src site/image-prompts/README.md \
+             .pi/prompts .github/workflows 2>/dev/null \
            | grep -vE ' tools/local/| site/src/pages/(index|about|follow)\.astro$' || true)"
   if [ -n "$dirty" ]; then
     echo "sync-tooling: refusing to run: uncommitted changes in files this sync would replace." >&2
@@ -153,8 +156,9 @@ if [ "$DRY" = 0 ] && [ -z "${SYNC_REEXEC:-}" ] && ! cmp -s "$TMP/running.sh" "$W
   # would be worse than no re-exec at all.
   SYNC_REEXEC=1 exec bash "$WORLD_ROOT/tools/sync-tooling.sh" ${TAG:+"$TAG"}
 fi
-mkdir -p "$WORLD_ROOT/tools/docs"
-[ -d "$TMP/kit/docs" ] && $RS --delete "$TMP/kit/docs/" "$WORLD_ROOT/tools/docs/"
+mkdir -p "$WORLD_ROOT/meta/conventions"
+[ -d "$TMP/kit/template/meta/conventions" ] && $RS --delete \
+      "$TMP/kit/template/meta/conventions/" "$WORLD_ROOT/meta/conventions/"
 mkdir -p "$WORLD_ROOT/meta/templates"
 [ -d "$TMP/kit/template/meta/templates" ] && $RS --delete "$TMP/kit/template/meta/templates/" "$WORLD_ROOT/meta/templates/"
 

@@ -51,8 +51,8 @@ One note per creature in `world/creatures/<slug>.md`, from `meta/templates/creat
   world's rules prescribe.
 - **Summary and Details are the public face**: what a resident of this world could know and say —
   plain names, folk sayings, no insider vocabulary. The world's disclosure rules (the worldkit's
-  `docs/conventions.md` §7) say what belongs under `## Secrets` instead.
-- The standard Details lines the template lists (the worldkit's `docs/conventions.md` §9.6), then
+  `meta/conventions/conventions.md` §7) say what belongs under `## Secrets` instead.
+- The standard Details lines the template lists (the kit's `conventions.md` §9.6), then
   three to five bullets: habits, danger, what people do about it, what it is worth.
 - `## Secrets` at the disclosure class the world's rules set, `## Hooks` with two hooks, and
   `## Links` back to the creature index and the biome note.

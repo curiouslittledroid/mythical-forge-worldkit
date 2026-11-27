@@ -19,8 +19,10 @@ TOOL = HERE / "sync-agent-protocol.py"
 
 
 def find_source() -> Path:
-    """The protocol, wherever the kit keeps it: its own docs/, or a world's vendored tools/docs/."""
-    for rel in ("docs/agent-protocol.md", "tools/docs/agent-protocol.md", "worldkit/docs/agent-protocol.md"):
+    """The protocol, wherever the kit keeps it: the template's conventions/, or a world's own."""
+    for rel in ("template/meta/conventions/agent-protocol.md",
+                "meta/conventions/agent-protocol.md",
+                "tools/docs/agent-protocol.md"):
         p = HERE.parent / rel
         if p.is_file():
             return p
@@ -35,8 +37,8 @@ END = "<!-- END agent-protocol -->"
 
 def world(root: Path, *, body: str = "PLACEHOLDER", markers: bool = True) -> Path:
     """A throwaway world: a config, the vendored protocol, and an AGENTS.md with the region."""
-    (root / "tools" / "docs").mkdir(parents=True, exist_ok=True)
-    (root / "tools" / "docs" / "agent-protocol.md").write_text(
+    (root / "meta" / "conventions").mkdir(parents=True, exist_ok=True)
+    (root / "meta" / "conventions" / "agent-protocol.md").write_text(
         SOURCE.read_text(encoding="utf-8"), encoding="utf-8")
     (root / "world.config.yaml").write_text("version: 1\n", encoding="utf-8")
     if markers:
@@ -89,11 +91,11 @@ class SyncAgentProtocol(unittest.TestCase):
         self.assertIn("markers", r.stderr)
 
     def test_the_kit_owns_the_protocol_and_does_not_sync_into_itself(self):
-        """With the source at <root>/docs/ this IS the kit: nothing to sync, and not an error."""
+        """With the source under <root>/template/ this IS the kit: nothing to sync, not an error."""
         kit = Path(self.tmp.name) / "kit"
-        (kit / "docs").mkdir(parents=True)
-        (kit / "docs" / "agent-protocol.md").write_text(SOURCE.read_text(encoding="utf-8"),
-                                                       encoding="utf-8")
+        (kit / "template" / "meta" / "conventions").mkdir(parents=True)
+        (kit / "template" / "meta" / "conventions" / "agent-protocol.md").write_text(
+            SOURCE.read_text(encoding="utf-8"), encoding="utf-8")
         (kit / "world.config.yaml").write_text("version: 1\n", encoding="utf-8")
         (kit / "AGENTS.md").write_text("# AGENTS.md: the Worldkit\n", encoding="utf-8")
         for args in ((), ("--check",)):

@@ -6,9 +6,9 @@
  *
  * Usage:  node tools/check-guide.mjs [guide.md ...]     (default: the authoring guide, see below)
  *
- * The guide is a worldkit document, so its home is `<kit>/docs/campaign-authoring-guide.md`. A world
- * vendors it at `tools/docs/`, so both layouts are resolved; the older staging path is still
- * accepted so an older checkout keeps working.
+ * The guide is the kit's world-facing document: a world holds it at
+ * `meta/conventions/campaign-authoring-guide.md`, and the kit at
+ * `template/meta/conventions/campaign-authoring-guide.md`. Both layouts are resolved.
  */
 import { readFileSync, readdirSync, existsSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
@@ -23,7 +23,8 @@ const { parseAuthoredEntity } = authoredContent();
 
 /** First path that exists, so one tool serves the worldkit, the staged kit and a world. */
 const firstExisting = (...paths) => paths.find((p) => existsSync(p));
-const DOC_DIRS = [join(ROOT, 'docs'), join(ROOT, 'tools', 'docs'), join(ROOT, 'worldkit', 'docs')];
+const DOC_DIRS = [join(ROOT, 'template', 'meta', 'conventions'), join(ROOT, 'meta', 'conventions'),
+                  join(ROOT, 'docs'), join(ROOT, 'tools', 'docs')];
 const KIT_GUIDE = DOC_DIRS.map((d) => join(d, 'campaign-authoring-guide.md')).find(existsSync);
 // In the kit this is the demo world (under template/example-world/); in a world it is that world's
 // own vault at the root. Every layout is tried, so one tool serves the kit and a vendored world.
@@ -51,8 +52,8 @@ for (const f of SOURCES.flatMap(walk)) {
 }
 
 if (!KIT_GUIDE) {
-  console.error('check-guide: cannot find campaign-authoring-guide.md (looked in ./docs, ./tools/docs,' +
-                ' ./worldkit/docs); pass the path as an argument');
+  console.error('check-guide: cannot find campaign-authoring-guide.md (looked in ' + DOC_DIRS.join(', ') +
+                '); pass the path as an argument');
   process.exit(2);
 }
 const files = process.argv.slice(2).length ? process.argv.slice(2) : [KIT_GUIDE];

@@ -6,7 +6,7 @@ are starting, which is the right default for a world bible — you can loosen it
 you grant cannot be taken back, so a world should start restrictive. If you already know what you
 want, write it over this file; the four paragraphs below only tell you what is here now.
 
-**The machinery is not yours to license.** `tools/`, `tools/docs/`, `meta/templates/`, the site
+**The machinery is not yours to license.** `tools/`, `meta/conventions/`, `meta/templates/`, the site
 theme under `site/` and the agent prompts in `.pi/prompts/` are the worldkit's, vendored at the tag
 in `TOOLING_VERSION` and covered by its licences, which travel with the code:
 MIT (`tools/LICENSE`) and CC BY 4.0 for the prose (`tools/LICENSE-CONTENT`).

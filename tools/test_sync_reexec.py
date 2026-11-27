@@ -2,14 +2,16 @@
 """The sync re-executes itself when the release replaces the running script -- and it must not
 delete the world's rules on the way past.
 
-The second is a regression test for a real bug that the END STATE hid perfectly. The kit keeps
-`docs/` as a sibling of `tools/`; a world keeps it at `tools/docs/`. So the `tools/` rsync found
-`docs/` present in the world and absent from the kit, deleted it, and the next line recreated it --
-on every run. Every finished sync looked correct. A sync that stopped in between (a refusal, a
-Ctrl-C) left a world with no rules at all.
+The second is a regression test for a real bug that the END STATE hid perfectly. Anything the sync
+places INSIDE a world's `tools/` from a different place in the kit is found by the `tools/` rsync in
+the world and not in the kit, so it is deleted and then recreated -- on every run. Every finished
+sync looked correct. A sync that stopped in between (a refusal, a Ctrl-C) left a world with the file
+missing. The kit's documents were that file once (`docs/` -> `tools/docs/`); today they live at
+`meta/conventions/`, outside `tools/`, and the two licences are what the sync places inside
+`tools/` from the kit's root.
 
-An end-state assertion cannot see that, which is why this one uses a probe: a file in `tools/docs/`
-that the kit does not have. If the rsync can delete it, the exclusion is missing.
+An end-state assertion cannot see that, which is why this one uses a probe: a file inside `tools/`
+that the kit root holds rather than `tools/`. If the rsync can delete it, the exclusion is missing.
 
 Without it, a release that adds a sync step does not run that step when a world takes the release:
 `tools/` is copied early, the running script keeps executing the old text, and the new step is
@@ -47,14 +49,15 @@ class ReexecCase(unittest.TestCase):
     def _kit(self, marker: str) -> None:
         """A stand-in worldkit: a version, a tools/ sync script that prints a marker, one template."""
         (self.kit / "tools").mkdir(parents=True)
-        (self.kit / "docs").mkdir(parents=True)
+        (self.kit / "template/meta/conventions").mkdir(parents=True)
         (self.kit / "template/meta/templates").mkdir(parents=True)
         # A theme, or the site step does not run at all -- and then the test cannot see what the
         # site step does to a world's generated directories. (It could not: the first version of
         # this fixture had no site/, so the assertion passed with the bug present.)
         (self.kit / "site/src/lib").mkdir(parents=True)
         (self.kit / "site/src/lib/site.ts").write_text("// theme\n", encoding="utf-8")
-        (self.kit / "docs/conventions.md").write_text("# Conventions\n", encoding="utf-8")
+        (self.kit / "template/meta/conventions/conventions.md").write_text(
+            "# Conventions\n", encoding="utf-8")
         (self.kit / "LICENSE").write_text("MIT\n", encoding="utf-8")
         (self.kit / "LICENSE-CONTENT").write_text("CC BY 4.0\n", encoding="utf-8")
         (self.kit / "TOOLING_VERSION").write_text("v9.9.9\n", encoding="utf-8")
@@ -101,18 +104,18 @@ class ReexecCase(unittest.TestCase):
     def test_a_second_sync_has_nothing_to_delete(self):
         """The regression test for the bug the end state hid.
 
-        The kit keeps `docs/` as a sibling of `tools/`; a world keeps it at `tools/docs/`. So the
-        `tools/` rsync used to find `docs/` in the world and not in the kit, delete it, and let the
-        next line recreate it -- on every run. Every *finished* sync looked correct, which is why it
-        survived two releases.
+        The kit root holds the licences, and the sync places them inside a world's `tools/`. So the
+        `tools/` rsync used to find them in the world and not in the kit, delete them, and let the
+        next line recreate them -- on every run. Every *finished* sync looked correct, which is why
+        it survived two releases. The conventions travel the same way from `template/meta/`.
 
-        One sync puts the docs where a world keeps them, so the second sync is the case that used to
-        plan ten deletions and, once the rails existed, refuse. It must find nothing to do.
+        One sync puts both where a world keeps them, so the second sync is the case that used to plan
+        deletions and, once the rails existed, refuse. It must find nothing to do.
         """
         first = self.run_sync()
         self.assertNotIn("refusing to run", first)
         self.assertEqual("# Conventions\n",
-                         (self.world / "tools/docs/conventions.md").read_text(encoding="utf-8"))
+                         (self.world / "meta/conventions/conventions.md").read_text(encoding="utf-8"))
 
         second = self.run_sync()
         self.assertIn("sync-tooling: v9.9.9 -> v9.9.9", second)
@@ -122,8 +125,8 @@ class ReexecCase(unittest.TestCase):
         for rel in ("site/src/data/generated/x.json", "site/src/content/generated/x.json"):
             self.assertTrue((self.world / rel).exists(), f"the sync deleted {rel}")
         self.assertNotIn("refusing to run", second,
-                         "a normal sync should find nothing to delete inside tools/docs/")
-        self.assertTrue((self.world / "tools/docs/conventions.md").exists())
+                         "a normal sync should find nothing to delete inside tools/")
+        self.assertTrue((self.world / "meta/conventions/conventions.md").exists())
 
     def test_an_unchanged_script_is_not_re_run(self):
         self._world(script=self.kit / "tools/sync-tooling.sh")   # already the new one

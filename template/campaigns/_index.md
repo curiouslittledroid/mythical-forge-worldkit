@@ -14,5 +14,5 @@ and its scenarios. A world bible is not a campaign: campaigns are designed later
 sessions, and this folder is where they land.
 
 - [[_seeds/_index|Seeds]] — the campaigns the world has asked for and not designed yet
-- The method is the worldkit's `docs/campaign-authoring-guide.md`
+- The method is the kit's `campaign-authoring-guide.md`
 - The worked example is the worldkit's `example-world/campaigns/ferryman-demo/`

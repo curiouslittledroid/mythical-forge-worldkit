@@ -39,7 +39,7 @@ echo v1.0.0 > TOOLING_VERSION
 ```
 
 Then write `world.config.yaml` (**the one file a world must supply**) and start authoring notes. The
-config's schema is `docs/conventions.md` §2; a worked example is the demo world's config at
+config's schema is `meta/conventions/conventions.md` §2; a worked example is the demo world's config at
 `template/example-world/world.config.yaml`.
 
 ## What a world must supply
@@ -57,22 +57,21 @@ config's schema is `docs/conventions.md` §2; a worked example is the demo world
 ## Layout
 
 ```
-docs/                  the rules and the registers - the kit's own documents
-  conventions.md               the id grammar, the note-body contract, the lint codes, the vocabularies
-  engine-capability-register.md  what the engine can express, the platform requests, the dispositions
-  agent-protocol.md            the protocol a world's AGENTS.md carries verbatim
-  campaign-authoring-guide.md  how to author a thread, a Campaign, its Modules and Quests
-  thread-pattern.md            why a thread is a state graph (the reference behind the guide)
-  site.md                      how a site is generated from a vault
-  testimony.md                 the first-person device, the voice sheets and the two checks
-  tag-vocabulary.md            the five rules, the block the linter reads, how themes are chosen
-  atlas.md                     the map pipeline, the data layer, and what stays the world's
+docs/                  KIT MAINTENANCE only - nothing an author of a world needs to read
+  extraction.md                the record of the extraction from the first world
+  licensing.md                 why MIT for the code and CC BY 4.0 for the prose
 meta/platform-requests/  draft specs written for the platform repository - not the kit's backlog
 tools/                 the scripts and their tests
 site-theme/            the Astro theme, vendored into a world as site/
 template/              the generated world-template's source: the skeleton a new author forks
                        (world.config.yaml, init-world.sh, the brief, the roadmap, principles/,
-                       the empty vault, the note templates) plus the embedded example-world/ demo
+                       the empty vault) plus the embedded example-world/ demo
+template/meta/conventions/  EVERY WORLD-FACING DOCUMENT: conventions.md (the rules),
+                       campaign-authoring-guide.md, thread-pattern.md, site.md, testimony.md,
+                       tag-vocabulary.md, atlas.md, engine-capability-register.md, agent-protocol.md
+                       A world holds these at meta/conventions/ at the pinned tag. They are prose,
+                       not notes: no frontmatter, no id, cited by name and section, never wikilinked
+template/meta/templates/    one template per note type, vendored into a world as meta/templates/
 example-world/         (inside template/) the DEMO WORLD: the smallest complete vault the tools
                        run against
 export-template.sh     assembles mythical-forge-world-template from template/ + the vendored kit

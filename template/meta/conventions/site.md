@@ -144,9 +144,9 @@ deny-by-default way it decides which sections do: `PUBLISHED_TAGS` in `tools/sit
 - **Tags are outside the changelog hash.** Refiling a note is not a lore revision. Tags are inside
   the keystone scan, though: a sealed term in a tag is a hit like any other.
 
-**Voice:** lore pages in third person, present tense; the landing and About pages in direct address ("you"). **The one exception is testimony** (`docs/testimony.md` section 3.4), which is first person by definition and always attributed to a named teller.
+**Voice:** lore pages in third person, present tense; the landing and About pages in direct address ("you"). **The one exception is testimony** (`meta/conventions/testimony.md` section 3.4), which is first person by definition and always attributed to a named teller.
 
-**Testimony and voice sheets** (`docs/testimony.md` §3.4 and §3.5) are the site's
+**Testimony and voice sheets** (`meta/conventions/testimony.md` §3.4 and §3.5) are the site's
 one first-person device and the two checks that guard it. They are in `testimony.md`, because they
 are about the *writing* rather than the page.
 

@@ -28,23 +28,25 @@ A tool is a script in `tools/` plus a test beside it. Keep both in the same comm
 
 ## Change a rule
 
-The documents in `docs/` are the kit's interface: a world reads them, and its content is shaped by
-them.
+The documents in `template/meta/conventions/` are the kit's interface: a world reads them (at
+`meta/conventions/`), and its content is shaped by them. **`docs/` holds only what it takes to
+maintain the kit** — the extraction record and the licensing reasoning. If a world author must read
+it, it belongs in `template/meta/conventions/`.
 
 - **A rule change is a code change.** If you change what `tools/lint.py` accepts, change the
   conventions section, the template and the linter's test **in the same commit**. A rule that exists
   in the linter but not in the conventions is invisible to an author; the reverse is a lie.
-- **`docs/conventions.md` keeps its section numbering.** Sections are cited by number from worlds and from
+- **`meta/conventions/conventions.md` keeps its section numbering.** Sections are cited by number from worlds and from
   other kit documents. Add to the end, or deprecate a number in place — never renumber.
 - **A closed vocabulary is closed.** Relationship kinds, judgement tags, effects, tactics and content
   descriptors belong to the engine. If the world needs something it cannot express, that is a
-  **request** in `docs/engine-capability-register.md`, not a new value here.
+  **request** in `meta/conventions/engine-capability-register.md`, not a new value here.
 - **Say it once.** One home per rule; link to it rather than restating it. If two documents need the
   same rule, one of them is the home and the other cites it by name and section.
 
 ## Change the engine contract
 
-When the platform ships a release, `docs/engine-capability-register.md` is where it lands: move the
+When the platform ships a release, `meta/conventions/engine-capability-register.md` is where it lands: move the
 request out of the catalogue, record what actually shipped, and re-classify the rows it changes. A
 world's own `meta/mechanics-gap-register.md` lists which requests **its** lore was waiting on, so it
 can find its own work without re-reading the catalogue.

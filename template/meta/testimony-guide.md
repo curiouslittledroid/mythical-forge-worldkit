@@ -10,8 +10,8 @@ engine: false
 # Testimony Guide
 
 **Summary:** **A pointer note.** How to write a testimony — the page it is quoted from, the teller,
-the entry heading, the voice sheet, the two checks — is the worldkit's `docs/testimony.md`, vendored
-at `tools/docs/testimony.md`. Cite it as "the worldkit's `docs/testimony.md` section 3.4".
+the entry heading, the voice sheet, the two checks — is the kit's `testimony.md`, at
+`meta/conventions/testimony.md`. Cite it as "the kit's `testimony.md` section 3.4".
 
 This note exists so a session writing a testimony knows where the rules are, and so
 `[[testimony-guide]]` resolves. Do not restate the document here.
@@ -23,4 +23,4 @@ This note exists so a session writing a testimony knows where the rules are, and
 
 ## Links
 
-- [[the-book]], [[site-decisions]], `tools/docs/testimony.md`
+- [[the-book]], [[site-decisions]], `meta/conventions/testimony.md`

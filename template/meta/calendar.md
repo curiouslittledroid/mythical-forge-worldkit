@@ -24,4 +24,4 @@ present: REPLACE_ME
 2. **What is the present year?** Everything in the vault that has a date is placed against it.
 3. **How do people divide the year?** Seasons, festivals, a working calendar of the world's own.
 
-`REPLACE` the answers. The worldkit's `docs/site.md` section 5 covers how the site writes a date.
+`REPLACE` the answers. The kit's `site.md` section 5 covers how the site writes a date.

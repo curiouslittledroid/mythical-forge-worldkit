@@ -69,7 +69,7 @@ first minute, when it has no idea what it will become.
 
 **The natural upgrade**, when a world wants others to reuse it, is **CC BY-NC-SA 4.0 for the `open`
 material only** — the material a world has already decided to publish. The codex already sorts every
-section along exactly that axis: `open`, `earned`, `sealed` (see the worldkit's `docs/conventions.md`
+section along exactly that axis: `open`, `earned`, `sealed` (see the kit's `conventions.md`
 §7). A world that takes this route is not inventing a boundary; it is drawing the licence along one
 it already maintains.
 
@@ -122,8 +122,9 @@ site's own (`site/LICENSES.md`), and the Python is standard library.
 grant anyone else anything at all; and whether to publish a fan policy alongside the licence.
 Loosening later is always possible; tightening is not.
 
-**The world may not relicence:** `tools/` (except `tools/local/`, which is its own), `tools/docs/`,
-`meta/templates/`, `.pi/prompts/`, or the theme under `site/`. Those are the kit's, and a world
+**The world may not relicence:** `tools/` (except `tools/local/`, which is its own),
+`meta/conventions/`, `meta/templates/`, `.pi/prompts/`, or the theme under `site/`. Those are the
+kit's, and a world
 holding a copy of them does not hold the right to change their terms. A world that edits the licence
 text itself will see it replaced at the next sync — which is the correct outcome, and the reason the
 notices live beside the code rather than in a world's own file.

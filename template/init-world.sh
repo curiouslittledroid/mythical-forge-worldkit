@@ -178,7 +178,7 @@ the lore, the notes, the prose, the maps and the art of {title} -- is the author
 granted to copy, adapt or redistribute it. Run games in it, talk about it, and enjoy it; do not
 republish the codex.
 
-THE MACHINERY IS NOT OURS. `tools/` (except `tools/local/`), `tools/docs/`, `meta/templates/`, the
+THE MACHINERY IS NOT OURS. `tools/` (except `tools/local/`), `meta/conventions/`, `meta/templates/`, the
 site theme under `site/` and the agent prompts in `.pi/prompts/` are the worldkit's, vendored at the
 tag in `TOOLING_VERSION`. They travel with their own licences, which is the point of having one: MIT
 for the tools (`tools/LICENSE`) and CC BY 4.0 for the prose (`tools/LICENSE-CONTENT`).

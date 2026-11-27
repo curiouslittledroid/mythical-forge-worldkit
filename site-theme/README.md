@@ -11,7 +11,7 @@ world value arrives generated, in `src/data/generated/site.json`, from the world
 world's config, not this theme.
 
 The mechanism — the publish axis, the redaction rules, the audit, the page shape, the stack and the
-deploy — is `docs/site.md`. A world's own page choices are its own note.
+deploy — is `meta/conventions/site.md`. A world's own page choices are its own note.
 
 ## Run it
 
@@ -63,7 +63,7 @@ From a workstation: `./site/deploy.sh`.
 
 1. `python3 tools/site_export.py` then the build.
 2. `python3 tools/site_audit_report.py` — **read** the keyword hits and the design citations. A
-   build may be deployed only after the audit has been read (`docs/site.md` section 2.3).
+   build may be deployed only after the audit has been read (`meta/conventions/site.md` section 2.3).
 3. `python3 tools/site_link_check.py` — must report 0 dead links.
 
 ## Replacing the theme

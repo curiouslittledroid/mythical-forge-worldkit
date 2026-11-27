@@ -48,15 +48,18 @@ else:
     print(f"TOOLING_VERSION ({v}) is not behind the newest tag ({newest})")
 EOF
 
-# Assemble the demo world the way a world holds it: the kit's example-world/ plus the vendored
-# tools/ and tools/docs/. The proof then runs exactly as an author's tools/verify-world.sh would,
-# against a copy of the fixture rather than the kit root (which is not a world).
+# Assemble the demo world the way a world holds it: the kit's example-world/, plus the vendored
+# tools/ and the kit's world-facing documents at meta/conventions/. The proof then runs exactly as
+# an author's tools/verify-world.sh would, against a copy of the fixture rather than the kit root
+# (which is not a world).
 rsync -a --exclude .git --exclude node_modules --exclude __pycache__ \
       "$ROOT/template/example-world/" "$TMP/world/"
 rsync -a --exclude .git --exclude node_modules --exclude __pycache__ \
       "$ROOT/tools/" "$TMP/world/tools/"
-mkdir -p "$TMP/world/tools/docs"
-rsync -a "$ROOT/docs/" "$TMP/world/tools/docs/"
+mkdir -p "$TMP/world/meta/conventions"
+rsync -a "$ROOT/template/meta/conventions/" "$TMP/world/meta/conventions/"
+mkdir -p "$TMP/world/meta/templates"
+rsync -a "$ROOT/template/meta/templates/" "$TMP/world/meta/templates/"
 mkdir -p "$TMP/gameready"
 # The copy excludes node_modules -- slow to copy, and not part of the vault -- so the real one is
 # linked back in: the tools need the engine's schemas, and in an installed deployment those are this

@@ -12,7 +12,7 @@ sources: []
 
 # World Flags
 
-**Summary:** The world's Author-declared **effect-only flags**. A `set_flag` Effect may name only a flag declared in the block at the bottom of this note, and the transformer copies the block into the generated `manifest.yaml`. What flags are for, the two kinds (effect-only and judgement tag) and the declare → set → test workflow are in the kit's `docs/conventions.md` section 9.4.
+**Summary:** The world's Author-declared **effect-only flags**. A `set_flag` Effect may name only a flag declared in the block at the bottom of this note, and the transformer copies the block into the generated `manifest.yaml`. What flags are for, the two kinds (effect-only and judgement tag) and the declare → set → test workflow are in the kit's `meta/conventions/conventions.md` section 9.4.
 
 ## The demo world's flags
 

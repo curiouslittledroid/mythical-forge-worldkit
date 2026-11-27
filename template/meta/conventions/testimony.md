@@ -26,7 +26,7 @@ Some pages carry an **account**: a first-person passage, reported speech from a 
 - **No figures** in an account unless the figure is the point, and then it must equal the note's. A figure may also name a person who is not an NPC — the point is texture, not a hook.
 - **A thread reference belongs under `## Hooks`**, never in testimony: a teller may say what is public, never name a plot thread.
 
-**Two checks guard the voices** (`docs/site.md` section 9): `tools/voice_lint.py` holds each teller to her **voice sheet** — a forbidden vocabulary (*never says*) and the **places she has been** (a place link outside it is a teller describing somewhere she never stood) — and `tools/voice_stale.py` reports every note whose canon changed after its account was written. The staleness check reads the account's year, because **an account may be old on purpose**: see `docs/testimony.md` section 3.5.
+**Two checks guard the voices** (`meta/conventions/site.md` section 9): `tools/voice_lint.py` holds each teller to her **voice sheet** — a forbidden vocabulary (*never says*) and the **places she has been** (a place link outside it is a teller describing somewhere she never stood) — and `tools/voice_stale.py` reports every note whose canon changed after its account was written. The staleness check reads the account's year, because **an account may be old on purpose**: see `meta/conventions/testimony.md` section 3.5.
 
 ### 3.5 Voice sheets and staleness
 
@@ -181,6 +181,6 @@ The present year comes from [[calendar]]. An uncommitted edit reads `unknown`, n
 
 ## Links
 
-- `docs/site.md` §3.3 — how a note's tags publish (accounts are scanned for keystones like any text)
+- `meta/conventions/site.md` §3.3 — how a note's tags publish (accounts are scanned for keystones like any text)
 - `conventions.md` §7 — the disclosure classes, which decide whether an account publishes at all
 - a world's own testimony note — its book, its cast and its voice sheets

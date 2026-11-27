@@ -4,7 +4,7 @@
 the tooling out of the first world (`hollowfall-codex`), and continues as ordinary kit maintenance.
 The kit's *users* are worlds; a world's own plan lives in its own `ROADMAP.md`.
 
-**Read first:** `AGENTS.md`, `README.md`, `docs/conventions.md` §16 (the linter's codes).
+**Read first:** `AGENTS.md`, `README.md`, `meta/conventions/conventions.md` §16 (the linter's codes).
 
 ## 0. Status
 
@@ -26,10 +26,10 @@ Ordered. Each task is one commit, verified before it lands (see `CONTRIBUTING.md
 | **K2** | **De-brand the fixture.** Its places are the first world's: `Dustport`, `Saltmarch`, `Vigil`. Rename them to the demo world's own, and remove the three stub place notes they force (`world/places/`, `world/peoples/humans.md`) | Coding | **Not started** | the demo world carries no name that comes from another world, and `verify-kit.sh` is still green |
 | **K3** | ~~**Move the templates in.**~~ `meta/templates/` is already here; **Done.** The 15 templates are here, and the demo world is the single copy of the fixture: it used to sit beside the templates too, and two copies of a fixture drift | Coding | **Done** | — |
 | **K4** | ~~**`verify-kit.sh` and the fixture.**~~ Generalise the last of the extraction's `verify-example.sh` (now `tools/verify-world.sh`): **Done.** It builds the demo world from this repository alone and runs the whole pipeline on it | Coding | **Done** | — |
-| **K5** | **Versioning and the sync contract.** ~~Exists and exercised once.~~ **Done** — the first world vendored its `tools/`, `tools/docs/` and templates from the tag, and now differs from the kit only by `tools/local/` (its own scripts) and `tools/docs/` (the vendored rules). What it found: the script shipped non-executable, and a vendored test hardcoded the kit's layout | Coding | **Done** | — |
+| **K5** | **Versioning and the sync contract.** ~~Exists and exercised once.~~ **Done** — the first world vendored its `tools/` and templates from the tag, and now differs from the kit only by `tools/local/` (its own scripts) and the kit documents it holds (then `tools/docs/`, now `meta/conventions/`). What it found: the script shipped non-executable, and a vendored test hardcoded the kit's layout | Coding | **Done** | — |
 | **K10** | **The sync's safety rails** (`docs/extraction.md`'s third testing gap (its section 3.4)): refuse a dirty working tree, preview deletions before applying them, and offer `--dry-run`. `rsync --delete` on `tools/` silently removes a world's script that is not in `tools/local/` | Coding | **Done** (v1.1.0, and the rails then found three bugs in themselves: v1.1.1 the sync was deleting a world's `tools/docs/` on every run, v1.1.2 it refused every published world over the site's generated directories) | a sync on a dirty tree refuses; a deletion is shown before it happens — refuses a dirty tree (in the paths it replaces only: `tools/local/` is the world's), previews deletions by re-running in dry-run mode and refuses when there are any, and adds `--dry-run` |
 | **K6** | **The site theme as a kit asset.** Move `site-theme/src/**`, `astro.config.mjs`, `package.json`, the deploy script and `image-prompts/_style.md`; strip the first world's branding into the config. **The theme stays in one directory behind the config seam**, so a world can replace it | Coding | **Not started** | a world whose only file is `world.config.yaml` plus content builds the site |
-| **K7** | ~~**The remaining doc splits.**~~ **Done**, plus `docs/atlas.md` (D38): `site.md` (keeping its section numbers, because worlds cite them), `thread-pattern.md`, `testimony.md`, `tag-vocabulary.md`. Each was extracted from the first world's note by line range and then de-branded, so the world kept only its own decisions and a pointer | Coding | **Done** | — |
+| **K7** | ~~**The remaining doc splits.**~~ **Done**, plus `meta/conventions/atlas.md` (D38): `site.md` (keeping its section numbers, because worlds cite them), `thread-pattern.md`, `testimony.md`, `tag-vocabulary.md`. Each was extracted from the first world's note by line range and then de-branded, so the world kept only its own decisions and a pointer | Coding | **Done** | — |
 | **K8** | **The world template.** Generated, not hand-edited: the kit's `template/` is the source, `export-template.sh` assembles the published repo (skeleton + vendored kit + embedded `example-world/`). Its `AGENTS.md` is the third of the three (D36): a world's brief, with the protocol synced in | Coding | **Done** (this refactor) | a fork runs the whole pipeline and the site build with **zero code edits** |
 | **K9** | **A `new-world` CLI.** `npx`-style scaffolding, or `init-world.sh` grown up: ask the questions, write the config, set up the deploy variables, offer to remove the demo world | Decision then coding | **Blocked on K1** | — (open: does the kit ship one at all?) |
 
@@ -72,5 +72,5 @@ Ordered. Each task is one commit, verified before it lands (see `CONTRIBUTING.md
 
 - `AGENTS.md` — the brief for working here
 - `CONTRIBUTING.md` — how to add a tool, change a rule, or cut a release
-- `docs/conventions.md` — the rules a world follows
-- `docs/engine-capability-register.md` — the platform requests, and where a release lands
+- `meta/conventions/conventions.md` — the rules a world follows
+- `meta/conventions/engine-capability-register.md` — the platform requests, and where a release lands

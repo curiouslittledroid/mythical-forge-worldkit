@@ -27,7 +27,7 @@ Architectural study sketch: fine ink over graphite construction, ruled survey li
 ## Rules of thumb
 
 - **Medium negations are safe, object negations are not.** `no rendering`, `not photorealistic` work: they steer the medium. `no glass panes` does the opposite — it supplies the object, and the model draws it. Object prohibitions belong in a plate's `## Avoid` section, which is a reviewer checklist, not prompt text.
-- **One warm accent, always.** The site palette is bleached sand, bone, ash grey, charcoal, deep indigo and slate shadows, plus **one** warm accent (`docs/site.md` §5, visual direction). Name the accent in the plate body so it is scumbled where the light is: honey-amber for wardstone light, ember-orange for fire and gates.
+- **One warm accent, always.** The site palette is bleached sand, bone, ash grey, charcoal, deep indigo and slate shadows, plus **one** warm accent (`meta/conventions/site.md` §5, visual direction). Name the accent in the plate body so it is scumbled where the light is: honey-amber for wardstone light, ember-orange for fire and gates.
 - **Never write Midjourney flags.** `--ar`, `--style`, `--v`, `--stylize` are ignored by the OpenRouter image API and passed through as literal prompt text. Aspect ratio, resolution, model and count are tool parameters, set in the plate's machine block.
 - **Never bake text into the image.** The wordmark and headings are live text over the image. Flux draws an artist's signature unprompted; every block ends `no signature`, and a signature that survives is cropped at accept time.
 - **Keep it under about 250 words for the body.** The tail is around 60. Long prompts lose clauses; put the clauses that carry canon first.

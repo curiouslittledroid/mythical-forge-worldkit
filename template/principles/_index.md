@@ -19,5 +19,5 @@ written as **questions** because a boiled-down version of another world's answer
 
 The vault's contents are in [[meta/_index|World Notes]].
 
-Answer them with the user in the first session. The worldkit's `docs/campaign-authoring-guide.md`
+Answer them with the user in the first session. The kit's `campaign-authoring-guide.md`
 is the authority on **how to run that session**; this folder is the world's own answers.

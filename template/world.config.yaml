@@ -5,8 +5,7 @@
 #
 # Read by tools/kit_config.py (Python) and tools/kit_config.mjs (Node). Both parse the strict YAML
 # subset in tools/yaml_subset.py, so: no flow mappings, no anchors, and any value containing ": "
-# must be quoted. The schema, key by key, is the worldkit's `docs/conventions.md` section 3
-# (vendored at tools/docs/conventions.md).
+# must be quoted. The schema, key by key, is the kit's `conventions.md` section 3
 
 version: 1
 

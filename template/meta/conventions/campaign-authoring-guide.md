@@ -1,6 +1,6 @@
 # Campaign and Thread Authoring Guide
 
-**Summary:** A step-by-step tutorial for building a **thread**, a **Campaign**, its **Modules** and **Quests**, and every engine block they need. `docs/thread-pattern.md` is the reference (the *why*). This guide is the *how*: it walks one small example from a blank page to a passing test. It will be replaced by an authoring tool one day; until then it is the tool.
+**Summary:** A step-by-step tutorial for building a **thread**, a **Campaign**, its **Modules** and **Quests**, and every engine block they need. `meta/conventions/thread-pattern.md` is the reference (the *why*). This guide is the *how*: it walks one small example from a blank page to a passing test. It will be replaced by an authoring tool one day; until then it is the tool.
 
 > **Status: staged, and not yet neutral.** This guide moved out of a world's `meta/` at extraction T3f
 > (decision D31) and is de-branded at T7: its worked example is already the world-agnostic
@@ -62,7 +62,7 @@ A **block** is a fenced `engine` code block of YAML inside a note. The transform
 
 ## 1.3 How the pieces link (there is no thread entity)
 
-The engine has no `THREAD` entity. **Pieces are linked by shared ids and flags.** A Want's deadline sets a flag; an event's `when` tests that flag; the event sets another flag; a Quest tests it. Read `docs/thread-pattern.md` section 7.2 for the full table. The one rule to remember: **the armed flag is the thread's switch.** A Campaign sets it; the thread's first Wants and events test it. No armed flag, no thread.
+The engine has no `THREAD` entity. **Pieces are linked by shared ids and flags.** A Want's deadline sets a flag; an event's `when` tests that flag; the event sets another flag; a Quest tests it. Read `meta/conventions/thread-pattern.md` section 7.2 for the full table. The one rule to remember: **the armed flag is the thread's switch.** A Campaign sets it; the thread's first Wants and events test it. No armed flag, no thread.
 
 ## 1.4 The loop
 
@@ -174,7 +174,7 @@ Do this before you write a block. A thread that cannot be drawn in a table canno
 Answer these in order. Each answer becomes a block.
 
 1. **Premise, in one sentence, and what happens if nobody intervenes** (the *idle outcome*).
-2. **Class:** Resolvable, Managed or Ratchet (`docs/thread-pattern.md` section 6). The class decides the shape of your graph.
+2. **Class:** Resolvable, Managed or Ratchet (`meta/conventions/thread-pattern.md` section 6). The class decides the shape of your graph.
 3. **Actors, and who replaces each if the player removes them** (the *successors*).
 4. **The state graph:** each state, what enters it, what changes, and its exits.
 5. **Timers:** how many days between states, if left alone (these become Want deadlines).
@@ -219,7 +219,7 @@ Answer these in order. Each answer becomes a block.
 | **Successor** | the player will kill the person the thread depends on | an event on `not npc_alive` brings the next, or sets every open intent at once |
 | **Inference** | the player will do things no Quest covers | an event turns state (a location, a death) into the thread's flags and edges |
 
-For Managed threads you also need **unrolled cycles** (an event fires once, so a repeating beat is written as numbered copies with a floor), and for Ratchets a **LOCKED** floor. See section 8.2 and `docs/thread-pattern.md` section 7.3.
+For Managed threads you also need **unrolled cycles** (an event fires once, so a repeating beat is written as numbered copies with a floor), and for Ratchets a **LOCKED** floor. See section 8.2 and `meta/conventions/thread-pattern.md` section 7.3.
 
 ---
 
@@ -366,7 +366,7 @@ authority: LOCKED
 
 Two notes:
 - Design 23 §6 defines authority generally. How it applies to a Fact in particular (verbatim versus adapted wording) is **my reading of that definition**: the spec's own Fact example just writes `authority: GUIDED`.
-- `LOCKED` carries an extra rule on a **Want** or **World Event**: it needs a deterministic fallback. A Fact has no outcome to enforce, so it needs none. Where each level is used in the plot web: `docs/thread-pattern.md` section 8.4.
+- `LOCKED` carries an extra rule on a **Want** or **World Event**: it needs a deterministic fallback. A Fact has no outcome to enforce, so it needs none. Where each level is used in the plot web: `meta/conventions/thread-pattern.md` section 8.4.
 
 **Group knowledge.** Write who knows a Fact **by group and tier**, and let the transformer resolve it to NPC ids:
 
@@ -699,7 +699,7 @@ unlocks:
 
 ## 5.2 The overlay
 
-**Where:** `overlay-<slug>.md`, `kind: OVERLAY` in frontmatter, id `overlay_...`, block `CAMPAIGN_OVERLAY`. It holds `adds`, `overrides` and `suppresses`, and must hold at least one. See `docs/thread-pattern.md` section 2.1 for why it is separate.
+**Where:** `overlay-<slug>.md`, `kind: OVERLAY` in frontmatter, id `overlay_...`, block `CAMPAIGN_OVERLAY`. It holds `adds`, `overrides` and `suppresses`, and must hold at least one. See `meta/conventions/thread-pattern.md` section 2.1 for why it is separate.
 
 ```yaml
 kind: CAMPAIGN_OVERLAY
@@ -1283,4 +1283,4 @@ An Effect list holds at most 64 Effects. A Condition nests at most 16 deep and h
 | `_known_by_groups` on a Fact | resolved to `known_by` NPC ids |
 
 ## Links
-`docs/thread-pattern.md`, `the-ferrymans-debt.md`, the-lineage-and-the-gate-born, the engine-capability register, the kit's conventions, the world's flag register, the-quay-boy
+`meta/conventions/thread-pattern.md`, `the-ferrymans-debt.md`, the-lineage-and-the-gate-born, the engine-capability register, the kit's conventions, the world's flag register, the-quay-boy

@@ -10,7 +10,7 @@ engine: false
 # Maps
 
 **Purpose:** The world's maps: which plates exist, and what they are for. The method — the atlas
-pipeline, the feature register, the commands that draw a sheet — is the worldkit's `docs/atlas.md`.
+pipeline, the feature register, the commands that draw a sheet — is the kit's `atlas.md`.
 
 ## The layout
 

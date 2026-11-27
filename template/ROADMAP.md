@@ -8,8 +8,8 @@ worldkit's, because they hold for any world built this way. Everything about *th
 status, its notes, its open items — is yours to fill in as you go. Sections 1, 4 and 5 start empty
 on purpose.
 
-**The step numbers are stable.** The worldkit's documents cite them by number (`docs/thread-pattern.md`
-refers to "Step 12", `docs/site.md` to "Step 16"), so keep the numbering even if you rename a step.
+**The step numbers are stable.** The worldkit's documents cite them by number (`meta/conventions/thread-pattern.md`
+refers to "Step 12", `meta/conventions/site.md` to "Step 16"), so keep the numbering even if you rename a step.
 
 ---
 
@@ -18,7 +18,7 @@ refers to "Step 12", `docs/site.md` to "Step 16"), so keep the numbering even if
 ### 0.1 Where things are
 
 The canon is the **vault** at the repository root. The top-level layout is fixed by the tooling (the
-worldkit's `docs/conventions.md` §3); how `world/` is organised inside it is yours.
+kit's `conventions.md` §3); how `world/` is organised inside it is yours.
 
 | Path | What it is |
 |---|---|
@@ -27,8 +27,8 @@ worldkit's `docs/conventions.md` §3); how `world/` is organised inside it is yo
 | `ROADMAP.md` | This file. |
 | `world.config.yaml` | **The world's identity:** ids, title, slug, the notes the tools read, the feature switches, the site's navigation. |
 | `TOOLING_VERSION` | The pinned worldkit version. Moved by `tools/sync-tooling.sh`; never hand-edited. |
-| the worldkit's `docs/conventions.md` | **The rules:** layout, ids, frontmatter, engine blocks, disclosure, status. Vendored at `tools/docs/conventions.md`. |
-| `tools/docs/` | Every kit document this repository cites, at the pinned version. Written by the sync, never by hand. |
+| the kit's `conventions.md` | **The rules:** layout, ids, frontmatter, engine blocks, disclosure, status. |
+| `meta/conventions/` | Every world-facing kit document, at the pinned version. Written by the sync, never by hand. |
 | `meta/world-conventions.md` | **This world's choices** on top of those rules: its folder shape, the headings it adds, its vocabularies, its keystones. |
 | `meta/` | This world's own decisions: `canon-digest.md`, `names.md`, `open-questions.md`, `mechanics-gap-register.md`, the site notes. Never extracted by the transformer. |
 | `principles/` | The four notes that decide what the world is. **Nothing else can be written well until they are answered.** |
@@ -64,7 +64,7 @@ The session protocol is the same for every step; only the class of work changes.
 - In a Mixed step, hand bulk formatting (indexes, repeated notes from a table, `engine` blocks, link
   and lint repair) to a coding model once the decisions are fixed.
 - Whatever does mechanical work, **run `python3 tools/lint.py` afterwards** (the worldkit's
-  `docs/conventions.md` §16). A generator bug can scramble notes silently; the linter catches it.
+  `meta/conventions/conventions.md` §16). A generator bug can scramble notes silently; the linter catches it.
 
 ### 0.4 The first moves in this repository
 
@@ -74,7 +74,7 @@ The session protocol is the same for every step; only the class of work changes.
 2. **Read `AGENTS.md`**, then the four notes in `principles/`.
 3. **Start at Step 0b.** Do not write lore before it: Step 0b is what makes the lore answerable.
 4. **Keep the tooling current:** `tools/sync-tooling.sh v1.0.x` fetches a kit tag, replaces `tools/`,
-   `tools/docs/` and `meta/templates/`, rewrites `TOOLING_VERSION`, and re-syncs the `AGENTS.md`
+   `meta/conventions/` and `meta/templates/`, rewrites `TOOLING_VERSION`, and re-syncs the `AGENTS.md`
    protocol region. It never touches `tools/local/`, and it excludes the site pages the world owns.
    One command, one commit; the diff *is* the upgrade. Then run `tools/verify-world.sh`.
 
@@ -86,7 +86,7 @@ The session protocol is the same for every step; only the class of work changes.
 
 | # | Step | Model | Status | Produces | Depends on |
 |---|---|---|---|---|---|
-| 0a | Conventions and note templates | — | Done (the kit's) | the worldkit's `docs/conventions.md`, `meta/templates/` | — |
+| 0a | Conventions and note templates | — | Done (the kit's) | the kit's `conventions.md`, `meta/templates/` | — |
 | 0b | Decide what this world is | Creative | Not started | `world.config.yaml`, `principles/pillars.md`, `permanence-rules.md`, `originality-guardrails.md`, `meta/canon-digest.md`, `meta/names.md` | — |
 | 0c | Tone | Creative | Not started | `principles/tone.md`, `principles/what-to-expect.md` | 0b |
 | 1 | The truth ledger and the history timeline | Creative | Not started | `world/history/`, `meta/timeline.md` | 0b, 0c |
@@ -115,7 +115,7 @@ The session protocol is the same for every step; only the class of work changes.
 | 16 | The public codex site | Mixed | Not started | `tools/site_export.py`, `site/`, `meta/site.md` | 2d (can run beside 14) |
 
 Steps can be done in any order where `Depends on` allows. The suggested order is the table's, top to
-bottom. Every note from Step 2 on follows the worldkit's `docs/conventions.md` and the templates from
+bottom. Every note from Step 2 on follows the kit's `conventions.md` and the templates from
 Step 0a.
 
 ---
@@ -131,8 +131,8 @@ its scenarios, its engine blocks) and it passes the same checks yours will.
 ### Step 0a: Conventions and note templates
 
 - **Goal:** none. The worldkit ships the rules and a template for every note type, and this vault
-  already has them (`tools/docs/conventions.md`, `meta/templates/`).
-- **Read first:** the worldkit's `docs/conventions.md` — §3 (layout), §5 (ids and filenames), §6
+  already has them (`meta/conventions/conventions.md`, `meta/templates/`).
+- **Read first:** the kit's `conventions.md` — §3 (layout), §5 (ids and filenames), §6
   (frontmatter), §7 (disclosure), §9 (note bodies), §16 (the linter).
 - **Produce:** nothing. A world never edits `meta/templates/` (the sync deletes it) and never edits
   the kit's rules: if a rule is wrong for your world, write your version in
@@ -146,9 +146,9 @@ its scenarios, its engine blocks) and it passes the same checks yours will.
 - **Goal:** answer the questions the whole canon depends on, before any lore is written: what the
   world is *for*, what is scarce, who holds power, what is permanently broken, what it is not.
 - **Read first:** `principles/_index.md` and the four notes it lists; `world.config.yaml`; the
-  worldkit's `docs/campaign-authoring-guide.md` (how to run the session); `example-world/world.config.yaml`
+  kit's `campaign-authoring-guide.md` (how to run the session); `example-world/world.config.yaml`
   for a filled-in config.
-- **Method:** grilling rounds with recommended answers (the worldkit's `docs/agent-protocol.md`).
+- **Method:** grilling rounds with recommended answers (the kit's `agent-protocol.md`).
   Record the answers in `principles/`, not in this file.
 - **Produce:** a filled `world.config.yaml` (id, title, slug, tagline, description, author, licence,
   spelling, feature switches); `principles/pillars.md` and `permanence-rules.md` `agreed`;
@@ -179,7 +179,7 @@ its scenarios, its engine blocks) and it passes the same checks yours will.
 - **Goal:** for every major event, record the **official story**, the **popular myth**, the **rival
   versions** and the **real truth**, and place them on a dated timeline. This is the step that makes
   "layered secrets" mechanical: the same event, known differently by different people.
-- **Read first:** the worldkit's `docs/conventions.md` §7 (audience and disclosure); `principles/pillars.md`;
+- **Read first:** the kit's `conventions.md` §7 (audience and disclosure); `principles/pillars.md`;
   `meta/timeline.md`; `example-world/meta/timeline.md` (the demo world's dated events).
 - **Context to carry:** decide the **era scale** and the anchors (the world's `T0`, the present, the
   big gaps). Decide which events need a note; most do not — one per event that somebody *lies about*.
@@ -240,7 +240,7 @@ its scenarios, its engine blocks) and it passes the same checks yours will.
 
 - **Goal:** prove the codex-to-engine path on one small slice and find the gaps cheaply, before
   converting more.
-- **Read first:** the worldkit's `docs/conventions.md` §9–§11 (engine blocks, kinds, ids); the
+- **Read first:** the kit's `conventions.md` §9–§11 (engine blocks, kinds, ids); the
   platform's Design 23 and `packages/authored-content` at `$MYTHICAL_FORGE_ROOT`; `example-world/campaigns/ferryman-demo/`.
 - **Context to carry:** `MYTHICAL_FORGE_ROOT` has no default. The tools fail loudly and name it if it
   is unset — that is deliberate, so nobody silently builds against the wrong platform checkout.
@@ -259,7 +259,7 @@ its scenarios, its engine blocks) and it passes the same checks yours will.
 
 - **Goal:** list every mechanic the world needs and classify whether the engine can express it, so
   you stop designing things it cannot run. **Design within what the engine can run.**
-- **Read first:** the worldkit's `docs/engine-capability-register.md` (the catalogue of what exists),
+- **Read first:** the kit's `engine-capability-register.md` (the catalogue of what exists),
   `meta/mechanics-gap-register.md` (this world's rows — start it here), the world's rule-heavy notes,
   `meta/pilot-findings.md`.
 - **Context to carry:** the engine is **closed over the SRD**. It cannot author new spells, feats,
@@ -295,8 +295,8 @@ its scenarios, its engine blocks) and it passes the same checks yours will.
 
 - **Goal:** settle how the codex's knowledge reaches the agents, the narrator and the player: who **in
   the world** could know a thing, and **whether and how** the narrator may disclose it.
-- **Read first:** the worldkit's `docs/conventions.md` §7 (the model, in full) and §9.5; the worldkit's
-  `docs/campaign-authoring-guide.md`; `meta/mechanics-gap-register.md`.
+- **Read first:** the kit's `conventions.md` §7 (the model, in full) and §9.5; the worldkit's
+  `meta/conventions/campaign-authoring-guide.md`; `meta/mechanics-gap-register.md`.
 - **Context to carry:** **audience** (who knows it, by group and tier) and **disclosure** (how the
   narrator may release it) are **separate axes**. The classes are `open`, `earned` and `sealed`;
   unmarked content fails closed as `earned`; a note's Summary and Details state only open content,
@@ -315,7 +315,7 @@ its scenarios, its engine blocks) and it passes the same checks yours will.
 
 - **Goal:** nothing, in a new world. Older worlds carried a `visibility` field built for a printed
   player primer; `disclosure` replaced it, because a site needs per-*section* granularity.
-- **Read first:** the worldkit's `docs/site.md` §2 and the worldkit's `docs/conventions.md` §6–§7.
+- **Read first:** the kit's `site.md` §2 and the kit's `conventions.md` §6–§7.
 - **Produce:** nothing here. A world that still carries the field deletes the line from every note and
   from the templates, and the linter's `REQUIRED` list shrinks by one.
 - **Done when:** the vault mentions the field only inside fenced `engine` blocks, where it is the
@@ -388,7 +388,7 @@ its scenarios, its engine blocks) and it passes the same checks yours will.
 - **Goal:** what the old world left behind, what it does, what it costs and who wants it.
 - **Read first:** the world's history and materials notes; `meta/mechanics-gap-register.md`.
 - **Context to carry:** **relics are an SRD item plus narrative.** No new mechanical properties. Every
-  relic records its **SRD base** in the standard body line (the worldkit's `docs/conventions.md` §9.6);
+  relic records its **SRD base** in the standard body line (the kit's `conventions.md` §9.6);
   if the library has no match, write `[OPEN]` with the nearest equivalent in words and keep
   `engine: false`.
 - **Questions to grill:** the categories and grades; each grade's cost or side effect; named legendary
@@ -421,7 +421,7 @@ its scenarios, its engine blocks) and it passes the same checks yours will.
 
 - **Goal:** the texture of ordinary life: what people eat, drink, earn, fear and pay.
 - **Read first:** the world's place, society and materials notes; `meta/mechanics-gap-register.md`;
-  the worldkit's `docs/conventions.md` (the calendar maps onto the engine's day counter).
+  the kit's `conventions.md` (the calendar maps onto the engine's day counter).
 - **Questions to grill:** food and agriculture; water and fuel (scarcity is where the plots are);
   housing and clothing; disease and medicine; law and punishment; the calendar and its holidays;
   travel, inns and caravans; entertainment; money in practice (a price table); literacy; superstition.
@@ -438,7 +438,7 @@ its scenarios, its engine blocks) and it passes the same checks yours will.
   monster of the week.
 - **Read first:** the world's geography, cosmology and antagonist notes; `world/creatures/_index.md`
   (**write its rules here first — the `_index` is the authority**); the worldkit's
-  `docs/conventions.md` §9.6; the project prompt `.pi/prompts/new-creature.md`.
+  `meta/conventions/conventions.md` §9.6; the project prompt `.pi/prompts/new-creature.md`.
 - **Context to carry:** every creature has **one cause** from the world's own list, and a **tell** — how
   a traveller recognises it. Keep the mix mundane-first; the strange ones only where the history puts
   them. Every creature records its **SRD base** or `[OPEN]`.
@@ -466,8 +466,8 @@ its scenarios, its engine blocks) and it passes the same checks yours will.
 
 - **Goal:** make each thread **move without the player and survive what the player does**, in a world
   where play diverges. Not a calendar: a **state graph** per thread.
-- **Read first:** the worldkit's `docs/campaign-authoring-guide.md` (**the how-to; follow it**) and
-  `docs/thread-pattern.md` §6 (**the resolution classes**: Resolvable, Managed, Ratchet) and §10;
+- **Read first:** the kit's `campaign-authoring-guide.md` (**the how-to; follow it**) and
+  `meta/conventions/thread-pattern.md` §6 (**the resolution classes**: Resolvable, Managed, Ratchet) and §10;
   `meta/world-events-design.md`; Step 12a's pilot card and findings; `world/flags.md`.
 - **Context to carry:** three layers — the **World** owns pressure (threads, Wants), **Campaigns** own
   purpose (arming, stage, outcomes), **Modules** own choices (Quests apply the thread's contracts).
@@ -501,7 +501,7 @@ its scenarios, its engine blocks) and it passes the same checks yours will.
 ### Step 13: Maps
 
 - **Goal:** drawable and shareable maps, for players and for the GM.
-- **Read first:** the worldkit's `docs/atlas.md`; the world's coordinate data and `maps/`.
+- **Read first:** the kit's `atlas.md`; the world's coordinate data and `maps/`.
 - **Context to carry:** keep a **GM version** and a **player version**. Decide the frame (what
   coordinates mean), the plate ladder (world → region → site) and the finish (a generated skeleton the
   world's own script renders, hand-finished at the end).
@@ -512,7 +512,7 @@ its scenarios, its engine blocks) and it passes the same checks yours will.
 - **Produce:** the sheets in `maps/svg/`, the register note, and the world's own atlas script in
   `tools/local/`.
 - **Done when:** the user confirms the map matches the geography, and the checks in the worldkit's
-  `docs/atlas.md` pass before anything is hand-finished.
+  `meta/conventions/atlas.md` pass before anything is hand-finished.
 
 ---
 
@@ -520,7 +520,7 @@ its scenarios, its engine blocks) and it passes the same checks yours will.
 
 - **Goal:** the deterministic path from the codex to the Game Ready Repository, reliably enough to run
   in CI.
-- **Read first:** the worldkit's `docs/conventions.md` §9–§11; `meta/pilot-findings.md`;
+- **Read first:** the kit's `conventions.md` §9–§11; `meta/pilot-findings.md`;
   `meta/mechanics-gap-register.md`; the platform's Design 23 at `$MYTHICAL_FORGE_ROOT`.
 - **Context to carry:** **the kit owns this.** `tools/transform.mjs`, `tools/validate-world.mjs`,
   `tools/thread-check.mjs` and `tools/simulate-world.mjs` are vendored, not written here; this step is
@@ -542,7 +542,7 @@ its scenarios, its engine blocks) and it passes the same checks yours will.
 
 - **Goal:** prove, with an LLM in the loop, that the agents and the narrator respect audience and
   disclosure. The scenario simulator cannot: it tests the deterministic web, never language.
-- **Read first:** the Step 2d output; the worldkit's `docs/campaign-authoring-guide.md`;
+- **Read first:** the Step 2d output; the kit's `campaign-authoring-guide.md`;
   `tools/simulate-world.mjs` (what scenarios already cover).
 - **Case categories:** leakage (a direct question about a `sealed` truth; an indirect one; a
   prompt-injection attempt; pressure on an NPC for a secret outside its audience); under-knowledge;
@@ -558,8 +558,8 @@ its scenarios, its engine blocks) and it passes the same checks yours will.
 ### Step 15: Progressive engine conversion, per campaign
 
 - **Goal:** convert only the lore a campaign uses, and design that campaign's modules.
-- **Read first:** the worldkit's `docs/campaign-authoring-guide.md` (the how-to); `world/flags.md`;
-  `meta/mechanics-gap-register.md` (what the engine can express); the worldkit's `docs/thread-pattern.md` §8.
+- **Read first:** the kit's `campaign-authoring-guide.md` (the how-to); `world/flags.md`;
+  `meta/mechanics-gap-register.md` (what the engine can express); the kit's `thread-pattern.md` §8.
 - **Context to carry:** campaigns are separate design sessions. Unconverted lore stays prose. A
   converted note's `status` moves to `engine-ready`.
 - **Tasks, per campaign:** arm the threads it uses; set the stage each begins at; write Modules whose
@@ -574,7 +574,7 @@ its scenarios, its engine blocks) and it passes the same checks yours will.
 
 - **Goal:** publish the player-facing view of the codex — **open content only, no GM material** — as a
   static site that rebuilds whenever the lore does.
-- **Read first:** the worldkit's `docs/site.md` (the whole document: rules, page anatomy, deploy);
+- **Read first:** the kit's `site.md` (the whole document: rules, page anatomy, deploy);
   `meta/site.md` (this world's pages, navigation and visual direction — **write it in this step**);
   `world.config.yaml` (`site:` — url, doorways, sections, blurbs, the search placeholder, the content
   descriptors); `tools/disclosure.py`, `tools/lint.py`; `site/image-prompts/`.
@@ -586,7 +586,7 @@ its scenarios, its engine blocks) and it passes the same checks yours will.
 - **Tasks, in order:**
   1. Fill the `site:` section and write `meta/site.md`; set the world's own copy on the three pages.
   2. **Export:** `python3 tools/site_export.py` (stdlib only) — it applies every redaction rule in the
-     worldkit's `docs/site.md` §2.2 and emits `content/`, `audit/latest.json`, `changelog.json`,
+     kit's `site.md` §2.2 and emits `content/`, `audit/latest.json`, `changelog.json`,
      `redirects.json` and `navigation.json`.
   3. **Build:** `npm --prefix site run build`, then `python3 tools/site_link_check.py` — the build fails
      on any internal link to a file that does not exist.

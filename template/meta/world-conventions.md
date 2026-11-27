@@ -10,9 +10,9 @@ engine: false
 # World Conventions
 
 **Summary:** The world's decisions **on top of** the kit's rules. **The rules themselves are the
-worldkit's `docs/conventions.md`**, vendored at `tools/docs/conventions.md`: the id grammar,
-frontmatter, the note body, blocks, disclosure, engagement, ids and filenames. Cite it by section
-number ("the worldkit's `docs/conventions.md` §9.6"); never by wikilink.
+kit's `conventions.md`**, at `meta/conventions/conventions.md`: the id grammar, frontmatter, the note
+body, blocks, disclosure, engagement, ids and filenames. Cite it by section number ("the kit's
+`conventions.md` §9.6"); never by wikilink.
 
 This note holds only what is this world's:
 
@@ -27,5 +27,5 @@ This note holds only what is this world's:
 
 ## Links
 
-- The kit's rules: `tools/docs/conventions.md` (vendored; the kit's own copy is authoritative)
+- The kit's rules: `meta/conventions/conventions.md`
 - [[canon-digest]], [[open-questions]]

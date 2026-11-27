@@ -7,7 +7,7 @@ It is **not a world**. It carries one small worked example — `example-world/`,
 world — so that "what does a finished note look like?" has an answer on disk. Delete that directory
 once you have notes of your own.
 
-The vault's shape is fixed by the toolchain (the worldkit's `docs/conventions.md` §3). What goes in
+The vault's shape is fixed by the toolchain (the kit's `conventions.md` §3). What goes in
 it is yours: a world bible for tabletop play, written to be run by a game master, with the lore
 readable in Obsidian, the engine's data extracted from it, and — if you want one — a public site
 generated from its open content.
@@ -50,7 +50,7 @@ you accepting or changing them. See the protocol in `AGENTS.md`.
 
 `init-world.sh` wrote `LICENSE` as **all rights reserved**, which is the right default for a world
 bible: you can loosen a licence later, but not tighten one, because everything already published
-keeps the licence it had. The worldkit's own material you are carrying — `tools/`, `tools/docs/`,
+keeps the licence it had. The worldkit's own material you are carrying — `tools/`, `meta/conventions/`,
 `meta/templates/`, the site theme, the prompts — is MIT and CC BY 4.0 (`tools/LICENSE`,
 `tools/LICENSE-CONTENT`) and is not yours to relicense.
 
@@ -61,7 +61,7 @@ tools/sync-tooling.sh v1.0.x     # fetch a worldkit tag
 tools/verify-world.sh            # prove the world still builds
 ```
 
-The sync replaces `tools/`, `tools/docs/` and `meta/templates/`, rewrites `TOOLING_VERSION`, and
+The sync replaces `tools/`, `meta/conventions/` and `meta/templates/`, rewrites `TOOLING_VERSION`, and
 re-syncs the protocol region of `AGENTS.md`. It never touches `tools/local/` (your own scripts) or the
 three site pages you own. One command, one commit, and the diff *is* the upgrade.
 
@@ -80,7 +80,7 @@ three site pages you own. One command, one commit, and the diff *is* the upgrade
 | `maps/` | Coordinate data, the atlas register and the sheets. |
 | `meta/` | This world's own decisions: the canon digest, the name list, open questions, the mechanics gaps, the site notes. |
 | `tools/` | The worldkit's tools, **vendored** and pinned. `tools/local/` is yours; the rest is not. |
-| `tools/docs/` | Every worldkit document this repository cites, at the pinned version. |
+| `meta/conventions/` | The kit's world-facing documents, at the pinned version. The kit's, not yours. |
 | `meta/templates/` | One template per note type, mirrored from the kit. **Never add a file here.** |
 | `site/` | The public, player-facing site, generated from `open` content only. |
 | `example-world/` | The demo world. Read it, then delete it. |
@@ -98,7 +98,7 @@ the world's decisions, and holds a **pinned copy** of the machinery:
 | Vendored here | Source | Updated by |
 |---|---|---|
 | `tools/` (except `tools/local/`) | the kit's `tools/` | `tools/sync-tooling.sh <tag>` |
-| `tools/docs/` | the kit's `docs/` | the same |
+| `meta/conventions/` | the kit's `template/meta/conventions/` | the same |
 | `meta/templates/` | the kit's `meta/templates/` (mirrored) | the same |
 | most of `site/` | the kit's `site/` (theme, infra, workflow) | the same |
 | `.pi/prompts/` | the kit's `.pi/prompts/` | the same |
@@ -106,8 +106,8 @@ the world's decisions, and holds a **pinned copy** of the machinery:
 
 **Rules that follow from this:**
 
-- **A kit document is cited by name and section, never by a wikilink.** A wikilink cannot reach across
-  a repository; the text is at `tools/docs/<name>.md`, and that is where a reader should look.
+- **A kit document is cited by name and section, never by a wikilink.** It is the kit's, not this
+  vault's: the text is at `meta/conventions/<name>.md`, and that is where a reader should look.
 - **Never edit a vendored file.** Your edit is silently reverted at the next sync. World-specific
   scripts go in `tools/local/`; world-specific rules go in `meta/world-conventions.md`.
 - **The engine's Game Ready Repository is a separate, generated repository.** Never hand-edit it.
@@ -122,12 +122,12 @@ will fail the build if a citation rots.
 | I want to… | Do this |
 |---|---|
 | Know what to do next | `ROADMAP.md` |
-| Know how to write a note | the worldkit's `docs/conventions.md` (readable at `tools/docs/conventions.md`), then `meta/world-conventions.md` for this world's own choices |
-| Write a thread, a Campaign or a Quest | the worldkit's `docs/campaign-authoring-guide.md` |
+| Know how to write a note | the kit's `conventions.md`, then `meta/world-conventions.md` for this world's own choices |
+| Write a thread, a Campaign or a Quest | the kit's `campaign-authoring-guide.md` |
 | See a finished example | `example-world/` |
 | Check my work | `python3 tools/lint.py` |
 | Prove the whole pipeline | `tools/verify-world.sh` |
-| Publish the player-facing view | the worldkit's `docs/site.md`, plus this world's `meta/site.md` |
+| Publish the player-facing view | the kit's `site.md`, plus this world's `meta/site.md` |
 | Add a creature, an image or refresh the map | `.pi/prompts/` (the project prompts) |
 
 ---

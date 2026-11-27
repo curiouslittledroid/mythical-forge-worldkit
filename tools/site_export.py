@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Export the player-facing view of the codex for the public site (roadmap Step 16).
 
-The rules this implements live in `docs/site.md` section 2. In one line: **publish the
+The rules this implements live in `meta/conventions/site.md` section 2. In one line: **publish the
 `open` part of every section, and nothing else.** Standard library only.
 
     python3 tools/site_export.py              # build into site/
@@ -27,7 +27,7 @@ Design rules
   `mixed` (a layered history event), whose open part is its Official/Myth/Rival segments.
 - **The exporter never authors canon.** It moves, splits and strips; it never writes prose.
 - **Every dropped line, link and section is logged** in the audit. A build may be deployed
-  only after a human has read it (`docs/site.md` section 2.3).
+  only after a human has read it (`meta/conventions/site.md` section 2.3).
 """
 from __future__ import annotations
 
@@ -61,7 +61,7 @@ SECTION_LABEL: dict[str, str] = {}
 # Phase 4 only: NPC pages are not part of the first launch.
 DEFERRED_KINDS: set[str] = set()
 # Sealed keystones (conventions section 7.4). Published text is scanned for these; a hit is a line
-# for a human to read, not necessarily a leak. docs/site.md section 2.3 points here.
+# for a human to read, not necessarily a leak. meta/conventions/site.md section 2.3 points here.
 KEYSTONE_TERMS: tuple[str, ...] = ()
 # The tags that earn an index page. The vault stays the source of truth: add a tag here only when
 # it earns a page, and never one that no note carries.
@@ -156,7 +156,7 @@ EMPTY_PARENS_RE = re.compile(r"[ \t]*\(\s*\)")
 # describe the present. An account with no year silently claims to be current, so it is reported.
 # The teller is the first bold run **that is not the date**, so a heading may open with either.
 #
-# See docs/testimony.md section 3.4.
+# See meta/conventions/testimony.md section 3.4.
 TESTIMONY_HEADING = "testimony"
 TESTIMONY_RANGE_RE = re.compile(r"^\s*(\d{2,4})\s*[-–]\s*(\d{2,4})\s*$")
 # `**CY 649, in the BLAZE.**` — the date's own bold run, at the head of the line.
@@ -836,7 +836,7 @@ def page_for(note: lint.Note, index: Index, log: dict,
             continue
 
         if cls == "open" and heading.strip().lower() == TESTIMONY_HEADING:
-            # Not a body section: lifted into the page's frontmatter (docs/testimony.md section 3.4).
+            # Not a body section: lifted into the page's frontmatter (meta/conventions/testimony.md section 3.4).
             parsed = parse_testimony(clean_lines(lines, kind, note.rel, log))
             if parsed is None:
                 log["dropped_sections"].append(

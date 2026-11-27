@@ -5,8 +5,8 @@
 #   - template/          the skeleton a new author forks (world.config.yaml, init-world.sh,
 #                        the brief, the roadmap, principles/, the empty vault, the note
 #                        templates, and the embedded example-world/ demo);
-#   - tools/, docs/, site-theme/, .pi/prompts/, .github/workflows/  vendored into the template
-#                        exactly as sync-tooling.sh vendors them into a world;
+#   - tools/, site-theme/, .pi/prompts/, .github/workflows/  vendored into the template exactly
+#                        as sync-tooling.sh vendors them into a world;
 #   - TOOLING_VERSION    the pin.
 #
 # Usage:
@@ -82,11 +82,9 @@ for licence in LICENSE LICENSE-CONTENT; do
 done
 chmod +x "$DEST/tools/"*.sh 2>/dev/null || true
 
-# The rules travel as tools/docs/ (a tool enforces a rule the author must be able to read).
-mkdir -p "$DEST/tools/docs"
-rsync -a --delete "$TMP/kit/docs/" "$DEST/tools/docs/"
+# The world-facing documents (meta/conventions/) and the note templates (meta/templates/) arrive
+# with template/ above, so nothing to do here.
 
-# The note templates arrive with template/ above (template/meta/templates/), so nothing to do here.
 
 # The theme. Same exclusions as sync-tooling.sh: the three world-owned pages, and the exporter's
 # generated directories. The kit keeps the theme at site-theme/; a world holds it at site/.

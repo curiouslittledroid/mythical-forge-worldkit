@@ -7,7 +7,7 @@
 #
 # Read by tools/kit_config.py (Python) and tools/kit_config.mjs (Node). Both parse the strict
 # YAML subset in tools/yaml_subset.py, so: no flow mappings, no anchors, and any value containing
-# ": " must be quoted. The schema is documented in the kit's docs/conventions.md.
+# ": " must be quoted. The schema is documented in the kit's meta/conventions/conventions.md.
 #
 # Everything here is the world's. The toolchain's own vocabularies — engine kinds, the id
 # grammar, the standard note-body headings — are NOT configurable: a world that changes them is

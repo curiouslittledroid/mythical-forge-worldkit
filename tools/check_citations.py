@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Check every section citation against the document it names.
 
-A vault cites its rules by number — "the kit's `docs/conventions.md` §9.6", "the register's
+A vault cites its rules by number — "the kit's `meta/conventions/conventions.md` §9.6", "the register's
 corrections table (§14)" — and nothing else in the toolchain notices when one of those numbers
 stops being true. A document that renumbers silently breaks every citation of it, in both
 repositories, and the broken ones read exactly like the correct ones.
@@ -15,10 +15,10 @@ What this checks:
    error even if §4 would have been plausible.
 3. **The number exists** as a heading, or as a numbered table row (`| 14.32 |`), or the cited
    number is a prefix of one (§9 is satisfied by §9.1).
-4. **The path exists.** `docs/atlas.md` that no longer exists is an error, not a silent pass.
+4. **The path exists.** `meta/conventions/atlas.md` that no longer exists is an error, not a silent pass.
 
 Deliberately not checked: citations of the platform's specs (`Design 23 §1.1`), paths outside the
-repository, and **historical** citations — "formerly `docs/site.md` §3.4" describes where something
+repository, and **historical** citations — "formerly `meta/conventions/site.md` §3.4" describes where something
 used to be, so the rule is to write it with a word that says so. A line containing the words
 A reference to a document this repository does not have (a kit prompt citing a world's atlas
 register, say) is reported as a NOTE: checked where it lives, and visible here, because silence is
@@ -48,23 +48,32 @@ ROOT = Path(__file__).resolve().parent.parent
 SKIP_DIRS = {".git", ".obsidian", ".trash", "node_modules", "example-world",
              "__pycache__", ".astro", "dist"}
 SKIP_PATHS = {".git", "node_modules", "example-world", "template", "site/node_modules", "site/dist",
-              "site/.astro", "site/src/content/generated", "site/src/data/generated"}
+              "site/.astro", "site-theme/node_modules", "site-theme/dist", "site-theme/.astro",
+              "site/src/content/generated", "site/src/data/generated",
+              "site-theme/src/content/generated", "site-theme/src/data/generated"}
+
+
+# A changelog records what was true at each release, including paths that have since moved. Its
+# citations are history, not references: "the rule is in the conventions document §16.1" was true
+# when it was written, and rewriting it to today's path would make the entry lie about the past.
+SKIP_FILES = {"CHANGELOG.md"}
 
 
 def skipped(rel: str) -> bool:
-    return any(rel == d or rel.startswith(d + "/") for d in SKIP_PATHS)
+    return rel in SKIP_FILES or any(rel == d or rel.startswith(d + "/") for d in SKIP_PATHS)
 SCAN_SUFFIXES = {".md", ".py", ".sh", ".mjs", ".yaml", ".yml"}
 
-# The kit's own documents, as prose names them. A world cites the vendored copies by the same
-# names, so these aliases work in both repositories.
+# The kit's world-facing documents, as prose names them. They live at `meta/conventions/` in a
+# world and at `template/meta/conventions/` in the kit, so the alias is written as the SUFFIX both
+# layouts share -- `candidate_docs` matches it against whatever the repository actually has.
 ALIASES = {
-    "conventions": "docs/conventions.md",
-    "engine-capability-register": "docs/engine-capability-register.md",
-    "capability register": "docs/engine-capability-register.md",
-    "campaign-authoring-guide": "docs/campaign-authoring-guide.md",
-    "thread-pattern": "docs/thread-pattern.md",
-    "tag-vocabulary": "docs/tag-vocabulary.md",
-    "agent-protocol": "docs/agent-protocol.md",
+    "conventions": "meta/conventions/conventions.md",
+    "engine-capability-register": "meta/conventions/engine-capability-register.md",
+    "capability register": "meta/conventions/engine-capability-register.md",
+    "campaign-authoring-guide": "meta/conventions/campaign-authoring-guide.md",
+    "thread-pattern": "meta/conventions/thread-pattern.md",
+    "tag-vocabulary": "meta/conventions/tag-vocabulary.md",
+    "agent-protocol": "meta/conventions/agent-protocol.md",
 }
 
 # A line can opt out: fixture text in a test, or an example of a BAD citation in documentation.
@@ -120,6 +129,15 @@ def scan_docs(root: Path) -> dict[str, Doc]:
         if skipped(rel):
             continue
         docs[rel] = Doc(path, rel)
+    # `template/` is skipped: its skeleton notes and its example world are a DIFFERENT world, and
+    # indexing them would let `meta/site.md` (a world note the kit does not hold) resolve to the
+    # template's copy of the same name. The kit's own world-facing documents under it are the
+    # exception -- they are cited by section from the tools, and must resolve here.
+    conventions = root / "template" / "meta" / "conventions"
+    if conventions.is_dir():
+        for path in sorted(conventions.rglob("*.md")):
+            rel = path.relative_to(root).as_posix()
+            docs[rel] = Doc(path, rel)
     return docs
 
 
@@ -135,7 +153,7 @@ def candidate_docs(token: str, docs: dict[str, Doc]) -> list[Doc]:
                 found.append(doc)
     if not found and "/" not in token:
         # A bare basename may match anywhere (there is nothing else to go on), but a token that names
-        # a directory must not: `meta/site.md` is not the kit's `docs/site.md`.
+        # a directory must not: `meta/site.md` is not the kit's `meta/conventions/site.md`.
         base = token.split("/")[-1]
         found = [doc for rel, doc in docs.items() if rel.split("/")[-1] == base]
     if not found:
@@ -166,14 +184,21 @@ VAULT_DIRS = ("world/", "campaigns/", "principles/", "maps/", "meta/")
 
 
 def vaultish(token: str) -> bool:
-    """A reference to something that looks like one of a world's own documents."""
+    """A reference to something that looks like one of a world's own documents.
+
+    The kit's own documents live under `meta/conventions/`, which is inside `meta/` but is not a
+    note: it is prose the kit owns, held in the vault so a rule is one file away. Those are
+    documents, and a citation of one that does not resolve is an ERROR, not a note.
+    """
+    if "/conventions/" in token:
+        return False
     return token.startswith(VAULT_DIRS) or token in ALIASES
 
 
 def references(ctx: str, docs: dict[str, Doc]) -> list[tuple[int, list[Doc], str]]:
     """(offset, documents, as-written) for every document reference in the context.
 
-    Two forms: a path-like token (`docs/site.md`, `tools/docs/testimony.md`) and a PROSE name for a
+    Two forms: a path-like token (`meta/conventions/site.md`) and a PROSE name for a
     kit document ("conventions", "the guide"). A reference to a note in this vault -- `world/places/a.md`
     -- is not a reference to a document, and is ignored so it cannot shadow one.
     """
@@ -183,7 +208,7 @@ def references(ctx: str, docs: dict[str, Doc]) -> list[tuple[int, list[Doc], str
         if token.startswith("http") or token.startswith("~"):
             continue
         candidates = candidate_docs(token, docs)
-        if token.startswith(VAULT_DIRS) and "/docs/" not in token:
+        if token.startswith(VAULT_DIRS) and "/conventions/" not in token:
             # A note, not a kit document: citable by number only if it actually numbers sections.
             # Kept even when empty, so it can still say "a document, but not one of this repository's"
             # -- a prompt the kit ships cites the world's atlas register, which lives in a world.
@@ -194,10 +219,13 @@ def references(ctx: str, docs: dict[str, Doc]) -> list[tuple[int, list[Doc], str
         # A wikilink can only mean a NOTE, and only a note that numbers its sections can be cited
         # by number. The kit's documents are never wikilinked (the kit is not a vault).
         candidates = [d for d in candidate_docs(token, docs) + candidate_docs(token + ".md", docs)
-                      if d.numbers and not d.rel.startswith(("docs/", "tools/docs/"))]
+                      if d.numbers and "/conventions/" not in d.rel]
         found.append((m.end(), candidates, f"[[{token}]]"))
     for name in ALIASES:
-        for m in re.finditer(rf"(?<![\w-]){re.escape(name)}(?![\w-])", ctx):
+        # The alias is a PROSE name ("the conventions"), so it must be a whole word AND not a
+        # path segment: `meta/conventions/site.md` is one document, not a reference to the
+        # conventions document plus a stray `site.md`.
+        for m in re.finditer(rf"(?<![\w\-/]){re.escape(name)}(?![\w\-/])", ctx):
             found.append((m.end(), candidate_docs(name, docs), name))
     return sorted(found)
 
@@ -252,7 +280,8 @@ def check_file(path: Path, rel: str, docs: dict[str, Doc]) -> list[tuple[int, st
                         issues.append((line_no, "note",
                                        f"§{number} cites `{token}`, which this repository does not have"))
                     continue
-                if not (token.startswith("docs/") or token.startswith("tools/docs/")):
+                if not (token.startswith(("docs/", "template/docs/"))
+                        or "/conventions/" in token):
                     continue                          # not a document of ours; checked where it lives
                 issues.append((line_no, "error", f"§{number}: no document matches `{token}`"))
                 continue

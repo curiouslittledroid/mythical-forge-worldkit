@@ -10,9 +10,8 @@ engine: false
 # World Events and Flags (the Thread Pattern)
 
 **Summary:** **A pointer note** to the thread pattern: the three layers, the flag vocabulary, the
-resolution classes, the guards, the quest contracts. That is the worldkit's
-`docs/thread-pattern.md`, vendored at `tools/docs/thread-pattern.md`. Cite it as "the worldkit's
-`docs/thread-pattern.md` §6".
+resolution classes, the guards, the quest contracts. That is the kit's `thread-pattern.md`, at
+`meta/conventions/thread-pattern.md`. Cite it as "the kit's `thread-pattern.md` §6".
 
 ## The world's threads
 
@@ -21,4 +20,4 @@ where the world records which of them are in play, and how they interlock.
 
 ## Links
 
-- [[plot-web/_index|Plot Web]], [[flags]], `tools/docs/thread-pattern.md`
+- [[plot-web/_index|Plot Web]], [[flags]], `meta/conventions/thread-pattern.md`

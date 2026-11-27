@@ -11,7 +11,7 @@ engine: false
 
 **Summary:** The world's own tag vocabulary: the tags its notes may carry, and which of them earn an
 index page. The linter reads the fenced block below (`TG001`/`TG002`); the mechanism is the
-worldkit's `docs/tag-vocabulary.md`.
+kit's `tag-vocabulary.md`.
 
 ```tags-vocabulary
 tags: [REPLACE]

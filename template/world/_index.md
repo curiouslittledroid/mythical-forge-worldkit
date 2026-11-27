@@ -21,4 +21,4 @@ place and writes nothing else.
 - [[maps/_index|Maps]] — which plates exist, and what they are for
 - [[meta/_index|World Notes]] — the vault's contents, and the world's working documents
 - [[flags]] — the effect-only flags the engine reads
-- The world's rules are in [[world-conventions]]; the kit's are the worldkit's `docs/conventions.md`
+- The world's rules are in [[world-conventions]]; the kit's are the kit's `conventions.md`

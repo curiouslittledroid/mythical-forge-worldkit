@@ -13,7 +13,7 @@ interface: { class: managed, arms: [REPLACE_armed], reads: [], sets: [], termina
 
 # {{title}}
 
-**Summary:** REPLACE (two or three sentences). Class: **Resolvable | Managed | Ratchet** (the worldkit's `docs/thread-pattern.md` §6).
+**Summary:** REPLACE (two or three sentences). Class: **Resolvable | Managed | Ratchet** (the kit's `thread-pattern.md` §6).
 
 ## Premise
 REPLACE (what is pushing, and what the world looks like if nobody intervenes).
