@@ -40,14 +40,6 @@ vault:
   # Spelling the linter accepts (SP001): british (the default) | american | off. Units are NOT a
   # choice: the codex is metric because the transformer does one km -> miles conversion.
   spelling: british
-  # Notes that are process documents, not entities: no frontmatter, no id.
-  process_docs:
-    - README.md
-    - AGENTS.md
-    - CONTRIBUTING.md
-    - CHANGELOG.md
-    - ROADMAP.md
-    - REFACTOR-TASKS.md
 
 features: [site, testimony, voice]
 

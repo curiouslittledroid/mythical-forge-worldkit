@@ -790,6 +790,15 @@ class TestTestimony(SiteCase):
 
 
 
+def _theme_site_ts():
+    """The theme's site.ts in this repository: site-theme/ in the kit, site/ in a vendored world."""
+    for name in ("site-theme", "site"):
+        p = REAL_ROOT / name / "src" / "lib" / "site.ts"
+        if p.exists():
+            return p
+    return None
+
+
 class ConfigSeamTest(unittest.TestCase):
     """Every config value the theme reads must reach it through site.json.
 
@@ -800,23 +809,21 @@ class ConfigSeamTest(unittest.TestCase):
     """
 
     def test_theme_reads_only_fields_the_exporter_writes(self):
-        root = kit_config.load().root
-        theme = root / "site/src/lib/site.ts"
-        if not theme.exists():
+        site_ts = _theme_site_ts()
+        if site_ts is None:
             self.skipTest("no theme in this repo")
-        wanted = set(re.findall(r"generated\.(\w+)", theme.read_text(encoding="utf-8")))
+        wanted = set(re.findall(r"generated\.(\w+)", site_ts.read_text(encoding="utf-8")))
         self.assertTrue(wanted, "site.ts reads nothing from site.json")
-        written = set(site_export.site_json(kit_config.load()))
+        written = set(site_export.site_json(kit_config.load(testkit.REAL_CONFIG)))
         self.assertEqual(set(), wanted - written,
                          f"the theme reads fields site.json does not carry: {sorted(wanted - written)}")
 
     def test_the_worlds_own_site_settings_reach_the_theme(self):
         """The fields whose absence is invisible: a hint that renders empty, a hero that 404s."""
-        root = kit_config.load().root
-        if not (root / "site/src/lib/site.ts").exists():
+        if _theme_site_ts() is None:
             self.skipTest("no theme in this repo")
-        cfg = kit_config.load().site
-        written = site_export.site_json(kit_config.load())
+        cfg = kit_config.load(testkit.REAL_CONFIG).site
+        written = site_export.site_json(kit_config.load(testkit.REAL_CONFIG))
         self.assertEqual(cfg.hero_file, written.get("heroFile"))
         self.assertEqual(cfg.search_placeholder, written.get("searchPlaceholder"))
 

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import os
 import shutil
 import subprocess
 import sys
@@ -12,6 +13,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import kit_config  # noqa: E402
+import testkit  # noqa: E402
 import yaml_subset  # noqa: E402
 
 REAL_ROOT = Path(kit_config.__file__).resolve().parent.parent
@@ -219,7 +221,7 @@ class RealWorldCase(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.cfg = kit_config.load(REAL_ROOT / "world.config.yaml")
+        cls.cfg = kit_config.load(testkit.REAL_CONFIG)
 
     def test_identity(self):
         """The live config must be *shaped* right, not equal to any one world's values.
@@ -277,7 +279,7 @@ class RealWorldCase(unittest.TestCase):
     def test_process_docs_are_the_ones_at_the_root(self):
         for rel in self.cfg.process_docs:
             with self.subTest(doc=rel):
-                self.assertTrue((REAL_ROOT / rel).is_file(), f"{rel} is listed but missing")
+                self.assertTrue((testkit.REAL_CONFIG.parent / rel).is_file(), f"{rel} is listed but missing")
 
 
 class NodeParityCase(unittest.TestCase):
@@ -291,9 +293,10 @@ class NodeParityCase(unittest.TestCase):
     def setUpClass(cls):
         if shutil.which("node") is None:
             raise unittest.SkipTest("node is not installed")
-        cls.cfg = kit_config.load(REAL_ROOT / "world.config.yaml")
+        cls.cfg = kit_config.load(testkit.REAL_CONFIG)
         out = subprocess.run(["node", str(REAL_ROOT / "tools" / "kit_config.mjs")],
-                             capture_output=True, text=True, cwd=REAL_ROOT)
+                             capture_output=True, text=True, cwd=REAL_ROOT,
+                             env={**os.environ, "WORLD_CONFIG": str(testkit.REAL_CONFIG)})
         if out.returncode != 0:
             raise AssertionError(f"kit_config.mjs failed:\n{out.stderr}")
         cls.node = json.loads(out.stdout)

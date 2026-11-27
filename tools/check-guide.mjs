@@ -14,11 +14,10 @@ import { readFileSync, readdirSync, existsSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { authoredContent, loadConfig, requireMf } from './kit_config.mjs';
+import { authoredContent, requireMf } from './kit_config.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const ROOT = resolve(HERE, '..');
-const cfg = loadConfig();
 const YAML = requireMf('yaml');
 const { parseAuthoredEntity } = authoredContent();
 
@@ -26,8 +25,11 @@ const { parseAuthoredEntity } = authoredContent();
 const firstExisting = (...paths) => paths.find((p) => existsSync(p));
 const DOC_DIRS = [join(ROOT, 'docs'), join(ROOT, 'tools', 'docs'), join(ROOT, 'worldkit', 'docs')];
 const KIT_GUIDE = DOC_DIRS.map((d) => join(d, 'campaign-authoring-guide.md')).find(existsSync);
-// In the kit this is the demo world; in a world it is that world's own vault. Same paths either way.
-const SOURCES = [join(ROOT, 'world'), join(ROOT, 'campaigns'),
+// In the kit this is the demo world (under template/example-world/); in a world it is that world's
+// own vault at the root. Every layout is tried, so one tool serves the kit and a vendored world.
+const SOURCES = [join(ROOT, 'template', 'example-world', 'world'),
+                 join(ROOT, 'template', 'example-world', 'campaigns'),
+                 join(ROOT, 'world'), join(ROOT, 'campaigns'),
                  join(ROOT, 'meta', 'templates', 'examples')].filter(existsSync);
 
 const strip = (v) => {

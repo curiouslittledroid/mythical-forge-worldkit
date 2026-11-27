@@ -21,7 +21,11 @@ from pathlib import Path
 import kit_config
 
 REAL_ROOT = Path(__file__).resolve().parent.parent
+# The "real" config a fixture copies: the world's own when these tools are vendored into a world,
+# or the kit's demo world when the tests run in the kit (whose root is not a world).
 REAL_CONFIG = REAL_ROOT / "world.config.yaml"
+if not REAL_CONFIG.is_file():
+    REAL_CONFIG = REAL_ROOT / "template" / "example-world" / "world.config.yaml"
 
 SITE_NOTE = """---
 id: topic_site_decisions
