@@ -44,7 +44,7 @@ while [ $# -gt 0 ]; do
     --worktree|-w) WORKTREE=1; shift ;;
     # The header, up to the line that starts the script, so the help cannot be truncated by an edit
     # above it -- it was `sed -n '2,20p'` once, and outgrew the range the first time it was extended.
-    -h|--help) awk 'NR > 1 { if ($0 == "set -euo pipefail") exit; print }' "$0" | sed 's/^# \?//'; exit 0 ;;
+    -h|--help) awk 'NR > 1 { if ($0 == "set -euo pipefail") exit; print }' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
     -*) echo "export-template: unknown option: $1" >&2; exit 2 ;;
     *) POS+=("$1"); shift ;;
   esac

@@ -73,7 +73,8 @@ The session protocol is the same for every step; only the class of work changes.
    `example-world/` where it is. `--init-git` re-initialises git as well.
 2. **Read `AGENTS.md`**, then the four notes in `principles/`.
 3. **Start at Step 0b.** Do not write lore before it: Step 0b is what makes the lore answerable.
-4. **Keep the tooling current:** `tools/sync-tooling.sh v1.0.x` fetches a kit tag, replaces `tools/`,
+4. **Keep the tooling current:** `tools/sync-tooling.sh` (with no argument: the newest worldkit; name a
+   tag to pin deliberately) fetches the kit's release payload, replaces `tools/`,
    `meta/conventions/` and `meta/templates/`, rewrites `TOOLING_VERSION`, and re-syncs the `AGENTS.md`
    protocol region. It never touches `tools/local/`, and it excludes the site pages the world owns.
    One command, one commit; the diff *is* the upgrade. Then run `tools/verify-world.sh`.

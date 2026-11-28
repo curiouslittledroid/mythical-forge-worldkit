@@ -85,7 +85,7 @@ while [ $# -gt 0 ]; do
     --sha256)     SHA="${1:-}"; SHA_SET=1; if [ $# -gt 0 ]; then shift; fi ;;
     # The header, up to the line that starts the script: `sed -n '2,26p'` outgrew its range the
     # first time an option was added above it, and truncated the help without saying so.
-    -h|--help)    awk 'NR > 1 { if ($0 == "set -euo pipefail") exit; print }' "$0" | sed 's/^# \?//'; exit 0 ;;
+    -h|--help)    awk 'NR > 1 { if ($0 == "set -euo pipefail") exit; print }' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
     -*)           echo "sync-tooling: unknown option: $arg" >&2; exit 2 ;;
     *)            TAG="$arg"; TAG_GIVEN=1 ;;
   esac
@@ -402,4 +402,14 @@ echo
 echo "Review the diff, then run the proof:"
 if [ -d "$WORLD_ROOT/.git" ]; then git -C "$WORLD_ROOT" diff --stat; else echo "  (not a git repository: review and commit by hand)"; fi
 echo "  cd $WORLD_ROOT && python3 tools/lint.py && tools/verify-world.sh"
-echo "Read CHANGELOG.md in the kit for anything a world must do by hand."
+# A world does not receive the kit's CHANGELOG: it is the kit's own record, and the payload leaves it
+# out on purpose. Pointing at it was pointing at a file the reader does not have; the release notes
+# for the tag carry the same migration note, at an address a world can open.
+case "$KIT_REPO" in
+  http*)
+    echo "What this release changes for a world is in its notes:"
+    echo "  ${KIT_REPO%/}/releases/tag/$TAG" ;;
+  *)
+    echo "What this release changes for a world is in the kit's CHANGELOG.md:"
+    echo "  $KIT_REPO/CHANGELOG.md" ;;
+esac

@@ -26,7 +26,7 @@ TARBALL=""
 for arg in "$@"; do
   case "$arg" in
     --keep) KEEP=1 ;;
-    -h|--help) awk 'NR > 1 { if ($0 == "set -euo pipefail") exit; print }' "$0" | sed 's/^# \?//'; exit 0 ;;
+    -h|--help) awk 'NR > 1 { if ($0 == "set -euo pipefail") exit; print }' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
     -*) echo "verify-payload: unknown option: $arg" >&2; exit 2 ;;
     *) TARBALL="$arg" ;;
   esac

@@ -64,6 +64,25 @@ Also: the argument loop is `while`/`shift`, because `for arg in "$@"` cannot con
 (`--archive f` left `f` to be read as the tag); and `--help` reads its header up to the script body
 instead of `sed -n '2,26p'`, a line range the first new option to outgrow it silently truncated.
 
+**The documents a world reads could not answer "what is the newest version?"** Every world-facing
+instruction was `tools/sync-tooling.sh <tag>` — the tag supplied by whoever was reading, and the only
+thing in a world that ever printed a concrete one was `tooling-drift.yml` failing on a Monday. The
+runbook (`meta/conventions/tooling.md`) now has the question as a row of its own
+(`--dry-run` with no tag is the newest, and writes nothing), both forms in the upgrade row, and a
+"where versions come from" paragraph naming the releases page — because `--archive` tells an author to
+pass `worldkit-<tag>.tar.gz`, and nothing said where that file lives. The template's quickstart said
+`tools/sync-tooling.sh v1.0.x`, which a new author copies literally.
+
+**A world is told about a release at an address it can open.** The closing line of the sync said "Read
+`CHANGELOG.md` in the kit for anything a world must do by hand" — a file the payload deliberately does
+not carry and a world's repository does not have. It now prints the release page for the tag it just
+took; a local checkout still points at its own `CHANGELOG.md`.
+
+**`--help` was raw comments on macOS.** `sed 's/^# \?//'` uses a GNU extension: BSD sed leaves the
+pattern unmatched and prints every line with its `#` still on. `\{0,1\}` is the portable spelling, in
+`sync-tooling.sh`, `verify-payload.sh`, `export-template.sh` and the template's `init-world.sh` — whose
+help also read a line range (`sed -n '2,20p'`) that a longer header would have truncated in silence.
+
 **One thing a world must do by hand: the first update.** `--archive` is a flag of the new script, and
 the old script parses its arguments before it fetches anything — so the release that introduces the
 flag cannot itself be fetched with it. Run that one update the old way:

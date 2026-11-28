@@ -34,8 +34,9 @@ Everything else is by **what changed** — not by habit.
 | changed a workflow | `python3 tools/check_workflows.py` | a duplicate key, which GitHub refuses — and then the workflow runs under its file path, failing every run |
 | changed a YAML block in the authoring guide | `node tools/check-guide.mjs` | a tutorial teaching an engine block the schema rejects |
 | want to know what CI will say | the gate below | the same four checks, in the same order |
-| updated the worldkit | `tools/sync-tooling.sh <tag>`, then `tools/verify-world.sh` | a diff you did not review, then the whole pipeline on your content |
-| the kit is unreachable, or you are offline | `tools/sync-tooling.sh --archive worldkit-<tag>.tar.gz` | the same update, from the release file instead of the network |
+| want to know what the newest worldkit is | `tools/sync-tooling.sh --dry-run` — with no tag it takes the newest, and prints every change it would make | a diff you decided against, after seeing it |
+| updated the worldkit | `tools/sync-tooling.sh` (the newest), or `tools/sync-tooling.sh <tag>` to pin deliberately; then `tools/verify-world.sh` | a diff you did not review, then the whole pipeline on your content |
+| the kit is unreachable, or you are offline | download `worldkit-<tag>.tar.gz` from the kit's releases, then `tools/sync-tooling.sh --archive <file>` | the same update, from the release file instead of the network |
 | changed lore in bulk, or anything in the pipeline | `tools/verify-world.sh` | everything the tools can prove |
 | am about to publish the site | the publish order below | a leak, an unread audit, a dead link |
 
@@ -158,7 +159,13 @@ Everything not listed as writing is read-only, and safe to run to look.
 | `site.yml` | manual, from Actions | the site build, the audit gate and the link check; deploys only when asked |
 
 A red drift check is not a broken world: it is a behind or hand-edited pin. The fix is
-`tools/sync-tooling.sh <tag>` and one commit, and the job says so.
+`tools/sync-tooling.sh <tag>` and one commit, and the job names the tag it compared against.
+
+**Where versions come from.** The kit publishes a release per tag at
+`https://github.com/curiouslittledroid/mythical-forge-worldkit/releases`. Each one carries
+`worldkit-<tag>.tar.gz` and its `.sha256` — the payload the sync downloads, and the file
+`--archive` takes — and its notes say what changed for a world, including anything to do by hand.
+A fork of the kit points the sync at itself with `WORLDKIT_REPO`, which wins over all of this.
 
 ## When a tool refuses
 

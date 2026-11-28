@@ -103,10 +103,14 @@ class TransportCase(unittest.TestCase):
     # --- running -----------------------------------------------------------------------------
 
     def run_sync(self, *args: str, repo: str | None = "default") -> tuple[int, str]:
+        """`repo=None` leaves WORLDKIT_REPO unset, which is the case a real world is in: the kit's
+        own address, as the script's default."""
         env = dict(os.environ)
-        # A world's own repo: the rails must not refuse because the fixture is not a checkout.
         env.pop("SYNC_REEXEC", None)
-        env["WORLDKIT_REPO"] = repo if repo is not None else str(self.kit)
+        if repo is None:
+            env.pop("WORLDKIT_REPO", None)
+        else:
+            env["WORLDKIT_REPO"] = repo if repo != "default" else str(self.kit)
         world = self.world
         proc = subprocess.run([str(world / "tools/sync-tooling.sh"), *args],
                               cwd=world, env=env, capture_output=True, text=True)
@@ -149,6 +153,21 @@ class TransportCase(unittest.TestCase):
         self.assertEqual(0, code, out)
         self.assertNotIn("invalid.invalid", out.split("\n")[-5:])
         self.assertEqual("v9.9.9\n", (self.world / "TOOLING_VERSION").read_text())
+
+    def test_it_names_where_the_release_notes_are(self):
+        """A world does not receive the kit's CHANGELOG, so the sentence that says what changed for a
+        world has to carry an address. It used to point at a file the reader does not have."""
+        code, out = self.run_sync("--archive", str(self.archive), repo=None)
+        self.assertEqual(0, code, out)
+        self.assertIn("releases/tag/v9.9.9", out)
+        self.assertNotIn("Read CHANGELOG.md in the kit", out)
+
+    def test_a_local_checkout_still_points_at_its_changelog(self):
+        # The other branch: a checkout on this machine has the file, and no release page.
+        code, out = self.run_sync("v9.9.9", repo=str(self.kit))
+        self.assertEqual(0, code, out)
+        self.assertIn(f"{self.kit}", out.split("CHANGELOG.md")[0])
+        self.assertNotIn("releases/tag", out)
 
     def test_the_worlds_own_script_survives_every_transport(self):
         code, out = self.run_sync("--archive", str(self.archive))

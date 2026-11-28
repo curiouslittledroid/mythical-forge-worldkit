@@ -21,6 +21,10 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# This script `cd`s, so `$0` stops resolving the moment it does: a relative invocation
+# (`../my-world/init-world.sh --help`) had no help at all, silently, and then loudly once the reader
+# became `awk`. One absolute path, taken before the change of directory.
+SELF="$ROOT/$(basename "${BASH_SOURCE[0]}")"
 cd "$ROOT"
 CONFIG="world.config.yaml"
 AGENTS="AGENTS.md"
@@ -31,7 +35,10 @@ KIT_REPO="${WORLDKIT_REPO:-https://github.com/curiouslittledroid/mythical-forge-
 die() { echo "init-world: $*" >&2; exit 1; }
 say() { printf '%s\n' "$*"; }
 
-usage() { sed -n '2,20p' "$0" | sed 's/^# \?//'; }
+# Up to the line that starts the script, not a line range: a range outgrows its header without
+# saying so. And `\{0,1\}`, not `\?` -- the `\?` spelling is a GNU sed extension, so on macOS
+# every line of this help kept its `#`.
+usage() { awk 'NR > 1 { if ($0 == "set -euo pipefail") exit; print }' "$SELF" | sed 's/^# \{0,1\}//'; }
 
 while [ $# -gt 0 ]; do
   case "$1" in
