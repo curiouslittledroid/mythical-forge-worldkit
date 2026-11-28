@@ -4,6 +4,43 @@ A world pins the kit by copying its version into `TOOLING_VERSION` and updating 
 `tools/sync-tooling.sh`. **A change a world cannot absorb silently is a major bump and gets a
 migration note here.**
 
+## 3.4.1 — the export died inside its own progress report
+
+`./export-template.sh v3.4.0 ../world-template --force` printed the first twenty paths it was about to
+remove, then:
+
+```
+export-template: removing 14687 path(s) the export does not produce:
+  site/node_modules/...
+  ...
+./export-template.sh: line 191: printf: write error: Broken pipe
+```
+
+and exited 1 **before the `rsync --delete` on the next line**, so the destination was left exactly as
+it was — with no message that named the cause. `printf '%s\n' "$gone" | head -20` is the whole of it:
+`head` exits after twenty lines, `printf` takes SIGPIPE writing the rest, and `set -o pipefail` turns
+that into the script dying. The preview now truncates with `sed -n '1,20s/^/  /p'`, which reads to the
+end, and it says how many it hid: `... and 14667 more`.
+
+**Why it took until now.** The writer has to fill a pipe (64K of paths) before the reader can have
+gone. Exporting over a template checkout with a handful of retired paths never does. Exporting over
+one that has been **built** does: `site/node_modules` and the exporter's generated directories are
+thousands of paths the export does not produce, and building the destination is exactly what a
+maintainer does after proving the site. The old code was correct for a year because the fixtures were
+small.
+
+`tools/verify-world.sh` had the same shape — `find … | head -1` — and is now `find … -print -quit`,
+which ends the walk itself instead of closing a pipe on a writer.
+
+**And a second defect in the same file, found by testing it:** `--worktree` pinned the newest
+**tag** while exporting the working tree, so an export made during a release in flight declared
+itself the previous version — and a fork of that template is then told by `tooling-drift.yml` that it
+has hand-edited every file the release touched. The pin is now the exported tree's own
+`TOOLING_VERSION`, which is the same string on a tagged checkout and the honest one everywhere else.
+
+`tools/test_export_template.py` is the regression test: a destination of three thousand paths, and
+the assertions that the export exits 0, says how much it hid, and **actually replaced the tree**.
+
 ## 3.4.0 — a world stops cloning the kit
 
 `tools/sync-tooling.sh` had exactly one dependency on git, and it was the whole of its fetching: a

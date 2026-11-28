@@ -93,10 +93,13 @@ else
   git clone --quiet ${TAG:+--branch "$TAG"} --depth 1 "$KIT_REPO" "$TMP/kit"
 fi
 if [ -z "$TAG" ]; then
-  # In worktree mode the copy under $TMP has no history; the pin comes from the real checkout.
-  src="$TMP/kit"
-  [ "$WORKTREE" = 1 ] && src="$ROOT"
-  TAG="$(git -C "$src" describe --tags --abbrev=0 2>/dev/null || echo unreleased)"
+  # The pin is the exported tree's OWN `TOOLING_VERSION`, not `git describe`. They are the same
+  # string on a tagged checkout -- and they differ in the one case that matters: the pin is bumped
+  # before the commit and the tag, so a `--worktree` export made from a release in flight described
+  # itself as the PREVIOUS tag while carrying the new content. A fork of that template is then told
+  # by `tooling-drift.yml` that it has hand-edited every file the release touched.
+  TAG="$(tr -d '[:space:]' < "$TMP/kit/TOOLING_VERSION" 2>/dev/null || true)"
+  [ -n "$TAG" ] || TAG=unreleased
 fi
 if [ ! -f "$TMP/kit/TOOLING_VERSION" ]; then
   echo "export-template: $KIT_REPO is not a worldkit (no TOOLING_VERSION)" >&2; exit 2
@@ -187,9 +190,17 @@ mkdir -p "$DEST"
 gone="$(rsync -a --delete --exclude=/.git --dry-run --itemize-changes "$OUT/" "$DEST/" \
         | sed -n 's/^\*deleting *//p')"
 if [ -n "$gone" ]; then
-  echo "export-template: removing $(printf '%s\n' "$gone" | wc -l | tr -d ' ') path(s) the export does not produce:"
-  printf '%s\n' "$gone" | head -20 | sed 's/^/  /'
-  [ "$(printf '%s\n' "$gone" | wc -l | tr -d ' ')" -gt 20 ] && echo "  ..."
+  count="$(printf '%s\n' "$gone" | wc -l | tr -d ' ')"
+  echo "export-template: removing $count path(s) the export does not produce:"
+  # `sed -n '1,20s/^/  /p'`, NOT `| head -20`. `head` exits after its twentieth line, `printf` takes
+  # SIGPIPE writing the rest, and `set -o pipefail` turns that into THIS SCRIPT DYING inside its own
+  # progress report: exit 1, no message that names the cause, and the destination left as it was --
+  # because the rsync below never runs. It needs a destination big enough to fill a pipe (64K of
+  # paths) before it fires, so it stayed hidden until a template checkout that had been BUILT was
+  # exported over: `site/node_modules` and the exporter's generated directories alone are thousands
+  # of paths the export does not produce.
+  printf '%s\n' "$gone" | sed -n '1,20s/^/  /p'
+  if [ "$count" -gt 20 ]; then echo "  ... and $((count - 20)) more"; fi
 fi
 rsync -a --delete --exclude=/.git "$OUT/" "$DEST/"
 
