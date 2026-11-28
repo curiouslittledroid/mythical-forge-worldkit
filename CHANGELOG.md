@@ -80,6 +80,15 @@ missing, and `template-fork.yml` requires it in the completeness list. `site/pub
 **world's** from here on: the sync never writes it, so a world's own favicon and its `img/` art
 survive every release. `site.md` and the theme's README say so.
 
+The same `template-fork` run found two *more* dead links on the neutral landing page, and had been
+red on `main` since the fork job landed: the aside linked `/history/` in every fork that has no
+History section, and the spoilered pull-quote was a sentence about **another world's** sealed cities,
+linking `/world/silent-cities/` — a note no fork has, in a theme that promises to carry no world's
+branding. The aside now links the first section a world actually published, and the pull-quote is a
+worldless line with a "replace this" note, like the rest of the page. The theme's chrome now has one
+hard-coded path in it, the favicon, and that file exists. A fork's site: 9 pages, 87 internal links,
+**0 dead**.
+
 **The engine capability register moved out of the world.** `meta/conventions/engine-capability-register.md`
 is now `meta/platform-requests/engine-capability-register.md`, in the kit, written for the platform it
 describes. It was never an author's document: it classifies what the engine can express and holds the
