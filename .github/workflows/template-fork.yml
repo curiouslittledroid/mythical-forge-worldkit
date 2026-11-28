@@ -102,7 +102,7 @@ jobs:
               meta/conventions/licensing.md meta/conventions/agent-protocol.md \
               meta/conventions/tooling.md \
               .pi/prompts/new-creature.md \
-              tools/lint.py tools/verify-world.sh tools/sync-tooling.sh \
+              tools/lint.py tools/check_config.py tools/verify-world.sh tools/sync-tooling.sh \
               tools/LICENSE tools/LICENSE-CONTENT \
               site/astro.config.mjs site/src/lib/site.ts \
               site/public/favicon.svg \
@@ -185,6 +185,7 @@ jobs:
           # defect. lint counts what remains. This is the same line checks.yml draws between a world
           # and a template, and it was the second thing this job got wrong about a fresh fork.
           python3 tools/lint.py
+          python3 tools/check_config.py
           python3 tools/check_citations.py
           python3 tools/check_workflows.py
           echo "== what this fork still has to fill in:"

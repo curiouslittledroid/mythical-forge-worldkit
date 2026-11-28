@@ -42,13 +42,13 @@ jobs:
           cache: npm
           cache-dependency-path: site/package-lock.json
 
+      # The exporters' own tests are NOT here: they are the kit's, they run in its ci.yml on every
+      # commit, and a world cannot fix one. This job's question is this world's site, so it asks it of
+      # this world: the vault checks, then the build, the audit and the link check below.
       - name: Vault checks
         run: |
           python3 tools/lint.py
           python3 tools/disclosure.py --check
-          python3 tools/test_lint.py
-          python3 tools/test_disclosure.py
-          python3 tools/test_site_export.py
 
       - name: Install and build
         working-directory: site

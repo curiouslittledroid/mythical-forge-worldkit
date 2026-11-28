@@ -64,6 +64,8 @@ rsync -a --exclude .git --exclude node_modules --exclude __pycache__ --exclude s
 
 cd "$TMP/world"
 
+echo "== config        (world.config.yaml against the vault it describes)"
+python3 tools/check_config.py
 echo "== citations     (every section citation names a section the document has)"
 python3 tools/check_citations.py
 echo "== lint          (frontmatter, ids, dead links, undeclared flags)"

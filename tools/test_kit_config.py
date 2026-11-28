@@ -216,111 +216,60 @@ class ConfigCase(unittest.TestCase):
             kit_config.load(self.root / "nope.yaml")
 
 
-class RealWorldCase(unittest.TestCase):
-    """The live config: this is the regression test that T1 actually landed."""
+class SubsetEdgeCase(unittest.TestCase):
+    """Two corners of the subset that the readers must agree about, because a world writes them.
+
+    `[]` alone in a block: a world that has declared no flags yet says exactly that, and the
+    template ships it, so both readers must read an empty list rather than refusing a block that is
+    perfectly clear. This is a *block root* case only -- `key: []` was always a value.
+    """
+
+    def test_an_empty_flow_sequence_as_a_whole_block_is_an_empty_list(self):
+        self.assertEqual(parse("[]"), [])
+        self.assertEqual(parse("# nothing declared yet\n[]\n"), [])
+
+    def test_node_reads_it_the_same_way(self):
+        if shutil.which("node") is None:
+            self.skipTest("node is not installed")
+        script = ("import {parseSubset} from '" + (REAL_ROOT / "tools" / "kit_config.mjs").as_posix()
+                  + "';\nprocess.stdout.write(JSON.stringify([parseSubset('[]'), "
+                    "parseSubset('# none\\n[]\\n'), parseSubset('a: []\\n')]));")
+        out = subprocess.run(["node", "--input-type=module", "-e", script],
+                             capture_output=True, text=True)
+        self.assertEqual(out.returncode, 0, out.stderr)
+        self.assertEqual(json.loads(out.stdout), [[], [], {"a": []}])
+
+
+class LiveConfigShapeCase(unittest.TestCase):
+    """The live config's *shape*, through the reader, not its contents.
+
+    What used to be here -- and is now `tools/check_config.py`, whose tests are
+    `test_check_config.py` -- was the only assertion that a config is coherent with its vault, and
+    it lived in a suite a world author is told never to touch. The parity proof moved with it: the
+    two readers are compared on the live config by `check_config.parity`, which every world runs.
+    This class keeps the reader-level half: the values a tool is entitled to assume.
+    """
 
     @classmethod
     def setUpClass(cls):
         cls.cfg = kit_config.load(testkit.REAL_CONFIG)
 
     def test_identity(self):
-        """The live config must be *shaped* right, not equal to any one world's values.
-
-        This test used to assert the first world's own id. The kit ships a demo world, so an assertion on
-        a world's own name is exactly the literal the extraction removes: what matters is the form
-        the engine and the tools require.
-        """
         self.assertRegex(self.cfg.world_id, r"^world_[a-z0-9_]+$")
         self.assertTrue(self.cfg.title.strip())
         self.assertTrue(self.cfg.site)
         self.assertRegex(self.cfg.slug, r"^[a-z0-9-]+$")
         self.assertTrue(self.cfg.game_ready_repo.name, "game_ready_repo must name a directory")
 
-    def test_every_named_note_resolves_to_a_real_note(self):
-        for name in kit_config.BLOCK_INFO:
-            with self.subTest(note=name):
-                self.assertIsNotNone(self.cfg.path_of(name), f"vault.notes.{name} does not resolve")
-                self.assertIsNotNone(self.cfg.block(name), f"{name} carries no block")
+    def test_note_ids_is_the_declaration_and_a_copy(self):
+        ids = self.cfg.note_ids
+        self.assertEqual(ids.get("flags"), self.cfg._note_ids.get("flags"))
+        ids["flags"] = "topic_mine"
+        self.assertNotEqual(self.cfg.note_ids.get("flags"), "topic_mine",
+                            "note_ids hands out a copy: a check must not be able to rewrite the config")
 
-    def test_the_testimony_book_resolves(self):
-        self.assertIsNotNone(self.cfg.path_of("testimony_book"))
-
-    def test_eras(self):
-        order = self.cfg.block("eras")["order"]
-        self.assertTrue(order, "an eras block must list at least one era")
-        self.assertEqual(len(order), len(set(order)), "an era may not be listed twice")
-
-    def test_chronology(self):
-        c = self.cfg.block("calendar")
-        self.assertRegex(c["date_prefix"], r"^[A-Z]{2,6}$", "the date prefix is a short capital")
-        self.assertIsInstance(c["present"], int, "the present year is a number the tools do arithmetic on")
-
-    def test_site_vocabulary(self):
-        """Shape, not contents: the vocabularies are the world's."""
-        v = self.cfg.block("site_vocabulary")
-        for key in ("published_tags", "keystones", "plot_web_surfaces"):
-            self.assertIn(key, v, f"the site-vocabulary block must declare {key}")
-            self.assertIsInstance(v[key], list)
-        for tag in v["published_tags"]:
-            self.assertRegex(tag, r"^[a-z0-9-]+$", "a published tag is a slug: it becomes a URL")
-        self.assertEqual(len(v["published_tags"]), len(set(v["published_tags"])))
-
-    def test_the_site_section_list_is_consistent(self):
-        site = self.cfg.site
-        self.assertIsNotNone(site)
-        slugs = [s.slug for s in site.sections]
-        self.assertEqual(len(slugs), len(set(slugs)), "duplicate section slug")
-        kinds = [k for s in site.sections for k in s.kinds]
-        self.assertEqual(len(kinds), len(set(kinds)), "a kind is claimed by two sections")
-        self.assertEqual(site.section_of_kind("NPC"), "people")
-        self.assertEqual(site.section_of_kind("NOT_A_KIND"), None)
-        self.assertEqual(site.label_of("gods"), "Gods")
-
-    def test_process_docs_are_the_ones_at_the_root(self):
-        for rel in self.cfg.process_docs:
-            with self.subTest(doc=rel):
-                self.assertTrue((testkit.REAL_CONFIG.parent / rel).is_file(), f"{rel} is listed but missing")
-
-
-class NodeParityCase(unittest.TestCase):
-    """Python and Node each read `world.config.yaml`. They must agree.
-
-    There is a second reader because the Node tools cannot call Python, and the subset parser is
-    small enough to keep in both. A divergence would silently corrupt a build, so it fails here.
-    """
-
-    @classmethod
-    def setUpClass(cls):
-        if shutil.which("node") is None:
-            raise unittest.SkipTest("node is not installed")
-        cls.cfg = kit_config.load(testkit.REAL_CONFIG)
-        out = subprocess.run(["node", str(REAL_ROOT / "tools" / "kit_config.mjs")],
-                             capture_output=True, text=True, cwd=REAL_ROOT,
-                             env={**os.environ, "WORLD_CONFIG": str(testkit.REAL_CONFIG)})
-        if out.returncode != 0:
-            raise AssertionError(f"kit_config.mjs failed:\n{out.stderr}")
-        cls.node = json.loads(out.stdout)
-
-    def test_identity_and_paths(self):
-        self.assertEqual(self.node["world_id"], self.cfg.world_id)
-        self.assertEqual(self.node["title"], self.cfg.title)
-        self.assertEqual(self.node["slug"], self.cfg.slug)
-        self.assertEqual(self.node["overland"], self.cfg.overland_id)
-        self.assertEqual(Path(self.node["game_ready_repo"]), self.cfg.game_ready_repo)
-        self.assertEqual(sorted(self.node["features"]), sorted(self.cfg.features))
-        self.assertEqual(self.node["notes"], self.cfg._note_ids)
-        self.assertEqual(sorted(self.node["process_docs"]), sorted(self.cfg.process_docs))
-
-    def test_the_site_sections_agree(self):
-        python = [(s.slug, s.label, list(s.kinds)) for s in self.cfg.site.sections]
-        node = [(s["slug"], s["label"], s["kinds"]) for s in self.node["site"]["sections"]]
-        self.assertEqual(node, python)
-        self.assertEqual(self.node["site"]["url"], self.cfg.site.url)
-
-    def test_every_block_agrees(self):
-        for name in kit_config.BLOCK_INFO:
-            with self.subTest(block=name):
-                self.assertEqual(self.node["blocks"][name], self.cfg.block(name))
+    def test_overland_is_derived_when_the_world_does_not_name_one(self):
+        self.assertEqual(self.cfg.overland_id, "overland_" + self.cfg.world_id.removeprefix("world_"))
 
 
 if __name__ == "__main__":

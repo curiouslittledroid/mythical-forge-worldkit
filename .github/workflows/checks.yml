@@ -36,11 +36,10 @@ jobs:
       # the platform repository is private: a runner cannot have it. Run it locally, before a commit
       # that touches the authoring guide. Everything above and below is standard-library only.
 
-      # This workflow ships to every world, and to the kit and the template as well. Two of the checks
-      # below are statements about a WORLD and are meaningless for the other two: the disclosure gate
-      # fails on a fixture's deliberately unreviewed sections, and the suites assert a real world's
-      # vocabularies, where a template has `REPLACE`. The kit is the repository with verify-kit.sh at
-      # its root (a world has verify-world.sh); an uninhabited fork says `template: true`.
+      # This workflow ships to every world, and to the kit and the template as well. One of the checks
+      # below is a statement about a WORLD and is meaningless for the other two: the disclosure gate
+      # fails on a fixture's deliberately unreviewed sections. The kit is the repository with
+      # verify-kit.sh at its root (a world has verify-world.sh).
       - name: Is this a world?
         id: kind
         run: |
@@ -71,13 +70,21 @@ jobs:
             echo "::warning::Locally, 'npm install && tools/verify-world.sh' runs the same checks."
           fi
 
-      - name: The suites
-        if: steps.kind.outputs.world == 'true'
-        run: |
-          for suite in tools/test_*.py; do
-            echo "== $suite"
-            python3 "$suite"
-          done
+      # The suites are deliberately NOT run here: `tools/test_*.py`. They are the kit's tests -- fixtures asserting the kit's own
+      # code -- and a release cannot be tagged with one failing, because the kit's ci.yml runs all of
+      # them on every commit. Running them in a world added no check the steps below do not make: the
+      # three that read a real vault were `lint.py`, `disclosure.py --check` and `check_config.py` in
+      # other clothes. What it did add was a red run an author could do nothing about, which is the
+      # failure mode this kit keeps naming. They still ship, and `meta/conventions/tooling.md` says
+      # when to run one by hand; and a vendored copy's integrity is `tooling-drift.yml`'s question,
+      # answered by comparing files with the pinned tag rather than by executing them.
+
+      # Before the notes, the file every tool reads first. A wrong id, a block that does not parse
+      # or a site section that claims a kind twice makes the checks below quieter rather than
+      # louder, so it is worth its own named step and its own line in the log. In the kit this
+      # resolves to the demo world (`template/example-world/`); in a world, to that world.
+      - name: The config and the vault agree
+        run: python3 tools/check_config.py
 
       - name: Lint every note
         run: python3 tools/lint.py

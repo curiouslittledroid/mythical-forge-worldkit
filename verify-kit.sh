@@ -93,6 +93,7 @@ mkdir -p "$TMP/gameready"
 cd "$TMP/world"
 
 echo "== suites";     for suite in tools/test_*.py; do printf '%s ' "$suite"; python3 "$suite" | tail -1; done
+echo "== config";     python3 tools/check_config.py | tail -2
 echo "== workflows";  python3 tools/check_workflows.py | tail -1
 echo "== citations";  python3 tools/check_citations.py | tail -2
 echo "== lint";       python3 tools/lint.py | tail -6

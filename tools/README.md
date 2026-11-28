@@ -59,7 +59,9 @@ to run rather than guessing.
 | `test_check_doc_examples.py` | Its tests: a demo id, a placeholder, a predicate, a source-world phrase, and the no-demo-world skip. |
 | `test_lint.py` | Its tests. |
 | `testkit.py` | Fixture helper for the suites (config + vocabulary note). |
-| `test_kit_config.py` | Tests for the two config readers and the subset parser, including a **parity test** that the Python and Node readers agree on the live config. |
+| `check_config.py` | **Does the config agree with the vault?** Every `vault.notes` id resolves to a note that carries the right block; the blocks are shaped right; no two site sections claim a kind; a published tag is in the world's vocabulary; the Python and Node readers agree about this config. Exit 1 on errors only — a warning and a `REPLACE` note never fail, so a world that was just forked is not red. The first check on the vault in `tools/verify-world.sh`. |
+| `test_kit_config.py` | Tests for the two config readers and the subset parser, including the corners a world writes (`[]` as a whole block, where the two readers must agree). The **parity** proof — that the readers agree on the *live* config — is `check_config.py`'s: it runs in every world, not only in the kit's CI. |
+| `test_check_config.py` | Its tests: one fixture per finding, that a note-only run still exits 0, that a coherent world is silent, and that the live world (this repository's, or the kit's demo world) is coherent. |
 | `disclosure.py` | The effective disclosure class of every lore section (conventions §7); `--list` shows the sections still unreviewed; `--check` exits 1 if there are any (run it before a commit). Its `classify` is the reference for the corpus export. |
 | `test_disclosure.py` | Its tests. |
 | `voice_lint.py` | Checks each testimony against its teller's voice sheet: vocabulary the teller never says, and places outside their range. |
@@ -85,6 +87,12 @@ to run rather than guessing.
 | `atlas_diff.py` | Compares the YAML with `HEAD` or a file; reports added, removed, moved and changed features. |
 | `atlas_previews.sh` | Renders the PNG previews (macOS + Chrome). |
 | `local/make_atlas.py` | Renders the SVG sheets. **World-owned** (D16): label placement, the frame layout and the map title are world choices, so it lives in `tools/local/` and `sync-tooling.sh` never touches it. |
+
+The `test_*.py` suites are the **kit's**: fixtures asserting the kit's own code. The kit's `ci.yml`
+runs every one on every commit, and a world's `checks.yml` deliberately runs none — a release cannot
+be tagged with one failing, and a red run a world cannot fix is noise. They ship because `tools/` is
+copied whole, and they are for diagnosing a **tool**: `python3 tools/test_lint.py`. A world's own
+proof is `tools/verify-world.sh`; its config's is `check_config.py`.
 
 ## Atlas tools
 

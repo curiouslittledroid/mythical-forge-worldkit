@@ -4,6 +4,75 @@ A world pins the kit by copying its version into `TOOLING_VERSION` and updating 
 `tools/sync-tooling.sh`. **A change a world cannot absorb silently is a major bump and gets a
 migration note here.**
 
+## 3.3.0 — the config gets the check it never had, and `[]` stops being an error
+
+Every tool reads `world.config.yaml` before it reads a note, and every way that file can be wrong
+was silent. An id no note carries makes a check *inert* rather than wrong: the linter stops
+enforcing the world's flags and says nothing. A block that does not parse is a traceback out of
+whichever tool touched it first, pointing at a note rather than at the block. A kind claimed by two
+site sections drops notes from the site depending on ordering. And the Python and the Node reader
+can disagree about the same file while each half of the world builds happily.
+
+**New: `tools/check_config.py`**, a check with a name and an author-facing answer. It asks, of
+*this* world's config: every `vault.notes` id resolves to a note that carries the block the kit
+looks for (§8.1), the blocks are shaped the way their reader expects, no two site sections share a
+slug or claim the same kind, every published tag is in the world's `tags-vocabulary`, no non-engine
+note kind goes unpublished without being named, and `kit_config.py` and `kit_config.mjs` agree about
+this config, field by field. It is the first check on the vault in `tools/verify-world.sh` (a config fault
+makes every later check quieter, not louder), as its own step in `checks.yml`, on a fresh fork in
+`template-fork.yml`, and in `verify-kit.sh`.
+
+**Its levels are the line the linter draws.** An **error** is a config and a vault contradicting each
+other, and the only thing that fails the run. A **warning** is something declared and absent, or used
+and undeclared. A **note** is a value still carrying the template's `REPLACE` — the author's to-do,
+never a failure, which is what keeps a freshly forked world green on its first push.
+
+**The parity proof moved out of a test and into every world.** `test_kit_config.py`'s `NodeParityCase`
+compared the two readers on the live config — but the kit's live config is the demo world's, so the
+proof only ever covered the demo world's data. It is now `check_config.parity`, which runs in each
+world on that world's own config: different ids, different paths, different subset corners. When it
+finds a disagreement it says so in those words — *this is a tooling defect, report it, do not edit
+the config around it* — because that is the one finding a world must not fix locally.
+
+**Found while writing it: the template's `flags` block could not be read.** The template ships
+`[]` — "a world starts with none" — and both readers refused a block whose root is a flow sequence,
+reporting `expected 'key: value'` about a block that is perfectly clear. So in every fresh fork
+`python3 tools/kit_config.py`, `node tools/kit_config.mjs` and every suite that loads the live config
+failed before the world had written anything. `yaml_subset.py` and `kit_config.mjs` now read exactly
+`[]` (with or without comments around it) as an empty list; `key: []` was always a value, so this
+closes the one place the two disagreed. `test_kit_config.py` proves both readers agree on it.
+
+**A world's CI stops running the kit's suites.** `checks.yml` ran every `tools/test_*.py` on every
+push, and `site.yml` ran three of them before a deploy. That was a second thing to keep green for no
+check the world owns: of the suites, only three ever read a real vault, and those three were
+`lint.py`, `disclosure.py --check` and `check_config.py` in other clothes — all of which run by name,
+with output an author can act on. The rest assert the kit's own code, and a release cannot be tagged
+with one failing because the kit's `ci.yml` runs them all on every commit. What the step did add was
+a red run a world could do nothing about, which is the failure mode this kit keeps naming.
+
+The files still ship — `tools/` is copied whole, and deleting them is not worth what it would cost:
+`sync-tooling.sh`'s deletion rail would make **every** world's next sync refuse until `--force`,
+which is exactly the flag the runbook teaches authors to distrust. They are for diagnosing a tool
+now (`python3 tools/test_lint.py`), and a vendored copy's integrity is `tooling-drift.yml`'s
+question, answered by comparing files with the pin rather than by executing them.
+
+**The template no longer lists documents it does not ship.** `vault.process_docs` named
+`CHANGELOG.md` and `CONTRIBUTING.md`, which the export does not carry — and which the linter exempts
+from frontmatter in every repository anyway. The new check reported both on its first run; the list
+is now the exported documents plus a comment saying what it is for.
+
+**No migration.** `sync-tooling.sh` replaces `tools/`, `meta/conventions/` and the workflows whole,
+so a world receives the tool, the runbook and the new steps on its next sync and runs nothing by
+hand. The one thing to expect: a world whose config and vault have drifted will see the new step
+fail on the first run, naming the key — that finding was true before this release, and no tool
+said it.
+
+`meta/conventions/tooling.md` gains the row ("changed `world.config.yaml`, or the note a
+`vault.notes` id names"), the gate now starts with `check_config.py`, and its "when a tool refuses"
+table explains a WARN, a NOTE and the readers' disagreement. `meta/conventions/conventions.md` §16
+lists the check and §8.1 now says that a block **declared but missing** is not the same as one a
+world never wrote. `CONTRIBUTING.md` points the parity rule at the new tool.
+
 ## 3.2.0 — a new world keeps the demo world, and the register leaves every world
 
 `init-world.sh` no longer removes `example-world/`. Deleting it was the wrong default: it is the one

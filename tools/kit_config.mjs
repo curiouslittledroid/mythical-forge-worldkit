@@ -83,6 +83,9 @@ export function parseSubset(text, name = '<text>') {
   };
 
   const first = content(0);
+  // An empty flow sequence as the whole document: a world's `flags` block says "none yet" that
+  // way, and the Python reader accepts it too (they must agree -- see check_config.py).
+  if (first && stripComment(first[1]).trim() === '[]') return [];
   const root = first && first[1].startsWith('- ') ? [] : {};
   const topKeys = new Map();
   const stack = [[-1, root]];
