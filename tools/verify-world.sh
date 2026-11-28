@@ -81,7 +81,10 @@ node tools/thread-check.mjs --repo "$GR" | grep -E "OK|problem|Missing|never|Dan
 # A world that has not written a scenario yet is not a broken world: it is a world at Step 0b. Say
 # so and pass -- but only when there is genuinely nothing to run. If scenario files exist and the
 # config does not name them, the simulator's own error is the honest answer, and it still fires.
-SCENARIO_FILES="$(find campaigns -path '*/scenarios/*.yaml' 2>/dev/null | head -1 || true)"
+# `-print -quit`, not `| head -1`: the pipe is the same shape as the bug that killed
+# export-template.sh's preview -- `head` stops reading, `find` takes SIGPIPE. `-quit` ends the walk
+# itself, so there is nothing to break.
+SCENARIO_FILES="$(find campaigns -path '*/scenarios/*.yaml' -print -quit 2>/dev/null || true)"
 if [ "${#SCENARIOS[@]}" -gt 0 ]; then
   echo "== scenarios     (${#SCENARIOS[@]} named)"
   node tools/simulate-world.mjs --repo "$GR" --quiet "${SCENARIOS[@]}"

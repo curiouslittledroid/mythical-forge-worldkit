@@ -35,10 +35,11 @@ To put the kit into an existing world instead, take the **release payload** — 
 every tag, reduced to what a world receives and needing no token, because this repository is public:
 
 ```bash
-curl -LO https://github.com/curiouslittledroid/mythical-forge-worldkit/releases/download/v3.4.0/worldkit-v3.4.0.tar.gz
-tar -xzf worldkit-v3.4.0.tar.gz -C /tmp
-cp -R /tmp/worldkit-v3.4.0/tools ./tools          # the one time copying is right: no tools/ yet
-tools/sync-tooling.sh --archive "$PWD/worldkit-v3.4.0.tar.gz"
+TAG=v3.4.1    # any tag from the releases page; each one carries the same two files
+curl -LO "https://github.com/curiouslittledroid/mythical-forge-worldkit/releases/download/$TAG/worldkit-$TAG.tar.gz"
+tar -xzf "worldkit-$TAG.tar.gz" -C /tmp
+cp -R "/tmp/worldkit-$TAG/tools" ./tools          # the one time copying is right: no tools/ yet
+tools/sync-tooling.sh --archive "$PWD/worldkit-$TAG.tar.gz"
 ```
 
 **Never extract the payload over a world.** It appears to work — and leaves the kit's documents where
