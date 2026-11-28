@@ -3,7 +3,7 @@
  * Step 12a: an idle-world and scenario simulator for a generated Game Ready Repository.
  *
  * It evaluates the authored Conditions and Effects of the World and one Campaign the way
- * Design 23.3 says the engine will (one-shot sources, snapshot-per-round cascades, Want
+ * the engine does (one-shot sources, snapshot-per-round cascades, Want
  * deadlines as relative timers), advances the Sandbox day counter, and lets a scenario script
  * what the player and other threads do. It proves that a thread's state graph is reachable,
  * robust to unscripted actions, and idle-stable BEFORE any engine exists.
@@ -15,7 +15,7 @@
  *         (no scenario argument: run every scenario in the directory world.config.yaml names
  *          as `vault.scenarios`, whose quest-gates sidecar is read from the same place)
  *
- * ASSUMPTIONS (Design 23.3 is silent; each is proposed as a spec clarification, A4):
+ * ASSUMPTIONS (the design is silent on each; each is proposed as a spec clarification, A4):
  *  A-1  A Want starts its clock on the first day its `urgent_when` holds (or the day an
  *       `activate_want` Effect names it); with no `urgent_when` it is active from day 0.
  *  A-2  `urgent_when` only ACTIVATES a Want. Once active it stays active until resolved,
@@ -94,7 +94,7 @@ function loadWorld(campaignId) {
   w.campaign = readYaml(join(cdir, 'campaign.yaml'));
   const overlay = existsSync(join(cdir, 'overlay.yaml')) ? readYaml(join(cdir, 'overlay.yaml')) : { adds: [] };
   for (const e of overlay.adds ?? []) add(e);
-  // Overlay `overrides` (Design 23 §3.2): field-level patches to World entities, keyed by id; a path may be dotted.
+  // Overlay `overrides`: field-level patches to World entities, keyed by id; a path may be dotted.
   for (const [id, patch] of Object.entries(overlay.overrides ?? {})) {
     const target = w.wants.get(id) ?? w.events.get(id) ?? w.npcs.get(id) ?? w.facts.get(id);
     if (!target) throw new Error(`overlay overrides unknown entity ${id}`);

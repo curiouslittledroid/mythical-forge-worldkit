@@ -240,10 +240,13 @@ its scenarios, its engine blocks) and it passes the same checks yours will.
 
 - **Goal:** prove the codex-to-engine path on one small slice and find the gaps cheaply, before
   converting more.
-- **Read first:** the kit's `meta/conventions/conventions.md` §9–§11 (engine blocks, kinds, ids); the
-  platform's Design 23 and `packages/authored-content` at `$MYTHICAL_FORGE_ROOT`; `example-world/campaigns/ferryman-demo/`.
-- **Context to carry:** `MYTHICAL_FORGE_ROOT` has no default. The tools fail loudly and name it if it
-  is unset — that is deliberate, so nobody silently builds against the wrong platform checkout.
+- **Read first:** the kit's `meta/conventions/conventions.md` §9–§11 (engine blocks, kinds, ids);
+  `example-world/campaigns/ferryman-demo/`; and the engine's own content model, which its schemas
+  define and which this world does not contain.
+- **Context to carry:** the pipeline needs the engine's schema package installed —
+  `@curiouslittledroid/authored-content`, one npm dependency, with a `NODE_AUTH_TOKEN` that has
+  `read:packages` (`meta/conventions/tooling.md` has the two lines). Without it the first engine tool
+  stops and names the install. Lint, citations, disclosure and the site build never need it.
 - **Tasks:** choose a slice of a dozen or so entities (a place, its routes, two or three NPCs, their
   Wants, a handful of Facts, a few Relationships, one World Event, the flags they need); write the
   engine blocks; run the pipeline (`tools/transform.mjs`, then `tools/validate-world.mjs`, or the
@@ -259,7 +262,7 @@ its scenarios, its engine blocks) and it passes the same checks yours will.
 
 - **Goal:** list every mechanic the world needs and classify whether the engine can express it, so
   you stop designing things it cannot run. **Design within what the engine can run.**
-- **Read first:** the kit's `meta/conventions/engine-capability-register.md` (the catalogue of what exists),
+- **Read first:** `meta/conventions/conventions.md` §9–§11 (the vocabulary the engine does have),
   `meta/mechanics-gap-register.md` (this world's rows — start it here), the world's rule-heavy notes,
   `meta/pilot-findings.md`.
 - **Context to carry:** the engine is **closed over the SRD**. It cannot author new spells, feats,
@@ -278,8 +281,8 @@ its scenarios, its engine blocks) and it passes the same checks yours will.
 
 - **Goal:** get the load-bearing requests in front of the platform repository, and record its answers
   so Steps 14 and 15 know what can be converted.
-- **Read first:** `meta/mechanics-gap-register.md`; the platform's contribution rules at
-  `$MYTHICAL_FORGE_ROOT` (find out whether it takes issues, specs or pull requests **before** writing).
+- **Read first:** `meta/mechanics-gap-register.md`; the platform repository's own contribution rules
+  (find out whether it takes issues, specs or pull requests **before** writing).
 - **Context to carry:** the platform is a separate repository. This step is **delivery and response**,
   not design: the register is the source, this step carries it.
 - **Tasks:** deliver the requests in the form the platform accepts; record each accept, reject or
@@ -521,7 +524,7 @@ its scenarios, its engine blocks) and it passes the same checks yours will.
 - **Goal:** the deterministic path from the codex to the Game Ready Repository, reliably enough to run
   in CI.
 - **Read first:** the kit's `meta/conventions/conventions.md` §9–§11; `meta/pilot-findings.md`;
-  `meta/mechanics-gap-register.md`; the platform's Design 23 at `$MYTHICAL_FORGE_ROOT`.
+  `meta/mechanics-gap-register.md`; the engine's own content model, in the platform repository.
 - **Context to carry:** **the kit owns this.** `tools/transform.mjs`, `tools/validate-world.mjs`,
   `tools/thread-check.mjs` and `tools/simulate-world.mjs` are vendored, not written here; this step is
   the world supplying what they read (notes, config, flags, scenarios) and proving the result. A world

@@ -3,18 +3,18 @@
 **Status:** the rules every world codex follows. World-specific choices are **not** here: they live in
 that world's own `meta/world-conventions.md`, in `world.config.yaml`, and in its fenced vault blocks.
 **Authority:** where this file lists an engine vocabulary, the platform package
-(`@curiouslittledroid/authored-content`, or a checkout named by `MYTHICAL_FORGE_ROOT`) is the authority, not this file.
+`@curiouslittledroid/authored-content` is the authority, not this file.
 
 ## 1. Purpose
 
 A **world codex** is a human-readable, Obsidian-style lore vault. It is the upstream source for the
-game engine's generated **Game Ready Repository** — a separate Git repository of typed YAML entities
-(Design 23 §4.1). A **deterministic transformer** extracts those entities from the codex.
+game engine's generated **Game Ready Repository** — a separate Git repository of typed YAML entities.
+A **deterministic transformer** extracts those entities from the codex.
 
 - **Codex:** lore, rationale, secrets, history, design notes. Prose-first.
 - **Game Ready Repository (separate, generated):** closed-vocabulary YAML the engine consumes.
   **Never hand-edited.** Fix the note and re-run the transformer.
-- **Terminology:** the platform glossary and Design 23 §4 call *any* author's generated repository a
+- **Terminology:** the platform's glossary calls *any* author's generated repository a
   **World Repository**. In the codex that term is retired; each world names its own repository.
 
 ## 2. Decisions the kit implements
@@ -365,8 +365,8 @@ authority: LOCKED
 
 Rules:
 - Field names and enums come from the engine schemas. Do not invent fields.
-- Free text in a block is **untrusted prompt input** and **token-capped** (Design 23 §8.2, §11). Keep
-  it short. The prose carries the long version.
+- Free text in a block is **untrusted prompt input** and **token-capped**. Keep it short. The prose
+  carries the long version.
 - Every referenced id must exist in the codex.
 - `authority` defaults to `GUIDED`. Use `LOCKED` for permanence-rule outcomes and hard truths.
 - **Placeholders** are written `REPLACE`. A committed note with `REPLACE` in an `engine` block, or in
@@ -457,10 +457,11 @@ Rules:
 
 ### 9.7 Stand-in patterns (where the vocabulary is missing)
 
-Some world properties have no engine field. **Do not invent one.** The patterns in force are recorded
-in the **engine-capability register**, which classifies each one and says why (`CP-` patterns in force,
-`BD-` items closed by design, `DT-` deferred with a named trigger). A world's register lists only the
-gaps *it* hits; the mechanism belongs to the kit.
+Some world properties have no engine field. **Do not invent one.** §9.6 covers a value the engine
+will have later, and `thread-pattern.md` carries the structural patterns already in force as `CP-`
+cards. Classify the rest in your own `meta/mechanics-gap-register.md`, which is where a world records
+the gaps *it* hits and the workaround in force. What the engine does about them is the kit owner's
+call, not a world's.
 
 ### 9.8 Threads, flags, Campaigns and Modules
 
@@ -565,6 +566,27 @@ conventions note. Rooms, encounters and quests get templates with the campaign p
 
 ## 13. Engine vocabularies (reference; the package is the authority)
 
+Every list below is closed, and none of them is authoritative: the **schema package can be asked**,
+and its answer is what `transform` and `validate` enforce. Once it is installed
+(`meta/conventions/tooling.md` has the two lines), this prints the live lists at the version this
+world pins:
+
+```bash
+node -e "const a = require('@curiouslittledroid/authored-content');
+for (const k of ['ENTITY_KINDS', 'RELATIONSHIP_KINDS', 'AUTHORITY_LEVELS', 'WANT_METHODS',
+                 'ENCOUNTER_TACTICS', 'CONTENT_DESCRIPTORS', 'JUDGEMENT_TAGS', 'MILESTONE_TYPES',
+                 'NODE_TYPES', 'TERRAIN', 'SIMULATION_TIERS', 'EFFECT_NAMES', 'PREDICATE_NAMES',
+                 'COMBINATOR_NAMES'])
+  console.log(k.padEnd(20), (a[k] ?? []).join(', '))"
+```
+
+That is the answer to *"can the engine do this?"* — cheaper and truer than any list, including this
+one, which is here so you can read rather than run.
+
+- **Entity kinds:** `NPC`, `WANT`, `FACT`, `RELATIONSHIP`, `WORLD_EVENT`, `QUEST`, `ROOM`, `SITE`,
+  `ENCOUNTER`, `FACTION`, `ITEM`, `MONSTER`, `MODULE`, `CAMPAIGN`, `CAMPAIGN_OVERLAY`, `MIGRATION`,
+  `OVERLAND_GRAPH`, `ZONE`. The note type each corresponds to, and its id prefix, are in
+  `conventions.md` §5.1.
 - **Relationship kinds:** `KIN_OF`, `ALLY_OF`, `RIVAL_OF`, `ENEMY_OF`, `LOVES`, `FEARS`, `DISTRUSTS`,
   `OWES`, `MEMBER_OF`, `LEADS`, `SERVES`, `SECRETLY_SERVES`, `EMPLOYS`, `RESIDES_AT`, `GUARDS`,
   `CONTROLS`, `OWNS`, `SEEKS`, `KNOWS_SECRET_OF`, `BELIEVES`.
@@ -576,12 +598,19 @@ conventions note. Rooms, encounters and quests get templates with the campaign p
 - **Overland node types:** `SETTLEMENT`, `SITE_ENTRANCE`, `POINT_OF_INTEREST`, `WILDERNESS`.
   **Terrain:** `STANDARD`, `DIFFICULT`, `TRACKLESS`.
 - **Simulation tiers:** `MAJOR`, `MINOR`. **World Event scope:** `LOCAL`, `REGIONAL`, `MACRO`.
-- **Effects and conditions:** the platform package's `effect.ts` and `condition.ts`.
+- **Milestone types:** `DIALOGUE`, `FETCH`, `DELIVER`.
+- **Effects and conditions:** `EFFECT_NAMES`, `PREDICATE_NAMES` and `COMBINATOR_NAMES` are the live
+  lists, so they are not transcribed here. The block's shape, and how sources, conditions and effects
+  combine into a state graph, is `campaign-authoring-guide.md` and `thread-pattern.md`.
 
-**Vocabulary gaps are the register's business, not this file's.** Each world logs the mechanics it
-needs that the engine cannot express in its own `meta/mechanics-gap-register.md`, and the live
-catalogue of platform requests lives in `meta/conventions/engine-capability-register.md`. The kit never assumes a
-gap is universal: a mechanic one world needs may be irrelevant to another.
+**When a value is not there, the engine does not have it — and that is not yours to decide.** The
+closed vocabularies stay closed (`conventions.md` §2, item 5): a note that needs a mechanic the engine
+lacks uses the vocabulary that does exist, writes the value it needs in the **standard body line** if
+the field is coming (§9.6), uses the stand-in pattern in force if one exists (§9.7), and **logs it in
+`meta/mechanics-gap-register.md`** with the workaround. That log is a **request**, not a decision: a
+world cannot extend a closed vocabulary by naming what it is missing, and the catalogue of what the
+platform has been asked for is the kit owner's, kept with the platform rather than in the vault. The
+kit never assumes a gap is universal — a mechanic one world needs may be irrelevant to another.
 
 ## 14. Obsidian setup
 

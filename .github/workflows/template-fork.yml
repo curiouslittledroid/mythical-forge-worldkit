@@ -69,6 +69,28 @@ jobs:
           ./export-template.sh --worktree --force /tmp/template
           echo "pin=$(cat /tmp/template/TOOLING_VERSION)" >> "$GITHUB_OUTPUT"
 
+      # The normal destination is a checkout of the template repository on a branch, so the export
+      # has to replace that tree and leave `.git` alone. Both halves are asserted here, because a
+      # finished export looked perfect the one time it took the repository with it.
+      - name: Exporting over an existing checkout keeps its .git
+        run: |
+          set -eu
+          rm -rf /tmp/over
+          mkdir -p /tmp/over/meta
+          git -C /tmp/over init -q -b main
+          git -C /tmp/over -c user.email=ci@example.invalid -c user.name=ci \
+            commit -q --allow-empty -m base
+          echo stray > /tmp/over/meta/left-behind.md
+          base="$(git -C /tmp/over rev-parse HEAD)"
+          cd kit
+          ./export-template.sh --worktree --force /tmp/over
+          # .git survived, history with it
+          [ "$base" = "$(git -C /tmp/over rev-parse HEAD)" ]
+          # the tree was replaced, not merged into
+          [ ! -e /tmp/over/meta/left-behind.md ]
+          # and the result is exactly a fresh export
+          diff -rq --exclude=.git /tmp/template /tmp/over
+
       - name: The export has everything a world needs
         run: |
           set -eu
@@ -83,6 +105,7 @@ jobs:
               tools/lint.py tools/verify-world.sh tools/sync-tooling.sh \
               tools/LICENSE tools/LICENSE-CONTENT \
               site/astro.config.mjs site/src/lib/site.ts \
+              site/public/favicon.svg \
               site/src/pages/index.astro site/src/pages/about.astro site/src/pages/follow.astro \
               .github/workflows/checks.yml .github/workflows/site.yml \
               .github/workflows/tooling-drift.yml \

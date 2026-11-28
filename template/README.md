@@ -144,8 +144,12 @@ will fail the build if a citation rots.
 
 - **Python 3.12+**, standard library only. No pip installs.
 - **Node 18+** and `npm` for the site and the transformer.
-- **`MYTHICAL_FORGE_ROOT`**, pointing at the platform repository. It has **no default**: the tools fail
-  loudly and name it, rather than building against the wrong checkout.
+- **A GitHub token with `read:packages` on `@curiouslittledroid`**, to install the engine's schemas
+  (`@curiouslittledroid/authored-content`, an ordinary npm dependency from GitHub Packages):
+  `export NODE_AUTH_TOKEN=…` then `npm install` in this repository's root. `.npmrc` already points at
+  that registry. Without it the engine pipeline (`transform`, `validate`, `thread-check`, the
+  scenarios) cannot run — **lint, citations, disclosure and the site build do not need it**, so you
+  can write and check lore on day one and install the schemas when you reach the engine.
 - `git`, and optionally [Obsidian](https://obsidian.md) — open the repository root as a vault.
 
 ---

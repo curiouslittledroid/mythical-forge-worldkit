@@ -4,7 +4,7 @@ A world pins the kit by copying its version into `TOOLING_VERSION` and updating 
 `tools/sync-tooling.sh`. **A change a world cannot absorb silently is a major bump and gets a
 migration note here.**
 
-## Unreleased — a new world keeps the demo world, and the tools get a runbook
+## 3.2.0 — a new world keeps the demo world, and the register leaves every world
 
 `init-world.sh` no longer removes `example-world/`. Deleting it was the wrong default: it is the one
 worked example of every note type, a complete thread and a running campaign, and a new author asks
@@ -40,6 +40,95 @@ It is a synced document: a world receives it at `meta/conventions/tooling.md` on
 That workflow's completeness list also stopped demanding `tools/docs/conventions.md`, a path retired
 in 3.0.0 — the export correctly does not contain it, so the check could never pass. Found while
 adding the new document to the same list.
+
+**`export-template.sh` no longer deletes the destination's `.git`.** The destination is normally a
+checkout of the template repository on a branch, and the export replaced its tree with an
+`rsync --delete` that took `.git` with it — leaving a working directory with no repository while the
+finished export looked perfect. It also now *replaces* the tree rather than merging into it, prints
+the paths it removes, refuses a directory that holds a repository (`<project>/{bare.git,main}`)
+rather than being one, and says which branch the checkout it kept is on. `template-fork.yml` asserts
+both halves — `.git` and history intact, tree equal to a fresh export — and `CONTRIBUTING.md` has the
+publish procedure it never had, "Publish the template".
+
+**The missing-schemas message speaks to an author.** It used to open "… is not installed, and
+MYTHICAL_FORGE_ROOT is not set", then offer a `.npmrc` to write and two routes, one of which — a
+checkout of the private platform repository — no world author has and none can follow. Now it names
+one fix, in order: `export NODE_AUTH_TOKEN=<read:packages on @curiouslittledroid>`, `npm install`,
+the fact that `.npmrc` already carries the registry, what a 401 means, and what does *not* wait on
+any of it — lint, citations, disclosure and the site build. The checkout route moved to
+`verify-kit.sh`, which is the kit's own script and its maintainer's audience. A test asserts the
+world-facing message never names that variable, and the world-facing documents that repeated it
+(`tooling.md`, `README.md`, `AGENTS.md`, the `ROADMAP`'s steps, `conventions.md`'s authority line,
+the capability register, and the `transform`/`validate` headers that called it REQUIRED) now say
+what an author can do instead.
+
+The same audience test took **`Design 23`** out of the world-facing prose: an author holding a vault
+cannot open the platform's design documents, so a section number is a dead reference, and reads as
+something they are missing. 25 citations went from `thread-pattern.md` (which cited it a dozen
+times), the campaign authoring guide, `conventions.md`, `AGENTS.md`, the template `ROADMAP`, and the
+`tools/` headers and comments — each replaced by the rule it stood for ("the engine applies a source
+exactly once per Sandbox"). **Kept deliberately:** `engine-capability-register.md` and
+`meta/platform-requests/`, whose job is telling the platform *which spec text to change* — there
+the section number is the payload, not decoration.
+
+**A fork's site has a favicon again.** `BaseLayout.astro` links `/favicon.svg` and the kit's theme
+had no `public/` at all, so every fork's pages 404'd their icon; the only copy in existence was in
+the old hand-made template, and the export deleted it — correctly, since it does not produce it.
+The theme now ships the neutral mark at `site-theme/public/favicon.svg` (ink ground, parchment
+lozenge, ember core — the Dust Road tokens), the export copies `public/` and fails if the icon is
+missing, and `template-fork.yml` requires it in the completeness list. `site/public/` is the
+**world's** from here on: the sync never writes it, so a world's own favicon and its `img/` art
+survive every release. `site.md` and the theme's README say so.
+
+The same `template-fork` run found two *more* dead links on the neutral landing page, and had been
+red on `main` since the fork job landed: the aside linked `/history/` in every fork that has no
+History section, and the spoilered pull-quote was a sentence about **another world's** sealed cities,
+linking `/world/silent-cities/` — a note no fork has, in a theme that promises to carry no world's
+branding. The aside now links the first section a world actually published, and the pull-quote is a
+worldless line with a "replace this" note, like the rest of the page. The theme's chrome now has one
+hard-coded path in it, the favicon, and that file exists. A fork's site: 9 pages, 87 internal links,
+**0 dead**.
+
+**The engine capability register moved out of the world.** `meta/conventions/engine-capability-register.md`
+is now `meta/platform-requests/engine-capability-register.md`, in the kit, written for the platform it
+describes. It was never an author's document: it classifies what the engine can express and holds the
+platform requests, which is the kit owner's call as the platform's owner. Shipping it into every world
+invited exactly the wrong reading — that a world's author has a say in what the platform supports, or
+a document to consult for a decision only one person can make.
+
+**Migration.** A world's next `tools/sync-tooling.sh` **deletes** `meta/conventions/engine-capability-register.md`
+(an ordinary sync removes a kit document the kit no longer publishes). Nothing a world authored is
+lost. What to do:
+
+- **Keep any `PR-` / `CP-` id you already quote** — in `meta/mechanics-gap-register.md`, a thread card,
+  a roadmap step. The ids are stable; the file is just no longer beside them.
+- **Log a gap in your own `meta/mechanics-gap-register.md`**, with the workaround in use, and stop
+  there. It is a request, not a decision: what the engine supports is not a world's to change, and the
+  register no longer being in the vault is the point.
+- **A note that cites it has to be edited.** After the sync, `check_citations.py` reports
+  `ERROR: §4: no document matches meta/conventions/engine-capability-register.md` and `checks.yml`
+  goes red on the push. Point the sentence at `meta/mechanics-gap-register.md` instead, or drop the
+  citation. This is the one thing in the release a world must do by hand.
+- **Do not invent vocabulary** in an `engine` block to work around a gap. `conventions.md` §13 says the
+  closed vocabularies stay closed, and it now names your own register as where the request goes.
+- **§13 answers "can the engine do this?" without the catalogue.** It opens with a `node -e` command
+  that prints every closed vocabulary from the installed schema package — the authority, asked rather
+  than transcribed — and its lists are corrected: entity kinds (18, including `SITE` and `ZONE`) and
+  milestone types were missing. A value that is not in the list is not the engine's, and the section
+  says what to do instead (§9.6, §9.7, your register) and that the decision is not a world's.
+
+**What this changed in the documents.** A world's `AGENTS.md`, `conventions.md` §13, the agent protocol,
+`thread-pattern.md`, the template `ROADMAP` and `mechanics-gap-register.md` all pointed at a file a
+world no longer has. Each now says what an author can do (log it locally, use the workaround, do not
+invent) instead of pointing at the catalogue. The kit's `check_citations.py` resolves the old aliases
+to the new path, so a citation written against the old file still resolves here.
+
+**`./verify-kit.sh` now checks citations in the layout a world holds the documents in.** It copied the
+documents into a world shape only after its engine-schema gate, which fails on a machine without
+the schemas — so the kit's own citation check saw `template/meta/conventions/…` and passed while a
+fork's saw `meta/conventions/…` and failed, four times in a row on a §13 rewrite. The new step runs
+before the gate, needs no engine, and builds `meta/conventions/` + `meta/templates/` in a throwaway
+directory to check citations there. Verified by undoing one fix: it reports the two errors the fork did.
 
 **More of the extracted world's residue, removed.** The same sweep that fixed site.md's keystones
 found the rest of its shape:

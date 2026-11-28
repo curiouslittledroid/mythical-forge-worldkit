@@ -74,4 +74,4 @@ Ordered. Each task is one commit, verified before it lands (see `CONTRIBUTING.md
 - `AGENTS.md` — the brief for working here
 - `CONTRIBUTING.md` — how to add a tool, change a rule, or cut a release
 - `meta/conventions/conventions.md` — the rules a world follows
-- `meta/conventions/engine-capability-register.md` — the platform requests, and where a release lands
+- `meta/platform-requests/engine-capability-register.md` — the platform requests, and where a release lands

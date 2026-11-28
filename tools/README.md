@@ -17,7 +17,7 @@ Standard library Python 3.12+; Node 18+ for the transformer and the site.
 
 ## Setup: the engine's schemas
 
-The Node tools read the engine's own schemas and its YAML implementation (Design 23 §4.1). They come
+The Node tools read the engine's own schemas and its YAML implementation. They come
 from one of two places, and `tools/kit_config.mjs` is the only code that decides which:
 
 | Source | When | How |
@@ -25,10 +25,12 @@ from one of two places, and `tools/kit_config.mjs` is the only code that decides
 | **The published package** — `@curiouslittledroid/authored-content`, pinned exactly in this repository's root `package.json` | The default, and what CI uses | `export NODE_AUTH_TOKEN=<a PAT with read:packages>`, then `npm install`. The repository's `.npmrc` points at GitHub Packages; without a token the install is a 401 |
 | **A local checkout** — `packages/authored-content` in the platform repository | Developing an unreleased schema change | `export MYTHICAL_FORGE_ROOT=/path/to/mythical-forge/main` — it wins when set |
 
-A tool that finds neither stops immediately and names both fixes. A `MYTHICAL_FORGE_ROOT` pointing
-somewhere without `packages/authored-content` is its own loud error, rather than a stray `require`
-much later. In a bare-repo-plus-worktree layout the path is the *worktree*
-(`.../mythical-forge/main`), not the parent.
+A tool that finds neither stops immediately and names the install — the token and `npm install` —
+because the message is written for an author, who has the vault and nothing else; the checkout is
+for developing a schema change and is never offered as the way to get started. A
+`MYTHICAL_FORGE_ROOT` pointing somewhere without `packages/authored-content` is its own loud error,
+rather than a stray `require` much later. In a bare-repo-plus-worktree layout the path is the
+*worktree* (`.../mythical-forge/main`), not the parent.
 
 ## Configuration
 

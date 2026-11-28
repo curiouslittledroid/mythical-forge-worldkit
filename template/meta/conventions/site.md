@@ -208,7 +208,7 @@ site/                       Astro project; only this folder is published
   src/styles/app.css        the Dust Road tokens and prose styles (Tailwind 4)
   src/content/generated/    exporter output (gitignored)
   src/data/generated/       navigation, changelog, redirects (gitignored)
-  public/                   favicon and, later, art
+  public/                   favicon and, later, art (the world's; the kit ships a neutral favicon)
   image-prompts/            the prompt library (tracked)
   audit/latest.json         the committed publish record
   audit/history.json        slug history and per-page dates

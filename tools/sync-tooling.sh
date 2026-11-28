@@ -20,11 +20,11 @@
 # What it replaces (all of it the kit's):
 #   tools/            except tools/local/ — world-owned; the kit never writes it
 #   meta/conventions/ the kit's world-facing documents (conventions, the authoring guide, the
-#                     thread pattern, site, testimony, tag vocabulary, atlas, the capability
-#                     register, the agent protocol). They live IN the vault, so the rule a world
-#                     follows is one file away: "the kit's conventions.md §7" is
-#                     meta/conventions/conventions.md. Wholly the kit's, so a document deleted
-#                     upstream goes away.
+#                     thread pattern, site, testimony, tag vocabulary, atlas, the agent protocol).
+#                     They live IN the vault, so the rule a world follows is one file away: "the
+#                     kit's conventions.md §7" is meta/conventions/conventions.md. Wholly the kit's,
+#                     so a document deleted upstream goes away -- which is how the capability
+#                     register left every world: it was never an author's document.
 #   meta/templates/   the canonical note templates (mirrored: this directory is wholly the kit's,
 #                     so a template deleted upstream goes away. A world's own examples live in its
 #                     own folder, never here.)

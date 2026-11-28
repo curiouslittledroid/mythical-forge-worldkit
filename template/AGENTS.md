@@ -19,9 +19,9 @@ the kit's `meta/conventions/agent-protocol.md`, never the copy. Everything above
 | `world.config.yaml` | **This world's identity and settings:** ids, title, the note slugs the tools read, the feature switches, the site's navigation. A non-note root file. |
 | `TOOLING_VERSION` | The pinned worldkit version. Moved by `tools/sync-tooling.sh`; never hand-edited. |
 | the kit's `meta/conventions/conventions.md` | **The rules:** layout contracts, ids, frontmatter, engine blocks, disclosure, status values. Follow it for every note. |
-| `meta/conventions/` | **The kit's documents, in the vault.** Every world-facing document the kit publishes, at the pinned version: `meta/conventions/conventions.md`, `meta/conventions/site.md`, `meta/conventions/thread-pattern.md`, `meta/conventions/testimony.md`, `meta/conventions/tag-vocabulary.md`, `meta/conventions/atlas.md`, `meta/conventions/campaign-authoring-guide.md`, `meta/conventions/agent-protocol.md`, `meta/conventions/engine-capability-register.md`, `meta/conventions/tooling.md` (which script to run, and when) — and whatever a future release adds, which is the point of reading this folder rather than a list. They are **wholly the kit's**: written by the sync, never by hand, and never linted as notes (they carry no frontmatter and no id). Cite one by name and section, never by wikilink. |
+| `meta/conventions/` | **The kit's documents, in the vault.** Every world-facing document the kit publishes, at the pinned version: `meta/conventions/conventions.md`, `meta/conventions/site.md`, `meta/conventions/thread-pattern.md`, `meta/conventions/testimony.md`, `meta/conventions/tag-vocabulary.md`, `meta/conventions/atlas.md`, `meta/conventions/campaign-authoring-guide.md`, `meta/conventions/agent-protocol.md`, `meta/conventions/tooling.md` (which script to run, and when) — and whatever a future release adds, which is the point of reading this folder rather than a list. They are **wholly the kit's**: written by the sync, never by hand, and never linted as notes (they carry no frontmatter and no id). Cite one by name and section, never by wikilink. |
 | `meta/world-conventions.md` | **This world's choices** on top of those rules: its identity, its folder shape, the headings it adds, its vocabularies, its keystones. |
-| the kit's `meta/conventions/engine-capability-register.md` + `meta/mechanics-gap-register.md` | What the engine can express (the kit's) and the gaps **this** world hits (ours). |
+| `meta/mechanics-gap-register.md` | The gaps **this** world hits, and the workaround in use. A request log: what the engine supports is not ours to decide. |
 | the kit's `meta/conventions/site.md` + `meta/site.md` | How a site is generated (the kit's) and this world's pages, navigation and visual direction (ours). |
 | the kit's `meta/conventions/campaign-authoring-guide.md` | **How to author a thread, a Campaign, its Modules and Quests.** The how-to; the world's own design note is the why. |
 | `meta/templates/` | One template per note type, **vendored from the kit and mirrored by the sync**: never add a file here, it will be deleted. This world's own examples go elsewhere in `meta/`. |
@@ -42,9 +42,11 @@ lint → disclosure → transform → validate → thread-check → voice → ev
 toolchain separately, with its own `verify-kit.sh` against its demo world.
 
 **The engine's Game Ready Repository is a separate, generated repository.** Never hand-edit it. The
-engine's content model is Design 23 in the platform repository (`$MYTHICAL_FORGE_ROOT/docs/specs/`),
-with schemas in `$MYTHICAL_FORGE_ROOT/packages/authored-content`. That variable has no default: the
-tools fail loudly and name it if it is unset.
+engine's content model is the platform's, and its schemas are `@curiouslittledroid/authored-content`
+— one npm dependency of this repository, installed from GitHub Packages. If the pipeline says they are
+missing, it also names the fix (a `NODE_AUTH_TOKEN` with `read:packages`, then `npm install`); the
+kit's `meta/conventions/tooling.md` carries the same two lines. Lint, citations, disclosure and the
+site build do not need them at all.
 
 ## World principles (non-negotiable)
 
@@ -123,7 +125,7 @@ You are a **seasoned fantasy tabletop RPG designer and world builder**. You thin
 - **Group knowledge** is written by group and tier (`common`, `select`, `inner`) with `_known_by_groups`, and the transformer resolves it to NPC ids. NPCs declare `groups` with a `rank`.
 - **Units are metric** (km, m, kg) throughout the codex; the transformer converts to the engine's imperial units. Metric is the kit's law; spelling is the world's setting.
 - **Never author derived or stamped values:** no `hp`, `ac`, `bab`, `cr`, and no `author_id` or `world_id`. The engine stamps what it stamps.
-- **Closed vocabularies stay closed.** Relationship kinds, flags, judgement tags, effects, tactics and content descriptors are fixed by the engine. If the world needs something the engine can't express, add it to the world's mechanics gap register and the kit's `meta/conventions/engine-capability-register.md`. Don't invent it. The engine can't author new spells, feats, classes or item properties.
+- **Closed vocabularies stay closed.** Relationship kinds, flags, judgement tags, effects, tactics and content descriptors are fixed by the engine. If the world needs something the engine can't express, log it in the world's mechanics gap register and use the workaround. Don't invent it. The engine can't author new spells, feats, classes or item properties.
 - **Use the engine's relationship kinds** (`CONTROLS`, `SECRETLY_SERVES`, `OWES`, `MEMBER_OF`, ...) when describing links between entities, so they convert cleanly.
 - **Keep engine text short.** Authored text is token-capped and untrusted prompt input. The long version stays in prose.
 - **Status is explicit:** `working` → `agreed` → `engine-ready` (or `deprecated`). Update it when it changes.

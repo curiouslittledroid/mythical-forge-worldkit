@@ -18,10 +18,29 @@ trap '[ "${1:-}" = "--keep" ] || rm -rf "$TMP"' EXIT
 # in the machinery rather than in the pipeline. Cheap, so it runs before anything can be skipped.
 echo "== docs"; python3 "$ROOT/tools/check_doc_examples.py" --all --verbose
 
+# ...and the same documents cited where a WORLD holds them. In the kit they sit at
+# `template/meta/conventions/`; a world holds them at `meta/conventions/`, and a section citation
+# binds to the nearest document named before it -- so the two layouts are not the same check. A
+# world-facing paragraph passed here and failed in a fork, which is how this step exists. It needs
+# no schemas, and it runs before the gate below: a broken citation ships to every world on the next
+# sync, and the writer's own machine is the cheapest place to find it.
+echo "== citations (the documents where a world holds them)"
+PROSE="$TMP/prose"
+mkdir -p "$PROSE/meta/conventions" "$PROSE/meta/templates" "$PROSE/tools"
+rsync -a "$ROOT/template/meta/conventions/" "$PROSE/meta/conventions/"
+rsync -a "$ROOT/template/meta/templates/" "$PROSE/meta/templates/"
+cp "$ROOT/tools/check_citations.py" "$PROSE/tools/"
+python3 "$PROSE/tools/check_citations.py" | tail -2
+
 # The schemas, from whichever source, probed once here: a missing install is one clear message naming
 # both fixes rather than a stack trace out of the first tool that needs them.
 if ! schemas_err="$(node --input-type=module -e "import('$ROOT/tools/kit_config.mjs').then((m) => { m.authoredContent(); }).catch((e) => { console.error(e.message); process.exit(1); })" 2>&1)"; then
   printf '%s\n' "$schemas_err" | sed 's/^/verify-kit: /' >&2
+  # kit_config.mjs speaks to a WORLD's author, so it names the packaged install only. This script is
+  # the kit's own, for whoever is cutting a release, and the checkout route belongs here.
+  echo >&2
+  echo "verify-kit: cutting a release here, without a token? Point at a platform checkout instead:" >&2
+  echo "verify-kit:   MYTHICAL_FORGE_ROOT=/path/to/mythical-forge/main ./verify-kit.sh" >&2
   exit 2
 fi
 

@@ -68,8 +68,8 @@ SCAN_SUFFIXES = {".md", ".py", ".sh", ".mjs", ".yaml", ".yml"}
 # layouts share -- `candidate_docs` matches it against whatever the repository actually has.
 ALIASES = {
     "conventions": "meta/conventions/conventions.md",
-    "engine-capability-register": "meta/conventions/engine-capability-register.md",
-    "capability register": "meta/conventions/engine-capability-register.md",
+    "engine-capability-register": "meta/platform-requests/engine-capability-register.md",
+    "capability register": "meta/platform-requests/engine-capability-register.md",
     "campaign-authoring-guide": "meta/conventions/campaign-authoring-guide.md",
     "thread-pattern": "meta/conventions/thread-pattern.md",
     "tag-vocabulary": "meta/conventions/tag-vocabulary.md",

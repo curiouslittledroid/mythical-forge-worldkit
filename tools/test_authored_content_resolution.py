@@ -81,14 +81,24 @@ class ResolutionCase(unittest.TestCase):
         self.assertEqual(code, 0, out)
         self.assertIn("STUB=checkout", out)
 
-    def test_neither_source_names_both_fixes(self):
+    def test_neither_source_names_the_install_an_author_can_do(self):
+        """This message is read by a world's author, not by the kit's maintainer.
+
+        It must be actionable — the registry, the token variable, the install command — and it must
+        NOT offer a checkout of the private platform repository: an author who has the world and
+        nothing else cannot follow that, and a message with a route they cannot take reads as "you
+        are missing something you will never get". `verify-kit.sh` carries that route for the kit.
+        """
         code, out = run(self.tmp, mf_root=None)
         self.assertNotEqual(code, 0)
         self.assertIn(f"{PKG} is not installed", out)
-        self.assertIn("MYTHICAL_FORGE_ROOT", out)
-        # The message has to be actionable: the registry line and the install command are the fix.
         self.assertIn("npm.pkg.github.com", out)
+        self.assertIn("NODE_AUTH_TOKEN", out)
         self.assertIn("npm install", out)
+        self.assertNotIn("MYTHICAL_FORGE_ROOT", out)
+        # Nor a design-document number: `Design 23 §4.1` is how the kit's own documents cite the
+        # schema, and an author holding a vault has no way to look it up.
+        self.assertNotIn("Design 23", out)
         # ...and it must not be a stack trace. This is the assertion that keeps the guard in
         # verify-world.sh honest, because that is the code path a world hits first.
         self.assertNotIn("at ModuleJob", out)

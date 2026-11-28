@@ -11,7 +11,7 @@
 # a broken toolchain and broken lore looked the same. Now the kit answers the first question and this
 # answers the second, from the world's own content.
 #
-# The schemas the transformer and the validator check against are the engine's own (Design 23 §4.1).
+# The schemas the transformer and the validator check against are the engine's own.
 # Two sources, and this script does not care which: the published `@curiouslittledroid/authored-content`,
 # installed as an ordinary dependency (`npm install` in this repository's root), or a local checkout
 # named by MYTHICAL_FORGE_ROOT — which wins when set, so an unreleased schema change is developed
