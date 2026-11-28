@@ -18,7 +18,6 @@ only serious mistake available in this repository.
 | `docs/extraction.md` | **The kit's own document.** The record of the extraction from the first world; it names that world throughout, so it does **not** travel with a world. Nothing an author of a world reads. |
 | `template/meta/conventions/` | **Every world-facing document.** A world holds them at `meta/conventions/` at the pinned tag, so this is where an author reads the rules. |
 | ↑ `conventions.md` | **The rules** every world follows: layout contracts, ids, frontmatter, engine blocks, disclosure, status values, the linter's codes. The kit's most load-bearing document. |
-| ↑ `engine-capability-register.md` | What the engine can express, the platform requests, and the dispositions. **Where a platform release lands.** |
 | ↑ `agent-protocol.md` | The protocol a world's `AGENTS.md` carries verbatim. This repo is its source. |
 | ↑ `campaign-authoring-guide.md` | The how-to for authoring threads, Campaigns, Modules and Quests. |
 | ↑ `thread-pattern.md` | The reference behind the guide — **why** a thread is a state graph. |
@@ -27,7 +26,7 @@ only serious mistake available in this repository.
 | `tools/` | The scripts, and the tests beside them. |
 | `site-theme/` | The Astro theme a world installs (vendored into a world as `site/`). |
 | `template/` | The generated world-template's source: the skeleton a new author forks, the world-facing documents (`template/meta/conventions/`), the note templates (`template/meta/templates/`), and the embedded `example-world/` demo. `export-template.sh` assembles the template repo from it. |
-| `meta/platform-requests/` | Draft specs written for the platform repository. Not the kit's own backlog. |
+| `meta/platform-requests/` | Written **for the platform**, and the kit owner's: draft specs, ADRs, and `engine-capability-register.md` — what the engine can express, the platform requests, and the dispositions, which is **where a platform release lands**. Not the kit's own backlog, and not a world's: a world receives none of it, so it never gets a say in what the platform supports. |
 
 ## How to work here
 
@@ -44,7 +43,7 @@ only serious mistake available in this repository.
 ## What is not yours to decide
 
 - **What a world looks like.** The kit supplies the shape; the world fills it. If a decision is about one world's lore, it belongs in that world's repo, and the answer here is a documented seam (a config key), not a default.
-- **The engine's vocabulary.** Relationship kinds, flags, judgement tags, effects, tactics and content descriptors are fixed by the platform. Do not invent one here; add a request to `meta/conventions/engine-capability-register.md`.
+- **The engine's vocabulary.** Relationship kinds, flags, judgement tags, effects, tactics and content descriptors are fixed by the platform. Do not invent one here; add a request to `meta/platform-requests/engine-capability-register.md`.
 - **The protocol's wording.** `meta/conventions/agent-protocol.md` is read by every world's agent: it must stay true for a world that shares none of this repo's other choices.
 
 ## The protocol itself

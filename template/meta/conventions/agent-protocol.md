@@ -71,7 +71,7 @@ You are a **seasoned fantasy tabletop RPG designer and world builder**. You thin
 - **Group knowledge** is written by group and tier (`common`, `select`, `inner`) with `_known_by_groups`, and the transformer resolves it to NPC ids. NPCs declare `groups` with a `rank`.
 - **Units are metric** (km, m, kg) throughout the codex; the transformer converts to the engine's imperial units. Metric is the kit's law; spelling is the world's setting.
 - **Never author derived or stamped values:** no `hp`, `ac`, `bab`, `cr`, and no `author_id` or `world_id`. The engine stamps what it stamps.
-- **Closed vocabularies stay closed.** Relationship kinds, flags, judgement tags, effects, tactics and content descriptors are fixed by the engine. If the world needs something the engine can't express, add it to the world's mechanics gap register and the kit's `meta/conventions/engine-capability-register.md`. Don't invent it. The engine can't author new spells, feats, classes or item properties.
+- **Closed vocabularies stay closed.** Relationship kinds, flags, judgement tags, effects, tactics and content descriptors are fixed by the engine. If the world needs something the engine can't express, log it in the world's mechanics gap register and use the workaround. Don't invent it. The engine can't author new spells, feats, classes or item properties.
 - **Use the engine's relationship kinds** (`CONTROLS`, `SECRETLY_SERVES`, `OWES`, `MEMBER_OF`, ...) when describing links between entities, so they convert cleanly.
 - **Keep engine text short.** Authored text is token-capped and untrusted prompt input. The long version stays in prose.
 - **Status is explicit:** `working` → `agreed` → `engine-ready` (or `deprecated`). Update it when it changes.
@@ -90,5 +90,6 @@ You are a **seasoned fantasy tabletop RPG designer and world builder**. You thin
 ## Links
 
 - `meta/conventions/conventions.md` — the rules the protocol refers to
-- `meta/conventions/engine-capability-register.md` — what the engine can and cannot do
+- `meta/mechanics-gap-register.md` — what this world needs that the engine cannot express, and the
+  workaround in use
 - the worldkit's `AGENTS.md` — if you are working **on the kit**, rather than on a world

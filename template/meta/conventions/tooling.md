@@ -99,9 +99,20 @@ citations → lint → disclosure --check → transform → validate → thread-
           → voice (reported) → every scenario (or --coverage)
 ```
 
-It never writes into the vault, and it needs the engine's schemas: `npm install` with a token for
-`@curiouslittledroid/authored-content`, or `MYTHICAL_FORGE_ROOT` pointing at a platform checkout. A
-tool that finds neither stops immediately and names both fixes.
+It never writes into the vault, and it needs the engine's schemas — one npm dependency,
+`@curiouslittledroid/authored-content`, published on GitHub Packages. So the first time you run it,
+install that once from the repository root:
+
+```bash
+export NODE_AUTH_TOKEN=<a GitHub token with read:packages on @curiouslittledroid>
+npm install
+```
+
+The repository's `.npmrc` already points npm at that registry and hands it the token above; never
+commit a token. A 401 from `npm.pkg.github.com` means it is missing, expired, or lacks
+`read:packages`. Without the schemas a tool stops immediately and names these same lines — and note
+what does **not** wait on them: lint, citations, disclosure and the site build all run, so a fork
+with no token yet can still write and check its lore.
 
 Its exit code gates on citations, lint, disclosure and the scenarios. The transform, validate,
 thread-check and voice stages print what they find; read their lines rather than only the last one.
@@ -145,7 +156,7 @@ A red drift check is not a broken world: it is a behind or hand-edited pin. The 
 
 | Message | What it means |
 |---|---|
-| the schemas are missing | `npm install` (with `NODE_AUTH_TOKEN`) or `MYTHICAL_FORGE_ROOT`. This is one error with two fixes, named by the tool |
+| the schemas are missing | `@curiouslittledroid/authored-content` is not installed — it lives on GitHub Packages, so it needs a token: `export NODE_AUTH_TOKEN=<read:packages on @curiouslittledroid>`, then `npm install` in the repository root. `.npmrc` already has the registry; the tool prints the same two lines |
 | `sync-tooling: refusing to run` | the tree is dirty in files the sync replaces, or the sync would **delete** a file inside a directory the kit owns. Read the list; `--force` is for when the list is right |
 | `lint.py` exits 2 | a usage error (a bad path or flag), not a note. Nothing was read |
 | `disclosure.py --check` fails on a section you consider fine | the class comes from the first rule that applies (conventions §7); `Hooks`, `Author Notes`, `Open questions`, `Links` and `Engine` are not lore. Fix the heading, or mark the section |

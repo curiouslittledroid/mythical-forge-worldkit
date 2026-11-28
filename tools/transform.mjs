@@ -5,13 +5,14 @@
  * It scans `world/` and `campaigns/` for notes whose frontmatter says `engine: true`,
  * extracts the fenced `engine` blocks, assembles the overland fragments into one
  * OVERLAND_GRAPH entity, resolves `_known_by_groups` / `_believed_by_groups` to NPC ids,
- * converts km to whole miles, and writes the Design 23 §4.1 Game Ready Repository layout.
+ * converts km to whole miles, and writes the engine's Game Ready Repository layout.
  *
  * It is deliberately NOT the Step 14 pipeline: no campaigns, overlays, migrations, CI or
  * canonical hashing. It exists to find friction points. See `meta/pilot-findings.md`.
  *
  * Usage:  node tools/transform.mjs [--out <game-ready-repo>]
- * Env:    MYTHICAL_FORGE_ROOT  REQUIRED: the directory holding packages/authored-content
+ * Env:    MYTHICAL_FORGE_ROOT  optional: a platform checkout holding packages/authored-content;
+ *                              the installed @curiouslittledroid/authored-content is the default
  *         WORLD_CONFIG         (default world.config.yaml beside this file)
  *         GAME_READY_REPO      (default world.game_ready_repo from the world config)
  */
@@ -309,7 +310,7 @@ for (const entity of entities) {
   written += 1;
 }
 
-// Campaigns (Design 23 §4.1): campaign.yaml, overlay.yaml, modules/<id>/{module.yaml,quests/}.
+// Campaigns: campaign.yaml, overlay.yaml, modules/<id>/{module.yaml,quests/}.
 for (const camp of campaigns.values()) {
   if (!camp.id) throw new Error('a campaigns/ folder has no CAMPAIGN entity');
   for (const { entity, module } of camp.entities) {
@@ -331,7 +332,7 @@ for (const camp of campaigns.values()) {
   }
 }
 
-// Codex tooling sidecar (NOT a Design 23 entity): which entities belong to which thread, and each thread's
+// Codex tooling sidecar (NOT an engine entity): which entities belong to which thread, and each thread's
 // interface. It lives at the repository root, outside world/ and campaigns/, so the platform ignores it.
 rmSync(join(GAME_READY_REPO, 'codex-threads.yaml'), { force: true });
 if (threadMembers.size > 0) {

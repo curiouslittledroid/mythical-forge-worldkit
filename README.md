@@ -73,7 +73,7 @@ template/              the generated world-template's source: the skeleton a new
                        the empty vault) plus the embedded example-world/ demo
 template/meta/conventions/  EVERY WORLD-FACING DOCUMENT: conventions.md (the rules),
                        campaign-authoring-guide.md, thread-pattern.md, site.md, testimony.md,
-                       tag-vocabulary.md, atlas.md, engine-capability-register.md, agent-protocol.md,
+                       tag-vocabulary.md, atlas.md, agent-protocol.md,
                        tooling.md (which script to run, and when), licensing.md (what a world may
                        and may not relicence)
                        A world holds these at meta/conventions/ at the pinned tag. They are prose,

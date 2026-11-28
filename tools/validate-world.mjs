@@ -8,7 +8,8 @@
  * deliberately leaves to the bundle validator (does every referenced id exist?).
  *
  * Usage:  node tools/validate-world.mjs [--repo <game-ready-repo>]
- * Env:    MYTHICAL_FORGE_ROOT  REQUIRED: the directory holding packages/authored-content
+ * Env:    MYTHICAL_FORGE_ROOT  optional: a platform checkout holding packages/authored-content;
+ *                              the installed @curiouslittledroid/authored-content is the default
  *         WORLD_CONFIG         (default world.config.yaml beside this file)
  *         GAME_READY_REPO      (default world.game_ready_repo from the world config)
  */

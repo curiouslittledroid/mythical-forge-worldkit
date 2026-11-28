@@ -1,14 +1,20 @@
 # Engine Capability Register
 
 **What this is.** Every mechanic a world wants, classified against what the engine can actually
-express — and the **single home for the platform requests**. It is the kit's, because it is a
-statement about the engine: what the schemas and vocabularies in
-`@curiouslittledroid/authored-content` (or a checkout named by `$MYTHICAL_FORGE_ROOT`) and the SRD data in `packages/shared-data` can do.
-Each world keeps its **own** register (`meta/mechanics-gap-register.md`) listing the gaps *it* hits,
-with its rows numbered `M1…`, and refers to the requests by id from here.
+express — and the **single home for the platform requests**.
 
-A world's register is the map; this is the territory. **When a platform release lands, it lands
-here** — one edit, one place, and every world sees it.
+**Whose document this is.** The kit owner's, who is also the platform owner: it is a statement about
+what the engine can do, and the platform is not a thing a world votes on. It therefore lives here,
+with the other material written *for the platform*, and **not** in `template/meta/conventions/`: no
+world receives it, and a world cannot be given a say in what the platform supports by being handed
+its open questions.
+
+A world keeps its own `meta/mechanics-gap-register.md`, the gaps *that world* hits, numbered `M1…`.
+It is a request log, not a catalogue: the kit owner decides whether an entry becomes a platform
+request, and that decision is recorded here. A world may quote an id from this file (`PR-10`,
+`CP-8`) in its own notes, because those ids are stable.
+
+**When a platform release lands, it lands here** — one edit, one place.
 
 ## How to read this
 
@@ -275,7 +281,9 @@ Audited after Step 2b: the standard body line for deferred engine fields is now 
 
 ## Links
 
-Every one of these is a kit document, at `meta/conventions/`; the last is the world's own.
+Every one of these is a kit document, which a world holds at `meta/conventions/`; the last two
+are the world's own. **This file is not published into worlds** — the paths below say where a
+world holds the document a name refers to, not where this file sits.
 
 - `meta/conventions/conventions.md` — the rules the register's vocabularies feed
 - `meta/conventions/thread-pattern.md` — the graph the Conditions and Effects move

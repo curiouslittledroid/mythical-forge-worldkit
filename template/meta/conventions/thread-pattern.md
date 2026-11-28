@@ -11,12 +11,12 @@ Ferryman's Debt**, a small Resolvable thread with a campaign, two modules and si
 Ratchet — the example is described by shape rather than named. A world's own thread cards live in
 its `world/plot-web/`.
 
-**Where the engine cannot yet follow**, the requests are `PR-9`…`PR-13` in
-`engine-capability-register.md`.
+**Where the engine cannot yet follow**, the requests are `PR-9`…`PR-13`, opened with the engine's
+owner. They are not yours to decide, and nothing here waits on them.
 
 ## 1. The problem
 
-A Sandbox is one player's copy of one Campaign, pinned to a World version (Design 23 §2, §3.3). Its state diverges: players kill the people the plot depends on, skip Quests, and hide, rescue or lose the same person. So:
+A Sandbox is one player's copy of one Campaign, pinned to a World version. Its state diverges: players kill the people the plot depends on, skip Quests, and hide, rescue or lose the same person. So:
 
 - A **shared calendar of dated events cannot exist**. Every Sandbox has its own day counter, and an event keyed to a day fires in every Sandbox of every Campaign.
 - A **thread must survive what the player does** (a death, a skipped Quest, an unscripted act), not only what the author imagined.
@@ -40,19 +40,19 @@ A Campaign is two engine entities, not one. A **Campaign block** says what the C
 |---|---|---|
 | **Purpose** | the storyline a player picks | how the Campaign changes the shared World for its Sandboxes |
 | **Contains** | title, summary, `start_level`, `start_day`, `start_location`, `opening_module`, the Module list, `unlocks`, content descriptors, Campaign flags | `adds`, `overrides`, `suppresses` |
-| **Read by** | the Campaign picker, the Module Selector | the layered read, `Merge(World, Overlay, Sandbox Delta)` (Design 23 §2.1) |
+| **Read by** | the Campaign picker, the Module Selector | the layered read, `Merge(World, Overlay, Sandbox Delta)` |
 
-The overlay has three operations only (Design 23 §3.2):
+The overlay has three operations only:
 - **`adds`:** new entities that exist only in this Campaign (NPCs, Wants, Facts, World Events and so on). The demo's genesis event is one.
 - **`overrides`:** field-level patches to World entities, keyed by the entity's own id (for example a Want's `authority`, or an NPC's voice).
 - **`suppresses`:** World entities that do not exist in this Campaign.
 
 An overlay may touch authored fields only. It cannot change ids, kinds or structural fields, and it cannot add Campaigns, Modules or Migrations.
 
-**Why they are separate.** Design 23 does not state the reason; this is the reading that fits the rest of the design:
+**Why they are separate.** The engine's design does not state the reason; this is the reading that fits the rest of it:
 
 1. **They answer different questions.** The manifest is what a player sees in the picker: a few fields and no World content. The overlay is a patch set aimed at World entities.
-2. **The overlay drives the version rules.** An entity the overlay overrides counts as "overridden" in the adoption logic (Design 23.4 §3.2): a later World edit to it is pinned, not applied silently. An entity's effective hash is the World object plus any override. That logic needs the overlay as its own thing.
+2. **The overlay drives the version rules.** An entity the overlay overrides counts as "overridden" in the adoption logic: a later World edit to it is pinned, not applied silently. An entity's effective hash is the World object plus any override. That logic needs the overlay as its own thing.
 3. **They can grow and change independently.** An overlay can add hundreds of entities while the manifest stays small, and each can be hashed and versioned separately in the content store.
 4. **The overlay is optional.** A Campaign that changes nothing in the World needs none, and the schema rejects an empty one ("an overlay must add, override or suppress something").
 
@@ -81,7 +81,7 @@ An **armed flag** is a flag whose only job is to say *this thread is live in thi
 - **Unarmed, a thread is dormant lore.** Its NPCs have Wants that never become urgent, and its events never fire. A Campaign set elsewhere, or a century later, simply never arms the thread, and it costs nothing.
 - **Armed, a thread runs.** The world moves without the player.
 - **Arming is not a stage.** It says *the thread is live*, not *it is at stage 1*. A Campaign can arm a thread and also set stage flags to start it mid-story (section 5).
-- **Why not a date?** A `day_reached` start would fire in every Sandbox on the same day regardless of Campaign, and an event added in a later version would fire at once in any Sandbox already past that day (Design 23.4 §10).
+- **Why not a date?** A `day_reached` start would fire in every Sandbox on the same day regardless of Campaign, and an event added in a later version would fire at once in any Sandbox already past that day.
 
 ## 4. Time
 
@@ -96,7 +96,7 @@ A thread's **default pace** ("if left alone") is therefore the sum of its timers
 
 ## 5. Guards and fast-forward
 
-Design 23 §5.1 says a source applies **exactly once** per Sandbox. That is true of firing, but nothing records that an event "has occurred" for a Sandbox that was *started past it*. If a Campaign sets stage 3 directly, an earlier event whose Condition is still true would fire at day 0 and re-apply its Effects.
+The engine applies a source **exactly once** per Sandbox. That is true of firing, but nothing records that an event "has occurred" for a Sandbox that was *started past it*. If a Campaign sets stage 3 directly, an earlier event whose Condition is still true would fire at day 0 and re-apply its Effects.
 
 **The own-stage guard (CP-8):** every World Event, and every Want that sets an intent flag, tests `not flag_set <its own result flag>`. A Campaign that sets that flag, or any later one, silently retires the source. `thread-check` catches a removed guard statically; only a fast-forward scenario shows the event re-firing dynamically, so write one whenever a thread can start mid-story.
 
@@ -127,7 +127,7 @@ Design 23 §5.1 says a source applies **exactly once** per Sandbox. That is true
 **The thread only moves forward. No state in the graph restores anything. The best the player can do is slow it or redirect its effects.**
 
 - **Shape:** a one-way ladder, often long. A reprieve replaces a timer with a longer one; it never goes back a stage.
-- **What the player can do:** delay and mitigate. This is where the permanence rules live: because no Effect anywhere produces the restored state, the validator can *prove* the world cannot be fixed (a Condition with no producer is unsatisfiable, Design 23.3 §8).
+- **What the player can do:** delay and mitigate. This is where the permanence rules live: because no Effect anywhere produces the restored state, the validator can *prove* the world cannot be fixed (a Condition with no producer is unsatisfiable).
 - **Examples:** a war that is already lost; a resource that is finite and picked clean; a trade nobody can leave; a conflict older than either side; a watch that is waking; a faction splitting on a clock nobody can stop.
 - **Authoring rule:** use `LOCKED` outcomes where the ratchet must not be avoidable, and test that the idle run reaches the last stage within the horizon.
 
@@ -170,11 +170,11 @@ The Step 14 thread compiler (section 10) changes this: the card would hold a com
 
 ### 7.2 How a thread is linked (there is no thread entity)
 
-**The engine has no `THREAD` entity, and has no grouping of any kind.** Design 23's kinds are NPC, WANT, FACT, RELATIONSHIP, WORLD_EVENT, QUEST, ROOM, ENCOUNTER, FACTION, ITEM, MONSTER, MODULE, CAMPAIGN, CAMPAIGN_OVERLAY, MIGRATION and OVERLAND_GRAPH. A thread is a **codex concept**.
+**The engine has no `THREAD` entity, and has no grouping of any kind.** Its kinds are NPC, WANT, FACT, RELATIONSHIP, WORLD_EVENT, QUEST, ROOM, ENCOUNTER, FACTION, ITEM, MONSTER, MODULE, CAMPAIGN, CAMPAIGN_OVERLAY, MIGRATION and OVERLAND_GRAPH. A thread is a **codex concept**.
 
 When the transformer runs, a thread card becomes separate files (`world/events/evt_ferry_*.yaml`, `world/facts/...`, `world/wants/...`, and Quests under `campaigns/...`). Nothing in those files says "I belong to that thread". The thread note's `kind: THREAD` and its `interface:` frontmatter are codex-only and are **not emitted**.
 
-**The pieces are linked by shared ids and flags, not by a container.** Every source (a World Event, a Want's `urgent_when` or `on_deadline`, a Quest milestone, a Campaign `unlocks` entry) is a `when`/`then` pair. The compiler works out each source's **watch set**: the keys its Condition reads, such as `flag:ferry_collect_due` or `edge:faction_ferry_creditors:CONTROLS:npc_tomas_reed` (Design 23.3 §5.2). When an Effect changes a key, the engine re-evaluates only the sources that watch it. The chain is therefore a graph of names:
+**The pieces are linked by shared ids and flags, not by a container.** Every source (a World Event, a Want's `urgent_when` or `on_deadline`, a Quest milestone, a Campaign `unlocks` entry) is a `when`/`then` pair. The compiler works out each source's **watch set**: the keys its Condition reads, such as `flag:ferry_collect_due` or `edge:faction_ferry_creditors:CONTROLS:npc_tomas_reed`. When an Effect changes a key, the engine re-evaluates only the sources that watch it. The chain is therefore a graph of names:
 
 | Link | Written as |
 |---|---|
@@ -190,7 +190,7 @@ When the transformer runs, a thread card becomes separate files (`world/events/e
 
 What follows:
 
-- **A misspelt flag is a source that never fires.** The engine's validator checks that flags are declared and that references exist (Design 23.3 §8). The codex's `tools/thread-check.mjs` checks the same things now (flags set and read, references inside Conditions and Effects, own-stage guards). The platform's own `author-cli validate` does not exist yet (PR-1, PF-5).
+- **A misspelt flag is a source that never fires.** The engine's validator checks that flags are declared and that references exist. The codex's `tools/thread-check.mjs` checks the same things now (flags set and read, references inside Conditions and Effects, own-stage guards). The platform's own `author-cli validate` does not exist yet (PR-1, PF-5).
 - **The engine cannot answer thread-level questions.** It cannot tell the story agent which threads are active or how far each has advanced; it only holds the stage flags. Authoring tools, the DM Narrator and any plot-web view would have to reconstruct a thread from flag prefixes. A Campaign cannot suppress or version a thread as a unit either: `suppresses` takes entity ids and versioning is per entity hash, so disabling a thread means **not arming it**.
 - **The grouping lives only in the codex:** in the thread note, its `interface` block, the `<thread>_` naming convention and the tools (and, later, the Step 14 compiler).
 - **An optional `thread` label (PF-6, to be filed in Step 2c).** An optional `thread: <slug>` field on any authored entity, with no meaning to the rules, used only for tooling, observability, `author-cli diff` grouping and the narrator's context retrieval. It is not needed for correctness. **The codex records membership now:** the thread note's frontmatter carries `thread: ferry` (its Events and Facts inherit it), and a block that lives in another note (a Want in its NPC's note, a Quest in its Module's note, a Campaign's genesis event) carries a `_thread: ferry` directive. `tools/transform.mjs` strips the directive today, because the package rejects unknown fields, and writes the thread label on the entity when `EMIT_THREAD_LABEL=1` and the platform accepts it.
@@ -228,7 +228,7 @@ Until **PR-11**, a Quest has one ending. Alternative outcomes are **alternative 
 
 ### 8.3 Chaining Campaigns
 
-Design 23 §2 gives a Sandbox exactly one Campaign. The target is a **Campaign Succession** (PR-10): Campaign B declares `follows: camp_A` and the outcome it requires, and a Sandbox adopts B at a safe point, keeping its character and world state; hydrated entities stay frozen (ADR-0002), and B's `transition` effects set up its start. **Until then**, the long arc is **one Campaign with Acts**: Modules grouped and unlocked by outcome flags. Both read the same thread flags, so a thread written now works for either.
+The engine gives a Sandbox exactly one Campaign. The target is a **Campaign Succession** (PR-10): Campaign B declares `follows: camp_A` and the outcome it requires, and a Sandbox adopts B at a safe point, keeping its character and world state; hydrated entities stay frozen (ADR-0002), and B's `transition` effects set up its start. **Until then**, the long arc is **one Campaign with Acts**: Modules grouped and unlocked by outcome flags. Both read the same thread flags, so a thread written now works for either.
 
 ### 8.4 Authority
 
@@ -262,10 +262,11 @@ The compiler adds the armed test, the own-stage guard, the intent flag, and the 
 
 ## 11. Engine assumptions to confirm (PR-12)
 
-The simulator states six assumptions where Design 23.3 is silent. The load-bearing ones: a Want's clock starts when `urgent_when` first holds; `urgent_when` only activates; `resolve_want` and `fail_want` stop `on_deadline`; a dead NPC's own Wants fail but nobody else's do. Also to confirm: World Events with scope `MACRO` or `REGIONAL` are evaluated for **every** Sandbox regardless of where the player is (Design 23.3 §5.2 says "global sources" without defining them), and the platform's cascade-depth limit is at least five rounds (a real cascade reaches four).
+The simulator states six assumptions where the engine's design is silent. The load-bearing ones: a Want's clock starts when `urgent_when` first holds; `urgent_when` only activates; `resolve_want` and `fail_want` stop `on_deadline`; a dead NPC's own Wants fail but nobody else's do. Also to confirm: World Events with scope `MACRO` or `REGIONAL` are evaluated for **every** Sandbox regardless of where the player is (the design says "global sources" without defining them), and the platform's cascade-depth limit is at least five rounds (a real cascade reaches four).
 
 ## Links
 
 - `campaign-authoring-guide.md` — the how-to that follows this reference
-- `engine-capability-register.md` — CP-8…CP-11, the authoring patterns this pattern needs
-- `engine-capability-register.md` — PR-9…PR-13, the platform gaps it rests on
+- `campaign-authoring-guide.md` — the same patterns as a worked recipe
+- this document's own CP- and PR- ids — the authoring patterns it needs, and the platform gaps it
+  rests on

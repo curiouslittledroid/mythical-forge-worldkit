@@ -37,6 +37,7 @@ so a draft can be read on a phone: `http://<your-ip>:4321/`. It never affects `a
 | `audit/latest.json`, `audit/history.json` | **generated and committed**: the publish record and slug history |
 | `src/pages/index.astro`, `about.astro`, `follow.astro` | **the world's copy**, and the sync leaves them alone: the landing text, About, Follow. The kit ships a neutral version of each |
 | `src/pages/codex/`, `[section]/`, `tags/`, `changelog.astro`, `404.astro` | templates over generated content |
+| `public/` | **the world's**: `favicon.svg` and the `img/` art the config names. The kit ships a neutral favicon (the theme's mark) so a fork's pages have an icon; the sync never writes here |
 | `src/styles/app.css` | the design tokens — the world's look |
 | `src/lib/site.ts` | pure logic (sorting, dates, inline markdown). It reads `site.json`; it authors nothing |
 

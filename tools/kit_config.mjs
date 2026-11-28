@@ -164,6 +164,15 @@ export function parseSubset(text, name = '<text>') {
  * one. `authoredContent()` loads the schemas; `requireMf(spec)` loads `yaml` — which the package
  * depends on, so it is resolved through the package's own closure rather than by hoping for a
  * hoist.
+ *
+ * ## Who the error below is written for
+ *
+ * This file is vendored into every world, so its message is read by an AUTHOR — someone who has a
+ * lorem vault and no checkout of the private platform repository. It therefore names one fix: the
+ * packaged install. A checkout (`mfRoot`) is the kit maintainer's route, and the maintainer hears
+ * about it from `verify-kit.sh`, which is the kit's own script. A message that offered both sent
+ * authors looking for a directory they do not have, which is why the test asserts the variable is
+ * NOT named here.
  */
 const AUTHORED_CONTENT = '@curiouslittledroid/authored-content';
 
@@ -192,17 +201,18 @@ function schemaRequire() {
     entry = own.resolve(AUTHORED_CONTENT);
   } catch {
     throw new Error(
-      `${AUTHORED_CONTENT} is not installed, and MYTHICAL_FORGE_ROOT is not set.\n`
-      + 'The pipeline needs the engine’s own schemas (Design 23 §4.1, packages/authored-content). Either\n'
-      + 'install the pinned version — the package is on GitHub Packages, so this needs a token with\n'
-      + 'read:packages on @curiouslittledroid:\n'
+      `${AUTHORED_CONTENT} is not installed, so the engine pipeline cannot run yet.\n`
+      + 'The engine’s own schemas are one ordinary npm dependency. Install it once,\n'
+      + 'from the folder that holds this project’s package.json:\n'
       + '\n'
-      + '  .npmrc:  @curiouslittledroid:registry=https://npm.pkg.github.com\n'
-      + '           //npm.pkg.github.com/:_authToken=${NODE_AUTH_TOKEN}\n'
-      + '  install: npm install          # in this repository’s root\n'
+      + '  export NODE_AUTH_TOKEN=<a GitHub token with read:packages on @curiouslittledroid>\n'
+      + '  npm install\n'
       + '\n'
-      + 'or point at a local checkout, while developing a schema change:\n'
-      + '  MYTHICAL_FORGE_ROOT=/path/to/mythical-forge/main node tools/verify-world.sh');
+      + '`.npmrc` already sends @curiouslittledroid to npm.pkg.github.com and hands npm the token\n'
+      + 'above; never commit a token, and a 401 from that registry means it is missing, expired, or\n'
+      + 'lacks read:packages. Writing and checking lore does not wait on this — lint, citations,\n'
+      + 'disclosure and the site build all run without it. Transform, validate, thread-check and the\n'
+      + 'scenarios are what need the schemas.');
   }
   // Anchored at the package's own entry so `yaml` comes from its dependency closure.
   return createRequire(entry);

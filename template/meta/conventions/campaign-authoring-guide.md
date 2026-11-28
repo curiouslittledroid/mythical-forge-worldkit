@@ -356,7 +356,7 @@ authority: LOCKED
 | `subjects` | ids the Fact is about |
 | `authority` | `LOCKED`, `GUIDED` (the default) or `OPEN`: how freely the LLM may handle the Fact's wording. See below |
 
-**Authority.** Every authored Want, World Event, Fact, Encounter and text block carries an `authority` field (Design 23 §6). It says **who has the last word**: the engine and your text, or the LLM. The engine always validates every state change; authority governs the *text and the outcome*, never the rules.
+**Authority.** Every authored Want, World Event, Fact, Encounter and text block carries an `authority` field. It says **who has the last word**: the engine and your text, or the LLM. The engine always validates every state change; authority governs the *text and the outcome*, never the rules.
 
 | Value | Meaning | Use for a Fact |
 |---|---|---|
@@ -365,7 +365,7 @@ authority: LOCKED
 | `OPEN` | The LLM may invent freely within the NPC's persona and the Want's `forbidden` list. | Loose colour and local knowledge you are happy for the narrator to extend. Use sparingly: the narrator may add detail you did not write |
 
 Two notes:
-- Design 23 §6 defines authority generally. How it applies to a Fact in particular (verbatim versus adapted wording) is **my reading of that definition**: the spec's own Fact example just writes `authority: GUIDED`.
+- The engine defines authority generally. How it applies to a Fact in particular (verbatim versus adapted wording) is **my reading of that definition**: the engine's own Fact example just writes `authority: GUIDED`.
 - `LOCKED` carries an extra rule on a **Want** or **World Event**: it needs a deterministic fallback. A Fact has no outcome to enforce, so it needs none. Where each level is used in the plot web: `meta/conventions/thread-pattern.md` section 8.4.
 
 **Group knowledge.** Write who knows a Fact **by group and tier**, and let the transformer resolve it to NPC ids:
@@ -379,7 +379,7 @@ Tiers nest: `common` is known by all named members, `select` by select and `inne
 
 **Rules.** The player learns a Fact only through a `reveal_fact` Effect. Every Fact nobody knows needs one (the example reveals both in the buy-back Quest).
 
-**An NPC telling the player is not recorded yet.** How a Fact told *in conversation* becomes a disclosure is an open platform item (Design 23 §14 items 10 and 11; PR-16). Until it lands, give every Fact the play depends on a **deterministic reveal path** (an event, a check or a Quest's `on_complete`), and do not make a `DIALOGUE` milestone's `when: fact_revealed` depend on an NPC speaking. Where the world's lore beyond Facts reaches NPCs and the narrator is a related open item (PR-14, PR-15).
+**An NPC telling the player is not recorded yet.** How a Fact told *in conversation* becomes a disclosure is an open platform item (PR-16). Until it lands, give every Fact the play depends on a **deterministic reveal path** (an event, a check or a Quest's `on_complete`), and do not make a `DIALOGUE` milestone's `when: fact_revealed` depend on an NPC speaking. Where the world's lore beyond Facts reaches NPCs and the narrator is a related open item (PR-14, PR-15).
 
 ## 4.6 Want
 
@@ -733,7 +733,7 @@ suppresses: [npc_idra_vance]
 ```
 
 - **Authority.** To make a key beat unavoidable in one Campaign, override its `authority` to `LOCKED`. Keep that for the Campaign's own endgame, not for thread internals.
-- **Hydrated entities are frozen.** Once a Sandbox has met an entity, a later Campaign version cannot silently change it (Design 23.4). Do not rely on an override changing a Sandbox mid-play; use Effects.
+- **Hydrated entities are frozen.** Once a Sandbox has met an entity, a later Campaign version cannot silently change it. Do not rely on an override changing a Sandbox mid-play; use Effects.
 
 ## 5.3 The Module
 
