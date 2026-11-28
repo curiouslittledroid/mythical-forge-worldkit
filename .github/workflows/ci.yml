@@ -43,7 +43,12 @@ jobs:
           tools/verify-payload.sh dist/worldkit-*.tar.gz
 
       - name: Every section citation resolves
-        run: python3 tools/check_citations.py
+        # Both layouts. The kit's own skip list (`template/`, `example-world/`) is what a world's
+        # neighbour documents fill in, and a citation that binds to a different document in the two
+        # layouts is a real defect this repository has shipped once. Neither needs the schemas.
+        run: |
+          python3 tools/check_citations.py
+          python3 tools/check_citations.py --as-world
 
       - name: The documents and the machinery teach with the demo world's examples
         run: python3 tools/check_doc_examples.py --all

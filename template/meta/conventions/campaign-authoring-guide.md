@@ -1137,7 +1137,7 @@ Two quick checks that the safety nets work:
 ## 8.1 Writing the 18 threads
 
 1. Take a thread from the plot web (the Plot Web) and do the one-page design (3.1).
-2. Decide its **class**, and borrow the shape from the nearest example: `the-ferrymans-debt.md` is Resolvable. A Managed thread has no demo example, so section 8.2 sketches one with placeholder ids; a Ratchet is a long forward-only ladder, written as stage events with long Want timers and a `LOCKED` last stage.
+2. Decide its **class**, and borrow the shape from the nearest example: `the-ferrymans-debt.md` is Resolvable. A Managed thread has no demo example, so *Bounded cycles* (the next section) sketches one with placeholder ids; a Ratchet is a long forward-only ladder, written as stage events with long Want timers and a `LOCKED` last stage.
 3. Convert the thread's existing Wants: `urgent_when` becomes the armed flag plus an own-stage guard; each fallback flag becomes an intent flag read by exactly one event.
 4. Write the thread card, the blocks, the scenarios.
 5. List the thread's `interface`. The interaction grid between threads is **generated** from the interfaces: where one thread's `sets` meets another's `reads`.

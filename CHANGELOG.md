@@ -75,6 +75,21 @@ tools/sync-tooling.sh v3.4.0      # network, or WORLDKIT_REPO=<a checkout>
 From the next release on, `--archive` is available. A world with no `tools/` at all is the one case
 where copying is right, and `ARCHIVE.md` — inside the payload — gives the three lines.
 
+**Fixed on the way: a citation that only a world could see.** The guide said
+"`the-ferrymans-debt.md` is Resolvable, so **section 8.2** sketches one" — and a citation binds to
+the nearest document named *before* it, so in every world that "8.2" was read against the demo
+thread note, which numbers nothing, and the check failed. In the kit it passed: `template/` and
+`example-world/` are skipped there (a template's notes belong to another world, and indexing them
+would resolve citations meant for the kit's), so the kit could not see the neighbours a world gives
+those documents. The sentence now names the section, which is what the error asks for.
+
+The layout is a flag now, so it is checked everywhere: `check_citations.py --as-world` assembles the
+documents where a **world** holds them, beside the demo world, and reports from there.
+`ci.yml` runs it after the kit's own pass (neither needs the schemas), and `verify-kit.sh` uses it
+for the pre-gate step instead of the hand-built copy it used to assemble — so this class of defect
+is found on a commit rather than by whoever cuts the release. `test_check_citations.py` keeps the
+sentence that failed as a fixture.
+
 **Do not extract the payload over a world.** It appears to work and does not: the documents land
 where a world does not read them, so the pin claims the new version while the rules stay old, and
 `site-theme/` and `template/` appear where no sync will ever remove them. Apply it with the tools

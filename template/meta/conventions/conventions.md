@@ -703,7 +703,10 @@ When a note cites a rule by number, name the document in the same sentence:
   inconvenient — the check exists because a template's stale citation stayed invisible for two
   releases, and each of those releases fixed a hole in the check itself.
 
-`tools/check_citations.py` enforces all five and fails on a number that does not exist. **A document
+`tools/check_citations.py` enforces all five and fails on a number that does not exist. A citation
+binds to the nearest document named **before** it, so name the document in the same sentence — and
+in the kit, `--as-world` is the same check with this vault's neighbours in place, which is where a
+binding that only the world layout produces shows up. **A document
 that renumbers must sweep its citations** — in this repository and in every world that has synced it.
 The check is what makes that sweep mechanical rather than a promise, and it is the only thing in the
 toolchain that notices: a stale number reads exactly like a correct one.

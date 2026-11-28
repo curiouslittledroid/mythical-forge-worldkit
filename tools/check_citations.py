@@ -27,16 +27,29 @@ how a stale citation in a template stayed invisible until a world ran the check.
 `citations: ignore` opts out — on a line, for an example of a bad citation in prose, or in the
 first five lines of a file, for a test whose fixtures cite documents that exist only inside it.
 
+**The kit's own check cannot see what a world checks.** This repository keeps its documents at
+`template/meta/conventions/` and its demo world under `template/example-world/`, and both are
+skipped here -- a template's skeleton notes are another world's, and indexing them would let one
+world's note resolve a citation meant for the kit's. But a WORLD holds those same documents at
+`meta/conventions/` with the demo world's `world/` beside them, and the binding rules then have more
+documents to choose from. A guide sentence that read "`the-ferrymans-debt.md` is Resolvable, so
+section 8.2 sketches one" passed here (no such file) and failed in every world (a file with no
+numbered sections). `--as-world` checks the documents in the layout a world reads them in, which is
+the only layout where that class of citation can fail.
+
 Usage:
   python3 tools/check_citations.py            # the whole repo
   python3 tools/check_citations.py docs/      # only files under one path
+  python3 tools/check_citations.py --as-world # the docs where a world holds them, beside the demo world
 
 Exit codes: 0 clean, 1 mismatches (errors), 2 usage.
 """
 from __future__ import annotations
 
 import re
+import shutil
 import sys
+import tempfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -331,13 +344,48 @@ def check_file(path: Path, rel: str, docs: dict[str, Doc]) -> list[tuple[int, st
     return issues
 
 
+def as_world(root: Path) -> tuple[tempfile.TemporaryDirectory, Path]:
+    """A throwaway copy of this kit's world-facing material, in the layout a WORLD holds it in.
+
+    `template/meta/conventions/` -> `meta/conventions/`, the note templates likewise, and the demo
+    world's `world/`, `campaigns/` and `meta/` at the root -- so the documents are read with the same
+    neighbours a world gives them. Returns the copy, and the directory to hand to the scanner.
+    """
+    import tempfile as _t
+    tmp = _t.TemporaryDirectory()
+    world = Path(tmp.name)
+    for source, dest in ((root / "template/meta/conventions", world / "meta/conventions"),
+                         (root / "template/meta/templates", world / "meta/templates")):
+        if source.is_dir():
+            shutil.copytree(source, dest, dirs_exist_ok=True)
+    demo = root / "template" / "example-world"
+    if demo.is_dir():
+        shutil.copytree(demo, world, dirs_exist_ok=True)
+    return tmp, world
+
+
 def main(argv: list[str]) -> int:
-    target = ROOT
-    if len(argv) > 1:
-        if len(argv) > 2 or argv[1] in {"-h", "--help"}:
-            print(__doc__)
-            return 2 if argv[1] not in {"-h", "--help"} else 0
-        target = (ROOT / argv[1]).resolve()
+    global ROOT
+    args = argv[1:]
+    if any(a in {"-h", "--help"} for a in args):
+        print(__doc__)
+        return 0
+    as_world_mode = "--as-world" in args
+    paths = [a for a in args if a != "--as-world"]
+    if len(paths) > 1 or (as_world_mode and paths):
+        print("check_citations: name a path, or --as-world, not both", file=sys.stderr)
+        return 2
+
+    kit = ROOT
+    keep: tempfile.TemporaryDirectory | None = None
+    if as_world_mode:
+        keep, target = as_world(kit)
+        # Every reader below -- the rel paths, the skip list, the file's own numbering -- reads
+        # from the root it is handed, so the assembled world becomes the root for this run.
+        ROOT = target
+    else:
+        target = (kit / paths[0]).resolve() if paths else ROOT
+
     docs = scan_docs(ROOT)
     errors = warnings = notes = checked = 0
     for path in sorted(target.rglob("*")):
@@ -358,6 +406,8 @@ def main(argv: list[str]) -> int:
             print(f"{rel}:{line_no}: {level.upper()}: {message}")
     print(f"{checked} citation problem(s): {errors} error(s), {warnings} warning(s)"
           + (f", {notes} note(s): references to documents this repository does not have" if notes else ""))
+    if keep is not None:
+        keep.cleanup()
     return 1 if errors else 0
 
 
