@@ -1,0 +1,109 @@
+name: Release payload
+
+# A world does not clone this repository: it downloads the **release payload**, which is the tree it
+# vendors -- tools, the world-facing documents, the note templates, the prompts, the theme, three
+# workflows and the pin -- attached to the release for its tag.
+#
+# This job is the only place a payload is produced, and it is deliberately the same three commands
+# ci.yml runs on every commit (build, check, prove). A tag is not a place to discover that the
+# packaging broke.
+#
+# Nothing here needs a secret. The kit is public, so a world downloads the asset with plain `curl`
+# and no token; `github.token` here is only the permission to attach the asset to the release.
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+jobs:
+  payload:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Is the tag the version?
+        # `build_payload.py` refuses a tag that disagrees with `TOOLING_VERSION`, so this step is the
+        # message rather than the check: a tag is what a world copies into its own pin, and a
+        # disagreement here would make every world that takes this release lie about itself.
+        run: |
+          set -eu
+          tag="${GITHUB_REF_NAME}"
+          pin="$(tr -d '[:space:]' < TOOLING_VERSION)"
+          echo "tag: $tag"
+          echo "pin: $pin"
+          if [ "$tag" != "$pin" ]; then
+            echo "::error::TOOLING_VERSION is $pin but the tag is $tag (CONTRIBUTING.md, Release step 4)"
+            exit 1
+          fi
+
+      - name: Build it
+        run: python3 tools/build_payload.py --out dist
+
+      - name: Check it
+        # Members, pin, forbidden paths, execute bits, traversal, and the checksum it just wrote.
+        run: python3 tools/build_payload.py --check dist/worldkit-*.tar.gz
+
+      - name: Prove it
+        # The payload builds a world that lints, the sync from the payload alone places everything,
+        # and a second sync is a no-op -- so the archive and the sync still agree about its layout.
+        run: tools/verify-payload.sh dist/worldkit-*.tar.gz
+
+      - name: Publish it
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -eu
+          tag="${GITHUB_REF_NAME}"
+          asset="dist/worldkit-$tag.tar.gz"
+          sums="$(cat "$asset.sha256")"
+          notes="$RUNNER_TEMP/notes.md"
+          {
+            echo "The worldkit at \`$tag\`: the tree a world vendors, without the kit's history."
+            echo
+            echo "## Take it"
+            echo
+            echo '```bash'
+            echo "tools/sync-tooling.sh $tag                              # from this release"
+            echo "tools/sync-tooling.sh --archive worldkit-$tag.tar.gz    # from the file, offline"
+            echo "tools/sync-tooling.sh --dry-run $tag                    # every change, written nowhere"
+            echo '```'
+            echo
+            echo "Then run the proof on what changed: \`tools/verify-world.sh\`."
+            echo
+            echo "## What is in it, and where a world holds it"
+            echo
+            echo "| in the archive | a world holds it at |"
+            echo "|---|---|"
+            echo "| \`tools/\` | \`tools/\` (never \`tools/local/\`) |"
+            echo "| \`template/meta/conventions/\` | \`meta/conventions/\` |"
+            echo "| \`template/meta/templates/\` | \`meta/templates/\` |"
+            echo "| \`template/.pi/prompts/\` | \`.pi/prompts/\` |"
+            echo "| \`site-theme/\` | \`site/\` |"
+            echo "| \`.github/workflows/{checks,site,tooling-drift}.yml\` | \`.github/workflows/\` |"
+            echo "| \`TOOLING_VERSION\` | the pin |"
+            echo
+            echo "**Do not extract it over a world.** Apply it with the tools inside it: untarred blindly"
+            echo "it invents directories beside your files and pins \`$tag\` while leaving the previous"
+            echo "version's rules in place. \`ARCHIVE.md\`, inside, says the same thing."
+            echo
+            echo "## Checksums"
+            echo
+            echo '```'
+            echo "$sums"
+            echo '```'
+          } > "$notes"
+
+          if gh release view "$tag" >/dev/null 2>&1; then
+            echo "release $tag exists: replacing its assets"
+            gh release upload "$tag" "$asset" "$asset.sha256" --clobber
+          else
+            gh release create "$tag" --title "Worldkit $tag" --notes-file "$notes" \
+              "$asset" "$asset.sha256"
+          fi

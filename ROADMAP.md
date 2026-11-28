@@ -10,7 +10,7 @@ The kit's *users* are worlds; a world's own plan lives in its own `ROADMAP.md`.
 
 | | |
 |---|---|
-| Version | `3.3.0` (`TOOLING_VERSION`) |
+| Version | `3.4.0` (`TOOLING_VERSION`) |
 | Origin | extracted from `hollowfall-codex`, 2026. D1–D36 of that repository's `ROADMAP-EXTRACTION.md` are the decisions; they were made there and are not repeated here |
 | The proof | `./verify-kit.sh` — lint → transform → validate → thread-check → six scenarios, in a throwaway directory |
 | The fixture | the **Ferryman's Debt**: `template/example-world/`. One copy only — it used to sit beside the templates as well, and two copies of a fixture drift |
@@ -34,6 +34,7 @@ Ordered. Each task is one commit, verified before it lands (see `CONTRIBUTING.md
 | **K16** | **One source of truth: the kit owns the example world and the template.** The demo world moved to `template/example-world/`; the template skeleton, the note templates (`template/meta/templates/`), the world-facing documents (`template/meta/conventions/`) and the agent prompts (`template/.pi/prompts/`) moved in beside it; `docs/` keeps only kit maintenance (`extraction.md`); `site/` became `site-theme/`; and the `template: true` switch was removed — the sync no longer mirrors anything into a template, because the template is an export. What this found: the export dropped the theme's three neutral pages, `_style.md` never shipped, the register linked the first world's notes, and a fresh fork carried a stray `meta/flags.md` that failed FN002 | Coding | **Done** (v3.0.0) | `./export-template.sh` produces a template whose fresh fork lints with 0 errors and builds its site; `verify-kit.sh` is green |
 | **K17** | **Config coherence is a check, not a suite assertion** (`docs/extraction.md` §3.2: "removed the only assertions that a config is coherent with its vault"). `tools/check_config.py` asks the questions of *this* world's config — every `vault.notes` id resolves to a note carrying its block, the blocks are shaped right, no two site sections claim a kind, a published tag is in the vocabulary, a note kind nobody publishes is named, and the two readers agree on this config — and it answers in the author's terms, with `REPLACE` values as notes and errors as the only failure. It runs first in `verify-world.sh`, in `checks.yml`, on a fresh fork and in `verify-kit.sh`. What it found: the template's `flags` block is `[]`, which **both** readers refused, so `kit_config.py`, `kit_config.mjs` and every suite that loads the live config failed in a fresh fork | Coding | **Done** (v3.3.0) | a coherent world is silent, every fixture that breaks one thing is named, and `check_config.py` exits 0 on the template with only `REPLACE` notes |
 | **K9** | **A `new-world` CLI.** `npx`-style scaffolding, or `init-world.sh` grown up: ask the questions, write the config, set up the deploy variables, offer to restore the demo world | Decision then coding | **Blocked on K1** | — (open: does the kit ship one at all?) |
+| **K18** | **A release payload, so a world stops cloning.** `tools/sync-tooling.sh` had one dependency on git and it was the whole of its fetching. The kit now publishes the tree a world receives as a GitHub release asset (`tools/build_payload.py`, deterministic, digested, attached by `release.yml`), and the sync fetches it by default: `--archive` for no network at all, a local checkout, `--url`, the release asset, and `--from-git` to force the clone. The proof is `tools/verify-payload.sh` — the payload lints a vault, the sync from it places everything, and a second sync is a no-op — which runs in `ci.yml` on every commit, so a tag is not where packaging breaks. Reasoning: `docs/release-payload.md`. What it found: the sync dropped **every option** across its self re-exec *and* across its deletion preview (so an offline sync fetched the network to draw up a false deletion list), and `-d` on a `.git` that is a file defeated the documented local-checkout route | Coding | **Done** (v3.4.0) | a world synced from the archive is byte-identical to one synced from a checkout; `verify-payload.sh` is green in CI; no token is needed to download, because the kit is public |
 
 ## 2. Open items
 
@@ -42,7 +43,9 @@ Ordered. Each task is one commit, verified before it lands (see `CONTRIBUTING.md
   of one world's creature rules, a tool name renamed two releases earlier, a config file that never
   existed) was a throwaway script. Making it permanent means encoding the categories by hand:
   generated artefacts, world-owned paths, illustrative names, forward references.
-- [K15] **The sync's file list is duplicated in three places, and they drift.** The sync's `tools/`
+- [K15] **The sync's file list is duplicated in three places, and they drift.** (K18 built the place
+  to end this: the payload is the only artefact that exists at a tag *and* travels, so it is where
+  the one list can be published and read by the sync, the drift check and the export.) The sync's `tools/`
   rsync excludes what the kit keeps at its root (`docs/`, `LICENSE`, `LICENSE-CONTENT`), the drift
   check repeats those exclusions, and the sync then copies those files beside them. Four bugs have
   come from one of the three lists being out of step. A better shape: have the drift check ask the

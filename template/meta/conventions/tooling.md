@@ -35,6 +35,7 @@ Everything else is by **what changed** — not by habit.
 | changed a YAML block in the authoring guide | `node tools/check-guide.mjs` | a tutorial teaching an engine block the schema rejects |
 | want to know what CI will say | the gate below | the same four checks, in the same order |
 | updated the worldkit | `tools/sync-tooling.sh <tag>`, then `tools/verify-world.sh` | a diff you did not review, then the whole pipeline on your content |
+| the kit is unreachable, or you are offline | `tools/sync-tooling.sh --archive worldkit-<tag>.tar.gz` | the same update, from the release file instead of the network |
 | changed lore in bulk, or anything in the pipeline | `tools/verify-world.sh` | everything the tools can prove |
 | am about to publish the site | the publish order below | a leak, an unread audit, a dead link |
 
@@ -141,7 +142,7 @@ Everything not listed as writing is read-only, and safe to run to look.
 | `site_export.py` | `site/src/content/generated/`, `site/src/data/generated/` (both git-ignored), and the committed `site/audit/latest.json` + `history.json` |
 | `atlas_tables.py` | `maps/atlas-features.md`. Commit it with the YAML it came from; `--check` writes nothing |
 | `atlas_previews.sh` | the PNG previews in `maps/svg/preview/` |
-| `sync-tooling.sh` | `tools/` (except `tools/local/`), `meta/conventions/`, `meta/templates/`, `.pi/prompts/`, the theme under `site/`, three workflows, and `TOOLING_VERSION`. `--dry-run` writes nothing |
+| `sync-tooling.sh` | `tools/` (except `tools/local/`), `meta/conventions/`, `meta/templates/`, `.pi/prompts/`, the theme under `site/`, three workflows, and `TOOLING_VERSION`. `--dry-run` writes nothing. It fetches the kit's **release payload** — an archive, so no token and no repository access — and `--archive <file>` does it with no network at all |
 | `sync-agent-protocol.py` | the marked protocol region of `AGENTS.md`. `--check` writes nothing and exits 1 on drift |
 | `lore_export.py` | nothing, unless `--json PATH` names a file |
 | `init-world.sh` | the identity values, the licence and (with `--init-git`) the history. Template only, once |

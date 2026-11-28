@@ -32,6 +32,14 @@ rsync -a "$ROOT/template/meta/templates/" "$PROSE/meta/templates/"
 cp "$ROOT/tools/check_citations.py" "$PROSE/tools/"
 python3 "$PROSE/tools/check_citations.py" | tail -2
 
+# The release payload: what a world downloads instead of cloning this repository. It needs no
+# schemas, so it runs here -- before the gate -- and it asks the question a tag cannot: does the
+# archive still carry everything the sync writes? A payload that quietly stopped carrying one
+# document would otherwise be found by a world, after the release.
+echo "== release payload"
+python3 "$ROOT/tools/build_payload.py" --root "$ROOT" --out "$TMP/payload" >/dev/null
+"$ROOT/tools/verify-payload.sh" "$TMP/payload"/worldkit-*.tar.gz | tail -1
+
 # The schemas, from whichever source, probed once here: a missing install is one clear message naming
 # both fixes rather than a stack trace out of the first tool that needs them.
 if ! schemas_err="$(node --input-type=module -e "import('$ROOT/tools/kit_config.mjs').then((m) => { m.authoredContent(); }).catch((e) => { console.error(e.message); process.exit(1); })" 2>&1)"; then
