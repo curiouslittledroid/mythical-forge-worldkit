@@ -64,9 +64,13 @@ what you may not touch.
 ### 5. Keep the machinery current
 
 ```bash
-tools/sync-tooling.sh v1.0.x     # fetch a worldkit tag
+tools/sync-tooling.sh            # the newest worldkit; or name one: tools/sync-tooling.sh <tag>
 tools/verify-world.sh            # prove the world still builds
 ```
+
+The kit publishes a release per tag, and each carries the archive the sync downloads: see
+[the releases](https://github.com/curiouslittledroid/mythical-forge-worldkit/releases), or
+`tools/sync-tooling.sh --dry-run` to see what the newest one would change before it changes it.
 
 The sync replaces `tools/`, `meta/conventions/` and `meta/templates/`, rewrites `TOOLING_VERSION`, and
 re-syncs the protocol region of `AGENTS.md`. It never touches `tools/local/` (your own scripts) or the

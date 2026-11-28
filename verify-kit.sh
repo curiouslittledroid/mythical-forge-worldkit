@@ -19,18 +19,23 @@ trap '[ "${1:-}" = "--keep" ] || rm -rf "$TMP"' EXIT
 echo "== docs"; python3 "$ROOT/tools/check_doc_examples.py" --all --verbose
 
 # ...and the same documents cited where a WORLD holds them. In the kit they sit at
-# `template/meta/conventions/`; a world holds them at `meta/conventions/`, and a section citation
-# binds to the nearest document named before it -- so the two layouts are not the same check. A
-# world-facing paragraph passed here and failed in a fork, which is how this step exists. It needs
-# no schemas, and it runs before the gate below: a broken citation ships to every world on the next
-# sync, and the writer's own machine is the cheapest place to find it.
+# `template/meta/conventions/`; a world holds them at `meta/conventions/`, with the demo world's
+# `world/` beside them, and a section citation binds to the nearest document named before it -- so
+# the two layouts are NOT the same check. A guide sentence passed here and failed in every world
+# (its nearest prior document name resolved only once the demo world's notes were there), which is
+# how this step exists; `--as-world` assembles that layout, so this is the same check a world runs.
+# It needs no schemas, and it runs before the gate below: a broken citation ships to every world on
+# the next sync, and the writer's own machine is the cheapest place to find it.
 echo "== citations (the documents where a world holds them)"
-PROSE="$TMP/prose"
-mkdir -p "$PROSE/meta/conventions" "$PROSE/meta/templates" "$PROSE/tools"
-rsync -a "$ROOT/template/meta/conventions/" "$PROSE/meta/conventions/"
-rsync -a "$ROOT/template/meta/templates/" "$PROSE/meta/templates/"
-cp "$ROOT/tools/check_citations.py" "$PROSE/tools/"
-python3 "$PROSE/tools/check_citations.py" | tail -2
+python3 "$ROOT/tools/check_citations.py" --as-world | tail -2
+
+# The release payload: what a world downloads instead of cloning this repository. It needs no
+# schemas, so it runs here -- before the gate -- and it asks the question a tag cannot: does the
+# archive still carry everything the sync writes? A payload that quietly stopped carrying one
+# document would otherwise be found by a world, after the release.
+echo "== release payload"
+python3 "$ROOT/tools/build_payload.py" --root "$ROOT" --out "$TMP/payload" >/dev/null
+"$ROOT/tools/verify-payload.sh" "$TMP/payload"/worldkit-*.tar.gz | tail -1
 
 # The schemas, from whichever source, probed once here: a missing install is one clear message naming
 # both fixes rather than a stack trace out of the first tool that needs them.

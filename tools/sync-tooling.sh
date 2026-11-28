@@ -10,11 +10,26 @@
 #   tools/sync-tooling.sh v1.2.0       # a named tag
 #   tools/sync-tooling.sh --dry-run    # print every change, write nothing
 #   tools/sync-tooling.sh --force v1.2.0   # proceed despite a dirty tree or a deletion
+#   tools/sync-tooling.sh --archive worldkit-v1.2.0.tar.gz   # a release payload, no network at all
 #   WORLDKIT_REPO=/path/to/checkout tools/sync-tooling.sh v1.2.0   # a local checkout, for testing
 #
 # It refuses to run when the world has uncommitted changes in files this sync is about to replace,
 # or when it would DELETE a file that lives in a directory the kit owns: the point of vendoring is
 # that the diff is reviewable, and a diff nobody can attribute is the failure mode.
+#
+# HOW IT FETCHES. What this needs from the kit is a TREE, not a history, so the kit publishes one: a
+# release payload (tools/build_payload.py, attached to each GitHub release). The transports, in the
+# order tried:
+#   --archive FILE   a payload on disk. No network, no git: for an air-gapped machine, and the
+#                    transport `tools/verify-payload.sh` proves equal to the others.
+#   WORLDKIT_REPO    a local checkout or bare mirror, when that path exists.
+#   --url URL        a payload by URL.
+#   (default)        https://github.com/<owner>/<repo>/releases/download/<tag>/worldkit-<tag>.tar.gz
+#                    -- derived from the tag, so no API, no `gh`, no token on a public kit. A tag
+#                    from before releases existed falls back to a shallow clone.
+#   --from-git       force the clone (a proxy that blocks release assets, say).
+# The payload's TOOLING_VERSION must equal the tag asked for, or this refuses: an archive cannot be
+# checked out, and a payload attached to the wrong release must not pin a world to a lie.
 
 #
 # What it replaces (all of it the kit's):
@@ -44,20 +59,49 @@ set -euo pipefail
 WORLD_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 KIT_REPO="${WORLDKIT_REPO:-https://github.com/curiouslittledroid/mythical-forge-worldkit}"
 TAG=""
+TAG_GIVEN=0
 DRY=0
 FORCE=0
-for arg in "$@"; do
+ARCHIVE=""
+URL=""
+SHA=""
+FROM_GIT=0
+# What the re-exec below must hand to the new copy of this script: `"$@"` is gone by then, and the
+# old re-exec passed only ${TAG} -- so an option that CARRIES DATA would have been dropped silently.
+ORIG_ARGS=("$@")
+# `while`/`shift`, not `for arg in "$@"`: three of the options take a value, and a for-loop over the
+# expanded list cannot consume one (`--archive f` would leave `f` to be read as the tag).
+while [ $# -gt 0 ]; do
+  # The argument is consumed BEFORE the case, so the two that take a value consume theirs with a
+  # single `shift` and an absent value is an empty string to refuse rather than a failed `shift`
+  # that killed the script under `set -e` with no message at all.
+  arg="$1"; shift
   case "$arg" in
     --dry-run|-n) DRY=1 ;;
     --force|-f)   FORCE=1 ;;
-    -h|--help)    sed -n '2,26p' "$0" | sed 's/^# \?//'; exit 0 ;;
+    --from-git)   FROM_GIT=1 ;;
+    --archive)    ARCHIVE="${1:-}"; ARCHIVE_SET=1; if [ $# -gt 0 ]; then shift; fi ;;
+    --url)        URL="${1:-}"; URL_SET=1; if [ $# -gt 0 ]; then shift; fi ;;
+    --sha256)     SHA="${1:-}"; SHA_SET=1; if [ $# -gt 0 ]; then shift; fi ;;
+    # The header, up to the line that starts the script: `sed -n '2,26p'` outgrew its range the
+    # first time an option was added above it, and truncated the help without saying so.
+    -h|--help)    awk 'NR > 1 { if ($0 == "set -euo pipefail") exit; print }' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
     -*)           echo "sync-tooling: unknown option: $arg" >&2; exit 2 ;;
-    *)            TAG="$arg" ;;
+    *)            TAG="$arg"; TAG_GIVEN=1 ;;
   esac
 done
+# `--archive` with nothing after it would otherwise read as an empty string and fall silently
+# through to the network, which is the opposite of what the flag promises.
+if [ "${ARCHIVE_SET:-0}" = 1 ] && [ -z "$ARCHIVE" ]; then echo "sync-tooling: --archive needs a file" >&2; exit 2; fi
+if [ "${URL_SET:-0}" = 1 ] && [ -z "$URL" ]; then echo "sync-tooling: --url needs a URL" >&2; exit 2; fi
+if [ -n "$ARCHIVE" ] && [ -n "$URL" ]; then echo "sync-tooling: --archive and --url are one or the other" >&2; exit 2; fi
 # A dry run itemises, so a deletion is visible as `*deleting `; a real run stays quiet.
 RS="rsync -a --delete"
 [ "$DRY" = 1 ] && RS="rsync -a --delete -i -n"
+# ...and a dry run writes nothing, which includes the directories the placement below needs. rsync
+# in dry-run mode is happy to report into a directory that does not exist yet; only the `mkdir` had
+# to learn the difference.
+mkplace() { [ "$DRY" = 1 ] || mkdir -p "$@"; }
 # A copy that would not happen: same shape as cp, so the call sites read the same either way.
 cpfile() {
   if [ "$DRY" = 1 ]; then echo "would copy $1 -> $2"; else cp "$1" "$2"; fi
@@ -84,8 +128,15 @@ fi
 
 # Deletions can only be seen by asking rsync, so ask it: this reruns the whole sync in dry-run mode,
 # reads what it would remove, and throws that away. It costs a second fetch and buys the review.
+#
+# The preview is the SAME sync, so it gets the same arguments -- `--archive` above all, or an offline
+# sync would silently fetch from the network here, compare against a different tag, and report files
+# that are not deletions at all. Being told to `--force` a false finding is how a reader learns to
+# --force the real one.
 if [ "$DRY" = 0 ] && [ "$FORCE" = 0 ] && [ -z "${SYNC_REEXEC:-}" ]; then
-  plan="$(SYNC_REEXEC=1 bash "$0" --dry-run "$TAG" 2>&1 || true)"
+  plan_args=(--dry-run "${ORIG_ARGS[@]}")
+  [ "$TAG_GIVEN" = 0 ] && [ -n "$TAG" ] && plan_args+=("$TAG")
+  plan="$(SYNC_REEXEC=1 bash "$0" "${plan_args[@]}" 2>&1 || true)"
   dels="$(printf '%s\n' "$plan" | grep -E '^\*deleting ' || true)"
   if [ -n "$dels" ]; then
     echo "sync-tooling: refusing to run: this sync would DELETE files." >&2
@@ -102,18 +153,134 @@ fi
 TMP="$(mktemp -d)"
 trap 'rm -rf "$TMP"' EXIT
 
-echo "sync-tooling: fetching ${TAG:-the latest tag} from $KIT_REPO"
-if [ -d "$KIT_REPO/.git" ]; then
-  git clone --quiet "$KIT_REPO" "$TMP/kit"                 # a local checkout: for testing the script
+# --- fetch: one seam, four transports -----------------------------------------------------------
+# A URL is echoed without its credentials: a private kit is reached as
+# `https://x-access-token:<token>@github.com/...` (as tooling-drift.yml does), and a token in a log
+# line is a token in a CI transcript.
+redact() { sed -E 's|//[^@/]*@|//|' <<<"$1"; }
+sha256_of() {
+  if command -v sha256sum >/dev/null 2>&1; then sha256sum "$1" | awk '{print $1}'
+  else shasum -a 256 "$1" | awk '{print $1}'; fi
+}
+# `github.com/<o>/<r>/releases/download/<tag>/worldkit-<tag>.tar.gz`: the release payload for a tag.
+# Derived, so it needs no API call and no rate limit -- and none of this needs a token, because the
+# kit is public. `--latest` redirects to `--tag <tag>`, which is how "the newest" is answered
+# without git and without the API.
+asset_url() { printf '%s/releases/download/%s/worldkit-%s.tar.gz' "${KIT_REPO%/}" "$1" "$1"; }
+latest_tag() {
+  command -v curl >/dev/null 2>&1 || return 1
+  curl -sSI -o /dev/null -w '%{redirect_url}' "${KIT_REPO%/}/releases/latest" 2>/dev/null \
+    | sed -n 's|.*/releases/tag/\(.*\)$|\1|p'
+}
+# Whatever came in is unpacked to $TMP/kit: the rest of this script never learns which transport ran,
+# which is what makes the transports interchangeable.
+unpack_payload() {  # unpack_payload <file-or-url> <what-it-is>
+  local source="$1" what="$2" file="$1" want_sum="" got
+  if [ -f "$source" ]; then
+    :
+  elif command -v curl >/dev/null 2>&1; then
+    file="$TMP/payload.tar.gz"
+    curl -fsSL "$source" -o "$file" || return 1
+  else
+    return 1
+  fi
+  # A published checksum is a checked checksum. `--sha256` wins, then a `.sha256` beside the file;
+  # an unaccompanied payload is a warning rather than a failure, because a hand-built one is a
+  # legitimate thing to sync from while developing the payload itself.
+  [ -n "$SHA" ] && want_sum="$SHA"
+  if [ -z "$want_sum" ] && [ -f "$file.sha256" ]; then
+    want_sum="$(awk '{print $1}' "$file.sha256")"
+  fi
+  got="$(sha256_of "$file")"
+  if [ -n "$want_sum" ] && [ "$want_sum" != "$got" ]; then
+    echo "sync-tooling: $what does not match its checksum." >&2
+    echo "  expected $want_sum" >&2
+    echo "  got      $got" >&2
+    echo "  Do not extract it. Fetch it again, or compare with the release page." >&2
+    return 3
+  fi
+  [ -z "$want_sum" ] && echo "sync-tooling: no checksum for $what; not verifying it" >&2
+  # Refuse a member that would write outside the directory it is unpacked into. The payload's own
+  # builder refuses to make one, but the sync is the side that extracts.
+  if tar -tzf "$file" 2>/dev/null | grep -qE '(^|/)\.\.(/|$)|^/'; then
+    echo "sync-tooling: $what contains an absolute or traversing path; refusing it" >&2
+    return 3
+  fi
+  mkdir -p "$TMP/x"
+  tar -xzf "$file" -C "$TMP/x" 2>/dev/null || { echo "sync-tooling: $what is not a tar.gz" >&2; return 3; }
+  # Exactly one top-level directory, because that is the shape a payload is promised to have. Two
+  # would have been silently half-applied by `head -1`.
+  local tops count
+  tops="$(find "$TMP/x" -mindepth 1 -maxdepth 1 | wc -l | tr -d ' ')"
+  count="$(find "$TMP/x" -mindepth 1 -maxdepth 1 -type d | wc -l | tr -d ' ')"
+  if [ "$tops" != 1 ] || [ "$count" != 1 ]; then
+    echo "sync-tooling: $what has $tops top-level entries, not one directory" >&2; return 3
+  fi
+  mv "$(find "$TMP/x" -mindepth 1 -maxdepth 1 -type d)" "$TMP/kit"
+}
+
+clone_kit() {
+  git clone --quiet --config advice.detachedHead=false \
+    ${TAG:+--branch "$TAG"} --depth 1 "$KIT_REPO" "$TMP/kit"
+}
+
+if [ -n "$ARCHIVE" ]; then
+  echo "sync-tooling: fetching ${TAG:-the tag this payload names}, from the archive $ARCHIVE"
+  unpack_payload "$ARCHIVE" "$ARCHIVE" || exit 2
+elif [ -n "$URL" ]; then
+  echo "sync-tooling: fetching ${TAG:-the latest tag}, from $(redact "$URL")"
+  unpack_payload "$URL" "$(redact "$URL")" || exit 2
+elif [ "$FROM_GIT" = 0 ] && [ ! -e "$KIT_REPO" ]; then
+  [ -z "$TAG" ] && TAG="$(latest_tag || true)"
+  if [ -z "$TAG" ]; then
+    # Nothing redirects /releases/latest to a tag: the kit has cut no release yet, or the network is
+    # not there. A derived URL would only be a 404 to explain, so go straight to the clone.
+    echo "sync-tooling: no release names the newest tag; cloning" >&2
+    clone_kit || { echo "sync-tooling: cannot fetch $KIT_REPO" >&2; exit 2; }
+  else
+    url="$(asset_url "$TAG")"
+    echo "sync-tooling: fetching $TAG, from the release payload $(redact "$url")"
+    status=0
+    unpack_payload "$url" "worldkit-$TAG.tar.gz" || status=$?
+    case "$status" in
+      0) ;;
+      # 1 is `curl` failing: no asset for this tag, which is every tag cut before payloads existed.
+      # The clone is the documented fallback and it is not a downgrade.
+      1) echo "sync-tooling: no payload for $TAG (a tag from before releases existed?); cloning" >&2
+         rm -rf "$TMP/kit" "$TMP/x"
+         clone_kit || { echo "sync-tooling: cannot fetch $KIT_REPO at $TAG" >&2; exit 2; } ;;
+      # Anything else is a payload we REFUSED -- a checksum mismatch, a traversal, two roots. Falling
+      # back to the clone there would silently replace something we rejected with something we did
+      # not check, which is the one outcome a verification may never have.
+      *) echo "sync-tooling: refusing the payload for $TAG, and not falling back to a clone." >&2
+         exit 2 ;;
+    esac
+  fi
+elif [ "$FROM_GIT" = 0 ]; then
+  echo "sync-tooling: fetching ${TAG:-the latest tag} from the local checkout $KIT_REPO"
+  # `-e`, not `-d`: in the bare-repo-plus-worktree layout these projects use, `.git` is a FILE. With
+  # `-d` the documented "local checkout" route silently took the network branch instead.
+  git clone --quiet "$KIT_REPO" "$TMP/kit" || { echo "sync-tooling: cannot clone $KIT_REPO" >&2; exit 2; }
   [ -n "$TAG" ] && git -C "$TMP/kit" checkout --quiet "$TAG"
 else
-  git clone --quiet ${TAG:+--branch "$TAG"} --depth 1 "$KIT_REPO" "$TMP/kit"
-fi
-if [ -z "$TAG" ]; then
-  TAG="$(git -C "$TMP/kit" describe --tags --abbrev=0 2>/dev/null || echo unreleased)"
+  echo "sync-tooling: fetching ${TAG:-the latest tag} from $KIT_REPO (git)"
+  clone_kit || { echo "sync-tooling: cannot fetch $KIT_REPO${TAG:+ at $TAG}" >&2; exit 2; }
 fi
 if [ ! -f "$TMP/kit/TOOLING_VERSION" ]; then
-  echo "sync-tooling: $KIT_REPO is not a worldkit (no TOOLING_VERSION)" >&2; exit 2
+  echo "sync-tooling: what arrived is not a worldkit (no TOOLING_VERSION)" >&2; exit 2
+fi
+if [ -z "$TAG" ]; then
+  TAG="$(cat "$TMP/kit/TOOLING_VERSION")"
+fi
+# The pin is the tag's twin. A checkout at "the latest tag" would have this for free; an archive has
+# no history to ask, so ask the file -- and refuse a payload whose two halves disagree, which is how
+# a mis-attached asset (or a copy-paste on a release page) would otherwise pin a world to a version
+# it is not holding.
+pin="$(tr -d '[:space:]' < "$TMP/kit/TOOLING_VERSION")"
+if [ "$pin" != "$TAG" ] && [ "$TAG" != unreleased ]; then
+  echo "sync-tooling: the kit says $pin, but $TAG was asked for." >&2
+  echo "  Refusing: this world would pin $TAG while holding $pin's files." >&2
+  exit 2
 fi
 
 OLD="$(cat "$WORLD_ROOT/TOOLING_VERSION" 2>/dev/null || echo none)"
@@ -156,12 +323,18 @@ if [ "$DRY" = 0 ] && [ -z "${SYNC_REEXEC:-}" ] && ! cmp -s "$TMP/running.sh" "$W
   # Through `bash`, not directly: the copy that just arrived may not be executable (a release that
   # lost the bit is the first defect this script ever had), and a re-exec that fails on permissions
   # would be worse than no re-exec at all.
-  SYNC_REEXEC=1 exec bash "$WORLD_ROOT/tools/sync-tooling.sh" ${TAG:+"$TAG"}
+  # Every option is replayed, in its original order, and the resolved tag is appended only when the
+  # caller did not name one. The old re-exec passed ${TAG} alone, so `--force` and `--dry-run` were
+  # lost -- harmless, because the re-entered run skips both rails -- but an option that carries data
+  # was lost silently too, and the run then succeeded having done something else.
+  reexec_args=("${ORIG_ARGS[@]}")
+  [ "$TAG_GIVEN" = 0 ] && reexec_args+=("$TAG")
+  SYNC_REEXEC=1 exec bash "$WORLD_ROOT/tools/sync-tooling.sh" "${reexec_args[@]}"
 fi
-mkdir -p "$WORLD_ROOT/meta/conventions"
+mkplace "$WORLD_ROOT/meta/conventions"
 [ -d "$TMP/kit/template/meta/conventions" ] && $RS --delete \
       "$TMP/kit/template/meta/conventions/" "$WORLD_ROOT/meta/conventions/"
-mkdir -p "$WORLD_ROOT/meta/templates"
+mkplace "$WORLD_ROOT/meta/templates"
 [ -d "$TMP/kit/template/meta/templates" ] && $RS --delete "$TMP/kit/template/meta/templates/" "$WORLD_ROOT/meta/templates/"
 
 # The theme. `--delete` everywhere the kit owns the file; the exclusions are what a world keeps:
@@ -170,7 +343,7 @@ if [ -d "$TMP/kit/site-theme" ] && [ -d "$WORLD_ROOT/site" ]; then
   # Three pages are the WORLD'S copy, not theme chrome: the landing page, About and Follow. The kit
   # ships a neutral version of each so a new world has a working site, and then leaves them alone -
   # a world's About page is its own prose, and a sync that rewrote it would be destroying content.
-  mkdir -p "$WORLD_ROOT/site/src" "$WORLD_ROOT/site/infra" "$WORLD_ROOT/site/image-prompts"
+  mkplace "$WORLD_ROOT/site/src" "$WORLD_ROOT/site/infra" "$WORLD_ROOT/site/image-prompts"
   # The generated directories are the exporter's, not the theme's: a world that has built its site
   # has them and the kit never does. Excluding only `data/generated` is not enough -- rsync still
   # finds `data/` and `content/` in the world and not in the kit, deletes them, and (once the rails
@@ -194,10 +367,10 @@ if [ -d "$TMP/kit/site-theme" ] && [ -d "$WORLD_ROOT/site" ]; then
   done
 fi
 
-mkdir -p "$WORLD_ROOT/.pi/prompts"
+mkplace "$WORLD_ROOT/.pi/prompts"
 [ -d "$TMP/kit/template/.pi/prompts" ] && $RS --delete \
       "$TMP/kit/template/.pi/prompts/" "$WORLD_ROOT/.pi/prompts/"
-mkdir -p "$WORLD_ROOT/.github/workflows"
+mkplace "$WORLD_ROOT/.github/workflows"
 # The workflows a world runs: the site deploy, the fast checks, and the drift check. The kit's own
 # `ci.yml` and `template-fork.yml` are the kit's: a world has no use for either.
 for wf in site.yml checks.yml tooling-drift.yml; do
@@ -229,4 +402,14 @@ echo
 echo "Review the diff, then run the proof:"
 if [ -d "$WORLD_ROOT/.git" ]; then git -C "$WORLD_ROOT" diff --stat; else echo "  (not a git repository: review and commit by hand)"; fi
 echo "  cd $WORLD_ROOT && python3 tools/lint.py && tools/verify-world.sh"
-echo "Read CHANGELOG.md in the kit for anything a world must do by hand."
+# A world does not receive the kit's CHANGELOG: it is the kit's own record, and the payload leaves it
+# out on purpose. Pointing at it was pointing at a file the reader does not have; the release notes
+# for the tag carry the same migration note, at an address a world can open.
+case "$KIT_REPO" in
+  http*)
+    echo "What this release changes for a world is in its notes:"
+    echo "  ${KIT_REPO%/}/releases/tag/$TAG" ;;
+  *)
+    echo "What this release changes for a world is in the kit's CHANGELOG.md:"
+    echo "  $KIT_REPO/CHANGELOG.md" ;;
+esac

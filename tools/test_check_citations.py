@@ -136,5 +136,75 @@ class TestWarnings(VaultCase):
         self.assertIn("Cite the path", message)
 
 
+class AsWorldCase(unittest.TestCase):
+    """`--as-world`: the documents where a WORLD holds them, beside the demo world.
+
+    The defect this exists for is not a wrong number, it is a number that binds to a different
+    document in the two layouts. The kit skips `template/` and `example-world/` (a template's notes
+    belong to another world, and indexing them would resolve citations meant for the kit's), so a
+    guide sentence whose nearest prior document name was `the-ferrymans-debt.md` read fine here and
+    failed in every world: the file exists there, it carries no numbered sections, and the sentence's
+    "section 8.2" bound to it. It reached a release, because the only check that could see it sat
+    behind the engine's schemas.
+    """
+
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.kit = Path(self.tmp.name)
+        # The kit's layout: the guide under template/, the demo world beside it, the thread note
+        # numbering nothing (a plot-web note has prose, not sections).
+        files = {
+            "template/meta/conventions/guide.md":
+                "# Guide\n## 8.1 Writing the threads\n"
+                "`the-ferrymans-debt.md` is Resolvable. {citation} sketches a Managed one.\n"
+                "## 8.2 Bounded cycles\nA Managed thread, sketched.\n",
+            "template/example-world/world/plot-web/the-ferrymans-debt.md":
+                "---\nid: thread_ferry\n---\n\nThe ferryman takes his fee.\n",
+        }
+        for rel, text in files.items():
+            path = self.kit / rel
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_text(text.format(citation="section 8.2"), encoding="utf-8")
+
+    def tearDown(self):
+        check_citations.ROOT = REAL_ROOT
+        self.tmp.cleanup()
+
+    def run_mode(self) -> list[str]:
+        saved, check_citations.ROOT = check_citations.ROOT, self.kit
+        try:
+            tmp, world = check_citations.as_world(self.kit)
+            try:
+                check_citations.ROOT = world
+                docs = check_citations.scan_docs(world)
+                rel = "meta/conventions/guide.md"
+                return [f"{level}: {message}"
+                        for _, level, message in check_citations.check_file(world / rel, rel, docs)]
+            finally:
+                tmp.cleanup()
+        finally:
+            check_citations.ROOT = saved
+
+    def test_the_prose_that_failed_in_a_world(self):
+        """The regression: it is an error here, and it was silent in the kit's own layout."""
+        issues = self.run_mode()
+        self.assertEqual(1, len(issues), issues)
+        self.assertTrue(issues[0].startswith("error:"), issues[0])
+        self.assertIn("numbers nothing", issues[0])
+
+    def test_naming_the_section_instead_is_clean(self):
+        """How it was fixed: cite the section by name, which is what the error asks for."""
+        path = self.kit / "template/meta/conventions/guide.md"
+        path.write_text(path.read_text().replace("section 8.2 sketches", "*Bounded cycles* sketches"),
+                        encoding="utf-8")
+        self.assertEqual([], self.run_mode())
+
+    def test_the_kit_layout_alone_cannot_see_it(self):
+        """Why the mode exists: `example-world/` is skipped, so the same guide passes there."""
+        docs = check_citations.scan_docs(self.kit)
+        rel = "template/meta/conventions/guide.md"
+        self.assertEqual([], check_citations.check_file(self.kit / rel, rel, docs))
+
+
 if __name__ == "__main__":
     unittest.main()

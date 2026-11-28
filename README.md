@@ -31,12 +31,31 @@ git clone https://github.com/curiouslittledroid/mythical-forge-world-template my
 cd my-world && ./init-world.sh        # asks for the world's name, title, id and site slug
 ```
 
-To start from an existing world instead, copy the kit by hand:
+To put the kit into an existing world instead, take the **release payload** — an archive attached to
+every tag, reduced to what a world receives and needing no token, because this repository is public:
 
 ```bash
-cp -R /path/to/mythical-forge-worldkit/tools ./tools
-echo v1.0.0 > TOOLING_VERSION
+curl -LO https://github.com/curiouslittledroid/mythical-forge-worldkit/releases/download/v3.4.0/worldkit-v3.4.0.tar.gz
+tar -xzf worldkit-v3.4.0.tar.gz -C /tmp
+cp -R /tmp/worldkit-v3.4.0/tools ./tools          # the one time copying is right: no tools/ yet
+tools/sync-tooling.sh --archive "$PWD/worldkit-v3.4.0.tar.gz"
 ```
+
+**Never extract the payload over a world.** It appears to work — and leaves the kit's documents where
+a world does not read them, so the world pins the new version while its rules stay old. The archive is
+applied by the tools inside it; `ARCHIVE.md` in the download says so, and `docs/release-payload.md`
+here explains why.
+
+After the first update, a world never needs the archive by hand again — its own sync fetches the
+release for the tag:
+
+```bash
+tools/sync-tooling.sh v3.4.0        # the release payload (or the clone, for an older tag)
+tools/sync-tooling.sh --archive worldkit-v3.4.0.tar.gz   # offline
+```
+
+A checkout on this machine is still a transport, and is how the tests drive it:
+`WORLDKIT_REPO=/path/to/mythical-forge-worldkit tools/sync-tooling.sh v3.4.0`.
 
 Then write `world.config.yaml` (**the one file a world must supply**) and start authoring notes. The
 config's schema is `meta/conventions/conventions.md` §2; a worked example is the demo world's config at
@@ -84,6 +103,8 @@ template/.pi/prompts/  the agent prompts (atlas refresh, new creature, the image
 example-world/         (inside template/) the DEMO WORLD: the smallest complete vault the tools
                        run against
 export-template.sh     assembles mythical-forge-world-template from template/ + the vendored kit
+tools/build_payload.py builds the release payload a world syncs from (docs/release-payload.md)
+tools/verify-payload.sh  its proof: lints a vault, places itself, and a second sync is a no-op
 verify-kit.sh          the end-to-end proof: assembles the demo world, then lint → transform →
                        validate → thread-check → six scenarios
 ```
@@ -92,6 +113,7 @@ verify-kit.sh          the end-to-end proof: assembles the demo world, then lint
 
 ```bash
 python3 tools/test_lint.py                 # and the other suites
+tools/verify-payload.sh dist/worldkit-*.tar.gz   # the release payload (no schemas needed)
 ./verify-kit.sh                            # assembles the demo world and runs the whole pipeline
 ```
 

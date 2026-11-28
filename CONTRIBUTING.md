@@ -74,7 +74,13 @@ can find its own work without re-reading the catalogue.
 6. `python3 tools/check_citations.py` — if a document's sections moved, every citation of it moved
    too, here and in every world that synced the old numbers. The check is the sweep; do not rely on
    reading the diff.
-7. **Publish the template** at the milestone: see below. That repo is generated, so it moves on this
+7. **The release payload publishes itself.** Pushing a `v*` tag runs `.github/workflows/release.yml`:
+   it refuses a tag that disagrees with `TOOLING_VERSION`, builds the payload, checks it, proves it
+   with `tools/verify-payload.sh`, and attaches `worldkit-<tag>.tar.gz` and its `.sha256` to the
+   GitHub release (creating it, with the digests in the notes). Watch the run; nothing is typed.
+   `docs/release-payload.md` is the reasoning, and the same three commands build it by hand.
+   `ci.yml` runs them on every commit, so this is the second time they have run, not the first.
+8. **Publish the template** at the milestone: see below. That repo is generated, so it moves on this
    schedule and not on every commit.
 
 ## Publish the template

@@ -4,6 +4,116 @@ A world pins the kit by copying its version into `TOOLING_VERSION` and updating 
 `tools/sync-tooling.sh`. **A change a world cannot absorb silently is a major bump and gets a
 migration note here.**
 
+## 3.4.0 — a world stops cloning the kit
+
+`tools/sync-tooling.sh` had exactly one dependency on git, and it was the whole of its fetching: a
+shallow clone of a tag. Everything after that reads a **tree** — `tools/`, the world-facing documents,
+the note templates, the prompts, the theme — so a world never needed the kit's history, and cloning it
+cost a `git` on the machine, a network round trip, and a payload nobody could inspect.
+
+**A release payload.** Each tag now carries `worldkit-<tag>.tar.gz`: that tree, curated to what a
+world receives, in the kit's own layout, built by `tools/build_payload.py` and attached to the GitHub
+release by `release.yml`. The sync fetches it by default, and the URL is derived from the tag, so
+there is no API call, no rate limit, and **no token** — the kit is public, so a world, a CI runner and
+a reader with no account all download it with plain `curl`.
+
+**Four transports, one code path.** `--archive FILE` (no network at all), a local checkout via
+`WORLDKIT_REPO`, `--url`, the release asset, and `--from-git` to force the clone. The archive is
+unpacked to the same directory a clone would have filled, and the script never learns which transport
+ran — which is why a world synced from the archive is byte-identical to one synced from a checkout.
+
+```bash
+tools/sync-tooling.sh v3.4.0                              # the release payload for the tag
+tools/sync-tooling.sh --archive worldkit-v3.4.0.tar.gz    # the file, offline
+tools/sync-tooling.sh --dry-run v3.4.0                    # every change, written nowhere
+```
+
+**It is deterministic and digested.** Sorted entries, one constant mtime, mode preserved (a shell tool
+that arrives without its execute bit is a defect this kit has already paid for), and a gzip header with
+no name and no time — so the same tree always hashes the same. The digest is printed in the release
+notes, shipped as `.sha256` beside the asset, and checked by the sync before it extracts anything. A
+payload whose `TOOLING_VERSION` disagrees with the tag you asked for is **refused**: an archive cannot
+be checked out, so the pin is the only witness, and a mis-attached asset must not be able to pin a
+world to a version it is not holding.
+
+**The proof runs on every commit, not at the tag.** `tools/verify-payload.sh` builds a world from the
+payload's own `template/example-world/` and `tools/`, lints it, runs the sync from the payload alone,
+and asserts that a **second** sync changes nothing — so the archive cannot quietly stop carrying
+something the sync writes. It needs no engine schemas, so `ci.yml` runs it always, and `release.yml`
+runs the same three commands before attaching the asset.
+
+**A tag from before payloads still works.** No asset, `curl` fails, the sync says so and falls back to
+a shallow clone. The twenty tags already published need no back-fill.
+
+**What building it found — three defects, one class: an argument that is not carried across a
+re-entry.**
+
+- The **self re-exec dropped every option**. `exec bash "$0" ${TAG:+"$TAG"}` discarded `"$@"`, so
+  `--force`, `--dry-run` and the new `--archive` were lost. Harmless for the two rails, which the
+  re-entered run skips — but the first prototype run a world's worth of files from the network while
+  the operator believed it was offline, and reported success.
+- The **deletion preview re-ran the sync without its arguments**, the same way and worse: an offline
+  `--archive` sync fetched the network to draw up its preview, compared against a different tag, and
+  reported files that were never deletions. The preview now replays the original arguments with
+  `--dry-run` prepended.
+- **`[ -d "$KIT_REPO/.git" ]`**: in this project's bare-repo-plus-worktree layout `.git` is a *file*,
+  so the documented "local checkout, for testing" route never took the local branch. `-e`, not `-d` —
+  which the drift check and `init-world.sh` had already learned.
+
+Also: the argument loop is `while`/`shift`, because `for arg in "$@"` cannot consume an option's value
+(`--archive f` left `f` to be read as the tag); and `--help` reads its header up to the script body
+instead of `sed -n '2,26p'`, a line range the first new option to outgrow it silently truncated.
+
+**The documents a world reads could not answer "what is the newest version?"** Every world-facing
+instruction was `tools/sync-tooling.sh <tag>` — the tag supplied by whoever was reading, and the only
+thing in a world that ever printed a concrete one was `tooling-drift.yml` failing on a Monday. The
+runbook (`meta/conventions/tooling.md`) now has the question as a row of its own
+(`--dry-run` with no tag is the newest, and writes nothing), both forms in the upgrade row, and a
+"where versions come from" paragraph naming the releases page — because `--archive` tells an author to
+pass `worldkit-<tag>.tar.gz`, and nothing said where that file lives. The template's quickstart said
+`tools/sync-tooling.sh v1.0.x`, which a new author copies literally.
+
+**A world is told about a release at an address it can open.** The closing line of the sync said "Read
+`CHANGELOG.md` in the kit for anything a world must do by hand" — a file the payload deliberately does
+not carry and a world's repository does not have. It now prints the release page for the tag it just
+took; a local checkout still points at its own `CHANGELOG.md`.
+
+**`--help` was raw comments on macOS.** `sed 's/^# \?//'` uses a GNU extension: BSD sed leaves the
+pattern unmatched and prints every line with its `#` still on. `\{0,1\}` is the portable spelling, in
+`sync-tooling.sh`, `verify-payload.sh`, `export-template.sh` and the template's `init-world.sh` — whose
+help also read a line range (`sed -n '2,20p'`) that a longer header would have truncated in silence.
+
+**One thing a world must do by hand: the first update.** `--archive` is a flag of the new script, and
+the old script parses its arguments before it fetches anything — so the release that introduces the
+flag cannot itself be fetched with it. Run that one update the old way:
+
+```bash
+tools/sync-tooling.sh v3.4.0      # network, or WORLDKIT_REPO=<a checkout>
+```
+
+From the next release on, `--archive` is available. A world with no `tools/` at all is the one case
+where copying is right, and `ARCHIVE.md` — inside the payload — gives the three lines.
+
+**Fixed on the way: a citation that only a world could see.** The guide said
+"`the-ferrymans-debt.md` is Resolvable, so **section 8.2** sketches one" — and a citation binds to
+the nearest document named *before* it, so in every world that "8.2" was read against the demo
+thread note, which numbers nothing, and the check failed. In the kit it passed: `template/` and
+`example-world/` are skipped there (a template's notes belong to another world, and indexing them
+would resolve citations meant for the kit's), so the kit could not see the neighbours a world gives
+those documents. The sentence now names the section, which is what the error asks for.
+
+The layout is a flag now, so it is checked everywhere: `check_citations.py --as-world` assembles the
+documents where a **world** holds them, beside the demo world, and reports from there.
+`ci.yml` runs it after the kit's own pass (neither needs the schemas), and `verify-kit.sh` uses it
+for the pre-gate step instead of the hand-built copy it used to assemble — so this class of defect
+is found on a commit rather than by whoever cuts the release. `test_check_citations.py` keeps the
+sentence that failed as a fixture.
+
+**Do not extract the payload over a world.** It appears to work and does not: the documents land
+where a world does not read them, so the pin claims the new version while the rules stay old, and
+`site-theme/` and `template/` appear where no sync will ever remove them. Apply it with the tools
+inside it. `docs/release-payload.md` is the reasoning, including the trap and what was measured.
+
 ## 3.3.0 — the config gets the check it never had, and `[]` stops being an error
 
 Every tool reads `world.config.yaml` before it reads a note, and every way that file can be wrong
