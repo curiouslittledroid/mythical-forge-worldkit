@@ -8,7 +8,7 @@ copy; `kit_config.py` is the second consumer.
   * mappings by indentation, two spaces per level
   * sequences, introduced by "- " at the parent's indent + 2: scalars or mappings
   * scalar values: plain, "double" or 'single' quoted, integers, true/false, null
-  * flat flow sequences of scalars: [0, 4500]
+  * flat flow sequences of scalars: [0, 4500], and `[]` alone as an empty block
   * comments: whole-line (# ...) or trailing (a `#` preceded by whitespace, outside quotes)
   * no anchors, no multi-line strings, no flow mappings
 
@@ -92,6 +92,13 @@ def load_text(text, path="<text>"):
             raise SchemaError(f"{path}:{lineno}: {exc}") from None
 
     first = _next_content(lines, 0)
+    # An empty flow sequence as the whole document. A world's `flags` block says "none yet" that
+    # way (the template ships exactly `[]`), and a flow sequence is already a value in this
+    # subset -- only the ROOT being one was refused, which read `[]` as a mapping and reported
+    # `expected 'key: value'` about a block that is perfectly clear. Two readers threw on it, so a
+    # fresh fork's `tools/kit_config.py` and `kit_config.mjs` were both unusable until it had a flag.
+    if first is not None and _strip_comment(first[1]).strip() == "[]":
+        return []
     # A document whose first content line is a sequence item is a top-level sequence (the `flags`
     # block is one); everything else is a mapping.
     root = [] if first is not None and first[1].startswith("- ") else {}

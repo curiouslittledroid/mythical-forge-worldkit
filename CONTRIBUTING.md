@@ -5,7 +5,10 @@ the rule that follows from it — **no world literals anywhere**.
 
 ## Add a tool
 
-A tool is a script in `tools/` plus a test beside it. Keep both in the same commit.
+A tool is a script in `tools/` plus a test beside it. Keep both in the same commit. And say who
+it is for: a world author runs `tools/` on their own content and never edits it, so a tool whose
+output an author must act on belongs there (and in `meta/conventions/tooling.md`), while an
+assertion about the toolchain belongs in a suite.
 
 1. **Name it for what it does**, not for where it is used: `voice_stale.py`, not `myworld-voices.py`.
 2. **Read the world through the config.** `import kit_config` (Python) or `./kit_config.mjs` (Node)
@@ -19,9 +22,11 @@ A tool is a script in `tools/` plus a test beside it. Keep both in the same comm
    copies the live config, and the keyword arguments replace one vocabulary list. A test that
    asserts a world's *values* is a bug; assert the *shape* the tool requires, or set the value
    explicitly.
-5. **If both languages read the config, prove they agree.** `test_kit_config.py` has a parity test
-   that loads the live config with both readers and compares them. A change to one reader without
-   the other is caught there, not in a world.
+5. **If both languages read the config, prove they agree.** `check_config.py` runs `kit_config.mjs`
+   beside `kit_config.py` on the live config and compares them field by field; a change to one
+   reader without the other is caught there. It is a *tool* rather than a test on purpose: the kit's
+   demo world is 36 entities, and every world can prove the agreement about its own config, where
+   the subset's corners actually appear. `test_check_config.py` covers the comparison itself.
 6. **Document it in `tools/README.md`** — one row in the table, in the order a reader would meet it.
 7. **Run the proof:** `./verify-kit.sh` (green — with the schemas installed, or `MYTHICAL_FORGE_ROOT` set). It builds the demo
    world in a throwaway directory and runs the whole pipeline on it.

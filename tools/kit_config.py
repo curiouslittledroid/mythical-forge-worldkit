@@ -20,7 +20,7 @@ Standard library only, so the linter and the exporters can import it without a d
     cfg.has("site")         cfg.require("testimony")
     cfg.path_of("flags")    cfg.block("eras")  cfg.block("chronology")
     cfg.site.sections       cfg.site.deferred_kinds
-    cfg.process_docs
+    cfg.process_docs        cfg.note_ids      cfg.scenarios_dir
 
 Design rules this module exists to enforce:
 
@@ -253,6 +253,15 @@ class Config:
                 f"{self.path}: this tool needs the '{feature}' feature; add it to `features:`")
 
     # --- notes and blocks -------------------------------------------------------------
+
+    @property
+    def note_ids(self) -> dict[str, str]:
+        """`vault.notes` as declared: config name -> note id. A copy, so a tool cannot edit it.
+
+        `path_of` is the resolved form; this is the declaration, which is what a check must name
+        when an id does not resolve.
+        """
+        return dict(self._note_ids)
 
     def id_index(self) -> dict[str, Path]:
         """Every note id in the vault -> its path. Built once, on first use."""

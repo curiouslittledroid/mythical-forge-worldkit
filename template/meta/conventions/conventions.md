@@ -342,7 +342,13 @@ the tools read the info string to decide what the block means:
 
 A block is **inert when absent**: a world that has not written one loses that check rather than
 failing to build. All but `engine` and `engine-example` are read by `tools/kit_config.py` through the
-`BLOCK_INFO` map, so a world declares *which note* and the kit knows *what to look for*.
+`BLOCK_INFO` map, so a world declares *which note* and the kit knows *what to look for*. An empty
+list is written `[]` — a world that has declared no flags yet says exactly that.
+
+**Declared but missing is not absent.** The inert rule covers a world that never mentions eras; a
+world that names a note in `vault.notes.eras` and whose note carries no block is a promise the vault
+does not keep, and `tools/check_config.py` reports it as an error, naming the note (`conventions.md`
+§16 has the check and its levels).
 
 Opening and closing fences must match. To show a block *inside* a block, wrap it in a longer fence
 (four backticks). A note may contain several blocks.
@@ -640,7 +646,20 @@ python3 tools/lint.py --strict     # warnings fail too
 python3 tools/lint.py --json       # machine-readable
 python3 tools/test_lint.py         # the linter's own tests
 python3 tools/disclosure.py --check   # every lore section is classified (section 7); exit 1 if not
+python3 tools/check_config.py      # world.config.yaml and its blocks agree with the vault
 ```
+
+`check_config.py` asks the questions the linter cannot, because they are about the file the linter
+reads rather than about a note: every id in `vault.notes` resolves to a note that carries its block,
+which blocks are present and shaped the way their reader expects (§8.1), whether two site sections
+claim the same kind, whether a published tag is in the world's `tags-vocabulary`, and whether
+`kit_config.py` and `kit_config.mjs` agree about this config. It is the **first check on the vault** in
+`tools/verify-world.sh`, because a config fault makes every later check quieter rather than louder.
+
+Its levels draw the line the linter draws: an **error** is a config and a vault contradicting each
+other; a **warning** is something declared that is not there or used that is not declared; a
+**note** is a value still carrying the template's `REPLACE`, which is the author's to-do and never a
+failure. Only errors fail the run — a world that was just forked is not red.
 
 **Errors** (must be fixed; exit code 1):
 
@@ -661,7 +680,9 @@ frontmatter group fields (`groups`, `home`, `zone`, `race`; REF001), missing or 
 (when the world's `vault.spelling` is `british`), orphan notes.
 
 The linter does **not** check engine schemas (the transformer does that with
-`@mythical-forge/authored-content`), canon consistency, or whether prose is any good.
+`@mythical-forge/authored-content`), canon consistency, or whether prose is any good. Nor does it
+read `world.config.yaml`: `check_config.py` is the check for the file, and the two are separate so
+that a config fault is named once, in the terms of the key that is wrong.
 
 ### 16.1 Citing a document
 

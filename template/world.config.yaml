@@ -33,11 +33,13 @@ vault:
   # choice: the codex is metric, because the transformer does one km -> miles conversion.
   spelling: british
   # Notes that are process documents, not entities: no frontmatter, no id.
+  # Notes that are process documents, not entities: no frontmatter, no id. The linter already
+  # exempts the repository's own prose (README, ROADMAP, AGENTS, CHANGELOG, CONTRIBUTING, and
+  # meta/world-conventions.md) in every repository, so listing those here adds nothing. This list
+  # is for a world's OWN process documents -- a plan, a digest, a style sheet.
   process_docs:
     - README.md
     - AGENTS.md
-    - CONTRIBUTING.md
-    - CHANGELOG.md
     - ROADMAP.md
 
 # Turn off what this world does not need. `site` needs site.url and a site section; `testimony`

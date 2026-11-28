@@ -264,3 +264,10 @@ and which was the last task of the plan to land.
 - `ROADMAP.md` — the kit's own work plan and open items
 - `meta/conventions/conventions.md` — the rules the extraction settled
 - `CONTRIBUTING.md` — how to change the kit, and what a release costs
+
+**Resolved, 3.3.0.** The first of the three is closed by `tools/check_config.py`: every id resolves to
+a note that carries its block, the blocks are shaped as their reader expects, a world's
+`site.sections` covers every non-engine kind it uses, and its published tags are a subset of its
+vocabulary — asked of *each world's own config*, in the world, by a tool whose output an author can
+act on. The other two stand, and the reason the first one mattered is the third: the kit still proves
+itself against 36 entities, so a world's own content is where the toolchain is really tested.
